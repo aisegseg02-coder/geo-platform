@@ -1,25 +1,24 @@
-GEO Platform — Minimal Pipeline
+---
+title: GEO Platform
+emoji: 🌍
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
 
-This repository contains a minimal, runnable pipeline that implements the Zaher GEO toolkit workflow from the provided HTML. It crawls a real website (no mock data), runs content audits (headings, density, NER), and generates JSON-LD schema.
+# GEO Platform
 
-Quick start
+AI-powered Generative Engine Optimization platform. Crawls websites, audits content, scores AI visibility, and generates SEO recommendations.
 
-1. Create a virtualenv and install dependencies:
+## Features
+- Website crawler & content auditor
+- GEO score (AI visibility scoring)
+- Keyword extraction & analysis
+- AI content generation (Groq / OpenAI)
+- Paid Ads management dashboard
+- JSON-LD schema generation
 
-```bash
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
-```
-
-2. Run the pipeline against a real site:
-
-```bash
-python -m src.main --url https://example.com --org-name "My Org" --org-url https://example.com
-```
-
-Outputs are written to `output/` including `audit.json` and `schema.jsonld`.
-
-Notes
-- If you have `PERPLEXITY_KEY` in your environment the pipeline will attempt to query Perplexity API for AI visibility checks.
-- For local LLM testing, configure Ollama per its docs; this scaffold will not install Ollama automatically.
+## Usage
+Enter a website URL on the home screen and click **Analyze** to start.
