@@ -634,147 +634,98 @@
     }
 
     async function performResearchFetch() {
-      console.log("Diagnostic: Starting Research History Fetch");
-      researchList.innerHTML = '<div class="spinner"></div> [Step 1] Loading Research History...';
+      researchList.innerHTML = '<div class="spinner"></div> Loading jobs...';
       try {
-        const hResp = await fetch('/api/history');
-        const hData = await hResp.json();
-        const history = hData.history || [];
+        const resp = await fetch('/api/jobs');
+        const data = await resp.json();
+        const jobs = (data.jobs || []).filter(j => j.status === 'completed');
 
-        if (history.length === 0) {
+        if (jobs.length === 0) {
           researchList.innerHTML = '<div style="color:var(--yellow)">[Info] No crawl history found. Run a crawl from Home first.</div>';
           return;
         }
 
-        // Show recent list
         researchList.innerHTML = '<div style="margin-bottom:10px; font-weight:700; font-size:14px; color:var(--accent);">Select Research to Connect:</div>';
 
-        // Sort by newest
-        const sortedHistory = [...history].sort((a, b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 5);
-
-        sortedHistory.forEach(item => {
+        jobs.slice(0, 8).forEach(job => {
           const div = document.createElement('div');
           div.className = 'faq-item';
-          div.style.cursor = 'pointer';
-          div.style.margin = '5px 0';
+          div.style.cssText = 'cursor:pointer; margin:5px 0;';
           div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; pointer-events:none;">
-            <div>
-              <div style="font-weight:700; color:#fff;">${item.org_name || item.url}</div>
-              <div style="font-size:11px; color:var(--muted);">${item.timestamp}</div>
-            </div>
-            <div class="badge badge-blue">${item.mean || 0} Score</div>
-          </div>
-        `;
-          div.addEventListener('click', () => {
-            console.log("Diagnostic: Selected Research", item.timestamp);
-            loadResearchDetail(item.timestamp, item.org_name);
-          });
+            <div style="display:flex; justify-content:space-between; align-items:center; pointer-events:none;">
+              <div>
+                <div style="font-weight:700; color:#fff;">${job.org_name || job.url}</div>
+                <div style="font-size:11px; color:var(--muted);">${job.url} &nbsp;•&nbsp; Job #${job.id}</div>
+              </div>
+              <div class="badge badge-blue">✓ done</div>
+            </div>`;
+          div.addEventListener('click', () => injectJob(job));
           researchList.appendChild(div);
         });
-
-        const footer = document.createElement('div');
-        footer.style.cssText = 'margin-top:15px; font-size:12px; color:var(--muted); text-align:center;';
-        footer.textContent = 'Showing last 5 researches';
-        researchList.appendChild(footer);
-
       } catch (e) {
-        console.error("History Error:", e);
-        researchList.innerHTML = `<div style="color:var(--red)">[Error] Failed to load history.</div>
-      <button class="btn btn-retry-fetch" style="margin-top:10px; width:100%; font-size:13px;"> Retry</button>`;
-        researchList.querySelector('.btn-retry-fetch').addEventListener('click', performResearchFetch);
+        researchList.innerHTML = `<div style="color:var(--red)">[Error] Failed to load jobs.</div>
+          <button class="btn" style="margin-top:10px; width:100%;" onclick="performResearchFetch()">Retry</button>`;
       }
     }
 
-    async function loadResearchDetail(ts, orgName) {
-      researchList.innerHTML = `<div class="spinner"></div> Connecting to "${orgName}"...`;
+    async function injectJob(job) {
+      researchList.innerHTML = `<div class="spinner"></div> Loading "${job.org_name}"...`;
       try {
-        const resp = await fetch(`/api/results?ts=${ts}`);
-        if (!resp.ok) throw new Error(`Status ${resp.status}`);
+        const resp = await fetch(`/api/jobs/${job.id}`);
         const data = await resp.json();
-        const audit = data.audit;
+        const j = data.job;
+        const resultPath = j.result_path;
+        if (!resultPath) throw new Error('Job has no results yet');
 
-        if (!audit || !audit.pages) throw new Error("No data in snapshot");
+        // Load audit from job-specific endpoint
+        const auditResp = await fetch(`/api/jobs/${job.id}/keywords?enrich=false`);
+        const auditData = await auditResp.json();
+        const keywords = auditData.keywords || [];
 
-        const pages = audit.pages;
-        const actualOrg = audit.org_name || orgName || 'Organization';
+        // Fill keyword fields
+        const orgName = job.org_name || job.url;
+        const topKw = keywords.length > 0 ? keywords[0].kw || keywords[0] : orgName;
 
-        researchList.innerHTML = `
-        <div style="margin-bottom:15px; padding:15px; background:rgba(0,0,0,0.2); border:1px solid var(--accent); border-radius:12px;">
-          <div style="color:var(--accent); font-weight:700; font-size:16px;">${actualOrg}</div>
-          <div style="color:var(--muted); font-size:13px;">Found ${pages.length} pages of research</div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:12px;">
-          <button class="btn btn-activate-sync" style="background:var(--accent); color:var(--surface); font-weight:800;">⚡ ACTIVATE & SYNC PLATFORM</button>
-          <button class="btn btn-apply-keyword" style="background:var(--blue); color:white;">Inject "${actualOrg}" into Input</button>
-          <button class="btn btn-apply-snippets" style="background:rgba(255,255,255,0.05); border:1px solid var(--border);">Auto-fill Competitor Snippets</button>
-          <button class="btn btn-back-list" style="background:transparent; border:1px solid var(--border); font-size:12px;">← Back to List</button>
-        </div>
-      `;
+        document.getElementById('gen-keyword').value = topKw;
+        document.getElementById('opt-keyword').value = topKw;
+        document.getElementById('faq-topic').value = topKw;
 
-        researchList.querySelector('.btn-activate-sync').addEventListener('click', async () => {
-          researchList.innerHTML = `<div class="spinner"></div> Activating "${actualOrg}" globally...`;
-          try {
-            const actResp = await fetch(`/api/history/activate`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ ts, api_keys: getApiKeys() })
-            });
-            const actData = await actResp.json();
-            if(!actData.ok) throw new Error(actData.error);
-            
-            // Success: Update UI and close modal
-            localStorage.setItem('active_research_name', actualOrg);
-            localStorage.setItem('active_research_ts', ts);
-            // Render Strategic Intelligence if available
-            if(actData.ok && actData.report && actData.report.competitors) {
-              renderStrategicIntel(actData.report.competitors.strategic_intel);
-            }
-            
-            updateConnectionStatus();
-            alert(`Platform Activated: ${actualOrg} is now the primary data source.`);
-            hideModal();
-          } catch(e) {
-            alert("Activation Failed: " + e.message);
-            loadResearchDetail(ts, orgName);
-          }
-        });
+        // Fill competitor snippets with top keywords as context
+        const snippets = keywords.slice(0, 5).map(k => k.kw || k).join('\n');
+        document.getElementById('gen-competitors').value = snippets;
+        document.getElementById('faq-context').value = snippets;
+        document.getElementById('opt-content').value = snippets;
+        document.getElementById('sem-content').value = snippets;
 
-        researchList.querySelector('.btn-apply-keyword').addEventListener('click', () => {
-          applyResearch('keyword', actualOrg);
-        });
-        researchList.querySelector('.btn-apply-snippets').addEventListener('click', () => {
-          applyResearch('snippets', null, audit);
-        });
-        researchList.querySelector('.btn-back-list').addEventListener('click', performResearchFetch);
-
-        window.latestAudit = audit;
-        document.querySelectorAll('.btn-main-action').forEach(b => b.classList.add('ai-pulse-active'));
+        localStorage.setItem('active_research_name', orgName);
+        updateConnectionStatus();
+        hideModal();
       } catch (e) {
         researchList.innerHTML = `<div style="color:var(--red)">[Error] ${e.message}</div>
-      <button class="btn" onclick="performResearchFetch()" style="width:100%; margin-top:10px;">Back to History</button>`;
+          <button class="btn" style="margin-top:10px; width:100%;" onclick="performResearchFetch()">Back</button>`;
       }
     }
 
-    function applyResearch(type, value, auditData) {
-      const activeTab = document.querySelector('.tab.active').dataset.tab;
-      console.log(`Applying research: ${type} to tab: ${activeTab}`);
-
-      if (type === 'keyword') {
-        if (activeTab === 'generate') document.getElementById('gen-keyword').value = value;
-        if (activeTab === 'optimize') document.getElementById('opt-keyword').value = value;
-        if (activeTab === 'faqs') document.getElementById('faq-topic').value = value;
-      } else if (type === 'snippets') {
-        const audit = auditData || window.latestAudit;
-        if (audit && audit.pages) {
-          const snippets = audit.pages.slice(0, 3).map(p => p.title + ": " + (p.headings && p.headings[0] ? p.headings[0].text : '')).join('\n');
-          if (activeTab === 'generate') document.getElementById('gen-competitors').value = snippets;
-          if (activeTab === 'faqs') document.getElementById('faq-context').value = snippets;
-          if (activeTab === 'optimize') document.getElementById('opt-content').value = snippets;
-          if (activeTab === 'semantic') document.getElementById('sem-content').value = snippets;
-        }
-      }
-      hideModal();
+    async function autoLoadLastJob() {
+      try {
+        const resp = await fetch('/api/jobs');
+        const data = await resp.json();
+        const jobs = (data.jobs || []).filter(j => j.status === 'completed');
+        if (jobs.length === 0) return;
+        const last = jobs[0];
+        const kwResp = await fetch(`/api/jobs/${last.id}/keywords?enrich=false`);
+        const kwData = await kwResp.json();
+        const keywords = kwData.keywords || [];
+        const orgName = last.org_name || last.url;
+        const topKw = keywords.length > 0 ? keywords[0].kw || keywords[0] : orgName;
+        document.getElementById('gen-keyword').value = topKw;
+        document.getElementById('opt-keyword').value = topKw;
+        document.getElementById('faq-topic').value = topKw;
+        const snippets = keywords.slice(0, 5).map(k => k.kw || k).join('\n');
+        document.getElementById('gen-competitors').value = snippets;
+        localStorage.setItem('active_research_name', orgName);
+        updateConnectionStatus();
+      } catch (e) { /* silent fail */ }
     }
 
     function updateConnectionStatus() {
@@ -798,6 +749,7 @@
       const mbtn = document.getElementById('modal-fetch-btn');
       if (mbtn) mbtn.addEventListener('click', performResearchFetch);
       updateConnectionStatus();
+      autoLoadLastJob();
     });
 
     // ── Optimize Content ──────────────────────────────────────────────────────
