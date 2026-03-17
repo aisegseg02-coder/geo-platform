@@ -1,24 +1,26 @@
 <!doctype html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GEO Jobs</title>
+  <title>المهام — منصة GEO</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/theme.css" />
+  <style>body { font-family: 'Cairo', sans-serif; }</style>
 </head>
 <body>
   <div class="wrap">
-    <a href="/">← Back</a>
-    <h2>GEO Jobs</h2>
+    <a href="/">→ العودة للرئيسية</a>
+    <h2>📋 المهام</h2>
     <div style="display:flex;gap:8px;margin-bottom:24px">
-      <button class="btn" id="refresh">Refresh</button>
-      <a class="btn" href="/recommendations.html">Recommendations</a>
+      <button class="btn" id="refresh">🔄 تحديث</button>
+      <a class="btn" href="/recommendations.html">📝 التوصيات</a>
     </div>
     <div id="jobs" class="grid">
-    <div class="card" id="jobList">Loading jobs…</div>
-    <div class="card" id="history">Loading history…</div>
+      <div class="card" id="jobList">جارٍ تحميل المهام…</div>
+      <div class="card" id="history">جارٍ تحميل السجل…</div>
+    </div>
   </div>
 
   <script>
@@ -26,119 +28,106 @@
       const r = await fetch('/api/jobs');
       const j = await r.json();
       const el = document.getElementById('jobList'); el.innerHTML='';
-      if (!j.ok){ el.textContent='Error: '+(j.error||JSON.stringify(j)); return }
+      if (!j.ok){ el.textContent='خطأ: '+(j.error||JSON.stringify(j)); return }
       const jobs = j.jobs || [];
+      if(jobs.length===0){ el.textContent='لا توجد مهام بعد. ابدأ تحليلاً من الصفحة الرئيسية.'; return; }
       jobs.forEach(job=>{
         const d = document.createElement('div'); d.style.marginBottom='10px'; d.className='job';
-        const created = job.created_at ? new Date(job.created_at).toLocaleString() : job.created_at;
-        d.innerHTML = `<strong>Job ${job.id}</strong> — ${job.url}<div class="muted">status: ${job.status} • created: ${created}</div>`;
-        const btn = document.createElement('button'); btn.textContent='Open'; btn.className='btn'; btn.style.marginTop='8px';
+        const created = job.created_at ? new Date(job.created_at).toLocaleString('ar') : job.created_at;
+        const statusAr = {pending:'قيد الانتظار', running:'جارٍ التنفيذ', completed:'مكتمل', failed:'فشل'}[job.status] || job.status;
+        d.innerHTML = `<strong>مهمة ${job.id}</strong> — ${job.url}<div class="muted">الحالة: ${statusAr} • تاريخ الإنشاء: ${created}</div>`;
+        const btn = document.createElement('button'); btn.textContent='فتح'; btn.className='btn'; btn.style.marginTop='8px';
         btn.onclick = ()=> openJobModal(job.id);
         d.appendChild(btn);
         el.appendChild(d);
       });
     }
 
-    // modal-based job viewer with websocket and reconnect
     function openJobModal(id){
       if (document.getElementById('jobModal')){ document.getElementById('jobModal').remove(); }
-      const modal = document.createElement('div'); modal.id='jobModal'; modal.style.position='fixed'; modal.style.left='50%'; modal.style.top='50%'; modal.style.transform='translate(-50%,-50%)'; modal.style.width='700px'; modal.style.maxHeight='80vh'; modal.style.overflow='auto'; modal.style.zIndex=9999;
-      modal.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Job ${id}</h2><button id='closeModal' class='btn'>Close</button></div><div id='out'>Connecting…</div></div>`;
+      const modal = document.createElement('div'); modal.id='jobModal';
+      modal.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:700px;max-height:80vh;overflow:auto;z-index:9999;direction:rtl';
+      modal.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>مهمة ${id}</h2><button id='closeModal' class='btn'>إغلاق</button></div><div id='out'>جارٍ الاتصال…</div></div>`;
       document.body.appendChild(modal);
       document.getElementById('closeModal').onclick = ()=> modal.remove();
       const out = modal.querySelector('#out');
 
       const wsUrl = (location.protocol==='https:'?'wss://':'ws://') + location.host + '/ws/jobs/'+id;
-      let ws = null;
-      let reconnectDelay = 1000;
-      let stopped = false;
+      let ws = null, reconnectDelay = 1000, stopped = false;
 
       function connect(){
         ws = new WebSocket(wsUrl);
-        const ping = setInterval(()=>{ try{ if (ws && ws.readyState===1) ws.send(JSON.stringify({type:'ping'})); }catch(e){} }, 20000);
-        ws.onopen = ()=>{ out.textContent = 'Connected, waiting for updates...'; reconnectDelay = 1000; };
+        const ping = setInterval(()=>{ try{ if(ws&&ws.readyState===1) ws.send(JSON.stringify({type:'ping'})); }catch(e){} }, 20000);
+        ws.onopen = ()=>{ out.textContent='متصل، في انتظار التحديثات...'; reconnectDelay=1000; };
         ws.onmessage = (ev)=>{
           try{
             const data = JSON.parse(ev.data);
-            if (!data.ok){ out.textContent = 'Error: '+(data.error||JSON.stringify(data)); return }
+            if(!data.ok){ out.textContent='خطأ: '+(data.error||JSON.stringify(data)); return }
             const job = data.job;
-            const created = job.created_at ? new Date(job.created_at).toLocaleString() : job.created_at;
+            const created = job.created_at ? new Date(job.created_at).toLocaleString('ar') : job.created_at;
+            const statusAr = {pending:'قيد الانتظار',running:'جارٍ التنفيذ',completed:'مكتمل',failed:'فشل'}[job.status]||job.status;
             let prog = job.progress || {};
             let progHtml = '';
-            if (typeof prog === 'object'){
-              for (const k of Object.keys(prog)){
-                progHtml += `<div><strong>${k}:</strong> ${JSON.stringify(prog[k])}</div>`;
-              }
-            } else {
-              progHtml = `<div>${JSON.stringify(prog)}</div>`;
-            }
-            out.innerHTML = `<div>Status: <strong>${job.status}</strong></div><div>Created: ${created}</div><div style="margin-top:8px"><strong>Progress</strong>${progHtml}</div>`;
-            if (job.result_path){
-              out.innerHTML += `<div style="margin-top:10px"><a href='/api/jobs/${id}/report' target='_blank'>View HTML report</a> • <a href='/api/jobs/${id}/report.pdf' target='_blank'>Download PDF</a></div>`;
-              // add keywords button (DOM-based to avoid clobbering handlers)
-              const kwBtn = document.createElement('button');
-              kwBtn.textContent = 'Keywords'; kwBtn.className = 'btn'; kwBtn.style.marginTop = '8px'; kwBtn.style.marginLeft = '8px';
-              kwBtn.onclick = async () => {
-                kwBtn.disabled = true; kwBtn.textContent = 'Loading...';
-                try {
-                  const resp = await fetch(`/api/jobs/${id}/keywords`);
-                  const jj = await resp.json();
-                  if (jj.ok) {
-                    let list = '<div style="margin-top:8px"><strong>Keywords</strong><ul>';
-                    for (const k of jj.keywords || []){
-                      list += `<li>${k.kw} <span class="muted">(${k.count})</span></li>`;
-                    }
-                    list += '</ul></div>';
-                    out.innerHTML += list;
-                  } else {
-                    out.innerHTML += `<div class="muted">Error: ${jj.error||'unknown'}</div>`;
-                  }
-                } catch(e){ out.innerHTML += `<div class="muted">Fetch error</div>`; }
-                kwBtn.disabled = false; kwBtn.textContent = 'Keywords';
+            if(typeof prog==='object'){ for(const k of Object.keys(prog)) progHtml+=`<div><strong>${k}:</strong> ${JSON.stringify(prog[k])}</div>`; }
+            else progHtml=`<div>${JSON.stringify(prog)}</div>`;
+            out.innerHTML=`<div>الحالة: <strong>${statusAr}</strong></div><div>تاريخ الإنشاء: ${created}</div><div style="margin-top:8px"><strong>التقدم</strong>${progHtml}</div>`;
+            if(job.result_path){
+              out.innerHTML+=`<div style="margin-top:10px"><a href='/api/jobs/${id}/report' target='_blank'>عرض التقرير HTML</a> • <a href='/api/jobs/${id}/report.pdf' target='_blank'>تحميل PDF</a></div>`;
+              const kwBtn=document.createElement('button');
+              kwBtn.textContent='الكلمات المفتاحية'; kwBtn.className='btn'; kwBtn.style.cssText='margin-top:8px;margin-right:8px';
+              kwBtn.onclick=async()=>{
+                kwBtn.disabled=true; kwBtn.textContent='جارٍ التحميل...';
+                try{
+                  const resp=await fetch(`/api/jobs/${id}/keywords`);
+                  const jj=await resp.json();
+                  if(jj.ok){
+                    let list='<div style="margin-top:8px"><strong>الكلمات المفتاحية</strong><ul>';
+                    for(const k of jj.keywords||[]) list+=`<li>${k.kw} <span class="muted">(${k.count})</span></li>`;
+                    list+='</ul></div>';
+                    out.innerHTML+=list;
+                  }else out.innerHTML+=`<div class="muted">خطأ: ${jj.error||'غير معروف'}</div>`;
+                }catch(e){ out.innerHTML+=`<div class="muted">فشل الطلب</div>`; }
+                kwBtn.disabled=false; kwBtn.textContent='الكلمات المفتاحية';
               };
               out.appendChild(kwBtn);
             }
-          }catch(e){ out.textContent = ev.data }
+          }catch(e){ out.textContent=ev.data }
         };
-        ws.onclose = ()=>{ clearInterval(ping); if (stopped) return; out.textContent += '\nConnection lost, reconnecting...'; setTimeout(()=>{ reconnectDelay = Math.min(30000, reconnectDelay*2); connect(); }, reconnectDelay); };
-        ws.onerror = ()=>{ /* ignore */ };
+        ws.onclose=()=>{ clearInterval(ping); if(stopped)return; out.textContent+='\\nانقطع الاتصال، جارٍ إعادة الاتصال...'; setTimeout(()=>{ reconnectDelay=Math.min(30000,reconnectDelay*2); connect(); },reconnectDelay); };
+        ws.onerror=()=>{};
       }
-
       connect();
     }
 
     async function loadHistoryChart(){
-      const r = await fetch('/api/jobs');
-      const j = await r.json();
-      const el = document.getElementById('history'); el.innerHTML='';
-      if (!j.ok){ el.textContent='Error: '+(j.error||JSON.stringify(j)); return }
-      const jobs = j.jobs || [];
-      const labels = [];
-      const data = [];
-      jobs.slice().reverse().forEach(job=>{
-        if (job.result_path){ labels.push('job-'+job.id); data.push(null); }
-      });
-      const container = document.createElement('div'); container.innerHTML = '<h3>History (scores)</h3><canvas id="histCanvas" width="400" height="200"></canvas>';
+      const r=await fetch('/api/jobs');
+      const j=await r.json();
+      const el=document.getElementById('history'); el.innerHTML='';
+      if(!j.ok){ el.textContent='خطأ: '+(j.error||JSON.stringify(j)); return }
+      const jobs=j.jobs||[];
+      const labels=[], data=[];
+      jobs.slice().reverse().forEach(job=>{ if(job.result_path){ labels.push('مهمة-'+job.id); data.push(null); } });
+      const container=document.createElement('div');
+      container.innerHTML='<h3>سجل الدرجات</h3><canvas id="histCanvas" width="400" height="200"></canvas>';
       el.appendChild(container);
-      const ctx = document.getElementById('histCanvas').getContext('2d');
-      const chart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{label:'GEO Score', data: data, borderColor:'#00d4ff'}] }, options: {} });
-      labels.forEach(async (lab, idx)=>{
-        const jobId = parseInt(lab.split('-')[1],10);
+      const ctx=document.getElementById('histCanvas').getContext('2d');
+      const chart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'درجة GEO',data,borderColor:'#00d4ff'}]},options:{}});
+      labels.forEach(async(lab,idx)=>{
+        const jobId=parseInt(lab.split('-')[1],10);
         try{
-          const rr = await fetch('/api/jobs/'+jobId);
-          const jj = await rr.json();
-          if (jj.ok && jj.job && jj.job.result_path){
-            const ap = jj.job.result_path + '/analysis.json';
-            const ares = await fetch(ap.replace(location.origin, ''));
-            if (ares.ok){ const aj = await ares.json(); const score = (aj.geo_score && aj.geo_score.score) || (aj.analysis && aj.analysis.geo_score && aj.analysis.geo_score.score) || null; chart.data.datasets[0].data[idx] = score; chart.update(); }
+          const rr=await fetch('/api/jobs/'+jobId);
+          const jj=await rr.json();
+          if(jj.ok&&jj.job&&jj.job.result_path){
+            const ap=jj.job.result_path+'/analysis.json';
+            const ares=await fetch(ap.replace(location.origin,''));
+            if(ares.ok){ const aj=await ares.json(); const score=(aj.geo_score&&aj.geo_score.score)||(aj.analysis&&aj.analysis.geo_score&&aj.analysis.geo_score.score)||null; chart.data.datasets[0].data[idx]=score; chart.update(); }
           }
         }catch(e){}
       });
     }
 
-    document.getElementById('refresh').addEventListener('click', ()=>{ loadJobs(); loadHistoryChart(); });
+    document.getElementById('refresh').addEventListener('click',()=>{ loadJobs(); loadHistoryChart(); });
     loadJobs(); loadHistoryChart();
   </script>
-</div>
 </body>
 </html>

@@ -1,397 +1,238 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Search Intelligence Engine | Content Intelligence</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>محرك تحليل البحث — منصة GEO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/theme.css" />
   <style>
-    .badge {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .badge.high { background: rgba(255, 51, 102, 0.1); border: 1px solid rgba(255, 51, 102, 0.2); color: var(--red); }
-    .badge.medium { background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.2); color: var(--yellow); }
-    .badge.low { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--green); }
-    
-    .score-hero {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-      margin-bottom: 30px;
-    }
-    .score-large {
-      font-size: 64px;
-      font-weight: 800;
-      font-family: 'Outfit';
-      background: var(--accent-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .grade-badge {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--green);
-      letter-spacing: 2px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 8px;
-    }
-    th {
-      text-align: left;
-      padding: 12px;
-      color: var(--muted);
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    td {
-      padding: 16px;
-      background: rgba(255,255,255,0.03);
-      border-top: 1px solid rgba(255,255,255,0.05);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    td:first-child { border-left: 1px solid rgba(255,255,255,0.05); border-radius: 12px 0 0 12px; }
-    td:last-child { border-right: 1px solid rgba(255,255,255,0.05); border-radius: 0 12px 12px 0; }
-
-    .rec-item {
-      padding: 15px;
-      border-left: 4px solid var(--accent);
-      background: var(--surface-hover);
-      border-radius: 0 12px 12px 0;
-      margin-bottom: 12px;
-    }
-    .config-panel {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 40px;
-    }
+    body { font-family: 'Cairo', sans-serif; }
+    .badge { padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase; }
+    .badge.high { background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.2);color:var(--red); }
+    .badge.medium { background:rgba(255,204,0,0.1);border:1px solid rgba(255,204,0,0.2);color:var(--yellow); }
+    .badge.low { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green); }
+    .score-hero { display:flex;align-items:center;gap:30px;margin-bottom:30px; }
+    .score-large { font-size:64px;font-weight:800;font-family:'Cairo';background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+    .grade-badge { font-size:24px;font-weight:700;color:var(--green);letter-spacing:2px; }
+    table { width:100%;border-collapse:separate;border-spacing:0 8px; }
+    th { text-align:right;padding:12px;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:1px; }
+    td { padding:16px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05); }
+    td:first-child { border-right:1px solid rgba(255,255,255,0.05);border-radius:0 12px 12px 0; }
+    td:last-child { border-left:1px solid rgba(255,255,255,0.05);border-radius:12px 0 0 12px; }
+    .rec-item { padding:15px;border-right:4px solid var(--accent);background:var(--surface-hover);border-radius:12px 0 0 12px;margin-bottom:12px; }
+    .config-panel { display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:40px; }
   </style>
 </head>
 <body>
 <div class="wrap" style="max-width:1200px">
-  <div class="stagger-item" style="animation-delay: 0.1s">
-    <a href="/" style="color:var(--muted); text-decoration: none; display:inline-flex; align-items: center; gap: 8px; margin-bottom: 24px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      Back to Dashboard
+  <div class="stagger-item" style="animation-delay:0.1s">
+    <a href="/" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      العودة للوحة التحكم
     </a>
   </div>
 
-  <div class="stagger-item" style="animation-delay: 0.2s">
-    <h1 class="shine-text" style="font-size: 48px; margin-bottom: 12px;">🔍 Search Intelligence Engine</h1>
-    <p style="color:var(--muted); margin-bottom: 30px; font-size: 18px;">Deep semantic analysis for high-volume organic growth.</p>
+  <div class="stagger-item" style="animation-delay:0.2s">
+    <h1 class="shine-text" style="font-size:48px;margin-bottom:12px;">🔍 محرك تحليل البحث</h1>
+    <p style="color:var(--muted);margin-bottom:30px;font-size:18px;">تحليل دلالي عميق لتحقيق نمو عضوي عالي الحجم.</p>
   </div>
-    
-  <div class="panel stagger-item" style="animation-delay: 0.3s">
+
+  <div class="panel stagger-item" style="animation-delay:0.3s">
     <div class="config-panel">
-      <input id="siUrl" placeholder="https://example.com" value="https://abayanoir.com" style="flex:1; min-width:300px;" />
-      <input id="siPages" placeholder="Pages" value="2" style="width:80px;" />
-      <button id="runIntelligence" class="btn" style="padding:14px 24px;"> Run Intelligence</button>
-      <button id="exportCSV" class="btn" style="background:var(--green); display:none;"> Export CSV</button>
+      <input id="siUrl" placeholder="https://example.com" value="https://abayanoir.com" style="flex:1;min-width:300px;" />
+      <input id="siPages" placeholder="عدد الصفحات" value="2" style="width:100px;" />
+      <button id="runIntelligence" class="btn" style="padding:14px 24px;">🚀 تشغيل التحليل</button>
+      <button id="exportCSV" class="btn" style="background:var(--green);display:none;">📥 تصدير CSV</button>
     </div>
-    <div id="siStatus" style="font-size: 14px; min-height: 20px;"></div>
+    <div id="siStatus" style="font-size:14px;min-height:20px;"></div>
   </div>
 
   <div id="resultsContent" style="display:none">
     <div class="grid" style="margin-top:40px;">
       <div id="qualityCard" class="card stagger-item">
-        <h3 style="margin-top: 0;">Quality Score</h3>
+        <h3 style="margin-top:0;">درجة الجودة</h3>
         <div class="score-hero">
           <div>
             <div class="score-large" id="scoreValue">—</div>
             <div class="grade-badge" id="gradeValue">—</div>
           </div>
-          <div id="scoreFeedback" style="font-size: 14px; color: var(--muted); border-left: 1px solid var(--border); padding-left: 20px;"></div>
+          <div id="scoreFeedback" style="font-size:14px;color:var(--muted);border-right:1px solid var(--border);padding-right:20px;"></div>
         </div>
       </div>
-
       <div id="clustersCard" class="card stagger-item">
-        <h3 style="margin-top: 0;">Topic Clusters</h3>
-        <div id="clustersList" style="font-size: 14px;"></div>
+        <h3 style="margin-top:0;">مجموعات المواضيع</h3>
+        <div id="clustersList" style="font-size:14px;"></div>
       </div>
     </div>
 
     <div id="keywordsCard" class="card stagger-item" style="margin-top:24px;">
-      <h3 style="margin-top:0;">Keyword Intelligence</h3>
-      <div id="kwSummary" style="color:var(--accent); font-weight:600; margin-bottom:20px; font-size:14px;"></div>
-      
-      <h4>Primary Targets</h4>
+      <h3 style="margin-top:0;">تحليل الكلمات المفتاحية</h3>
+      <div id="kwSummary" style="color:var(--accent);font-weight:600;margin-bottom:20px;font-size:14px;"></div>
+      <h4>الكلمات الأساسية</h4>
       <div style="overflow-x:auto">
         <table>
-          <thead>
-            <tr>
-              <th>Keyword</th>
-              <th>Count</th>
-              <th>Density</th>
-              <th>Volume</th>
-              <th>CPC</th>
-              <th>Opp Score</th>
-            </tr>
-          </thead>
+          <thead><tr><th>الكلمة المفتاحية</th><th>العدد</th><th>الكثافة</th><th>الحجم</th><th>CPC</th><th>درجة الفرصة</th></tr></thead>
           <tbody id="primaryBody"></tbody>
         </table>
       </div>
-
       <div class="grid" style="margin-top:30px;">
         <div>
-          <h4>Secondary Terms</h4>
-          <div id="secondaryList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+          <h4>الكلمات الثانوية</h4>
+          <div id="secondaryList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
         </div>
         <div>
-          <h4>Long-tail Opportunities</h4>
-          <div id="longtailList" style="font-size: 13px; color: var(--muted); line-height: 1.8;"></div>
+          <h4>الكلمات الطويلة</h4>
+          <div id="longtailList" style="font-size:13px;color:var(--muted);line-height:1.8;"></div>
         </div>
       </div>
     </div>
 
     <div class="grid" style="margin-top:24px;">
       <div id="intentCard" class="card stagger-item">
-        <h3 style="margin-top:0;">1️⃣ Intent Analysis</h3>
-        <div id="intentDist" style="display:flex; flex-direction:column; gap:12px; margin-top:15px;"></div>
+        <h3 style="margin-top:0;">1️⃣ تحليل النية</h3>
+        <div id="intentDist" style="display:flex;flex-direction:column;gap:12px;margin-top:15px;"></div>
       </div>
-
       <div id="gapCard" class="card stagger-item">
-        <h3 style="margin-top:0;">2️⃣ Content Gaps</h3>
-        <p style="color:var(--muted); font-size:12px; margin-bottom:12px;">Keywords used by competitors but missing from your page.</p>
-        <div id="gapList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        <h3 style="margin-top:0;">2️⃣ فجوات المحتوى</h3>
+        <p style="color:var(--muted);font-size:12px;margin-bottom:12px;">كلمات يستخدمها المنافسون وغائبة عن صفحتك.</p>
+        <div id="gapList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
     </div>
 
     <div class="grid" style="margin-top:24px;">
       <div id="serpCard" class="card stagger-item">
-        <h3 style="margin-top:0;">3️⃣ SERP Intelligence</h3>
+        <h3 style="margin-top:0;">3️⃣ تحليل نتائج البحث</h3>
         <div style="overflow-x:auto">
           <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Domain</th>
-                <th>DR</th>
-                <th>Links</th>
-                <th>Length</th>
-              </tr>
-            </thead>
+            <thead><tr><th>الترتيب</th><th>النطاق</th><th>DR</th><th>الروابط</th><th>الطول</th></tr></thead>
             <tbody id="serpBody"></tbody>
           </table>
         </div>
       </div>
-
       <div id="entityCard" class="card stagger-item">
-        <h3 style="margin-top:0;">5️⃣ Semantic Entity Graph</h3>
-        <div id="entityGraph" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;"></div>
+        <h3 style="margin-top:0;">5️⃣ خريطة الكيانات الدلالية</h3>
+        <div id="entityGraph" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;"></div>
       </div>
     </div>
 
     <div class="grid" style="margin-top:24px;">
       <div id="competitorsCard" class="card stagger-item">
-        <h3 style="margin-top:0;">Market Intelligence</h3>
-        <div id="compResults" style="font-size: 14px;"></div>
+        <h3 style="margin-top:0;">تحليل المنافسين</h3>
+        <div id="compResults" style="font-size:14px;"></div>
       </div>
-
       <div id="recommendationsCard" class="card stagger-item">
-        <h3 style="margin-top:0;">Action Plan</h3>
-        <div id="recList" style="font-size: 14px;"></div>
+        <h3 style="margin-top:0;">خطة العمل</h3>
+        <div id="recList" style="font-size:14px;"></div>
       </div>
     </div>
 
-    <div id="rawCard" class="stagger-item" style="margin-top:40px; opacity:0.5;">
-      <button onclick="document.getElementById('rawDataWrap').style.display='block';this.style.display='none'" class="btn" style="background:transparent; border:1px solid var(--border); font-size:12px;">View Raw Spectral Data</button>
-      <div id="rawDataWrap" style="display:none; margin-top:10px;">
-        <pre id="rawData" style="background:rgba(0,0,0,0.3); border:1px solid var(--border); padding:20px; border-radius:12px; font-size:12px; overflow-x:auto;"></pre>
+    <div id="rawCard" class="stagger-item" style="margin-top:40px;opacity:0.5;">
+      <button onclick="document.getElementById('rawDataWrap').style.display='block';this.style.display='none'" class="btn" style="background:transparent;border:1px solid var(--border);font-size:12px;">عرض البيانات الخام</button>
+      <div id="rawDataWrap" style="display:none;margin-top:10px;">
+        <pre id="rawData" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:20px;border-radius:12px;font-size:12px;overflow-x:auto;"></pre>
       </div>
     </div>
   </div>
 
   <script>
-    document.getElementById('runIntelligence').addEventListener('click', async ()=>{
-      const url = document.getElementById('siUrl').value;
-      const pages = parseInt(document.getElementById('siPages').value || '2') || 2;
-      const status = document.getElementById('siStatus');
-      const resultsWrap = document.getElementById('resultsContent');
-      
-      status.innerHTML = '<span class="shine-text">Synthesizing intelligence...</span>';
-      resultsWrap.style.display = 'none';
-      
+    document.getElementById('runIntelligence').addEventListener('click', async()=>{
+      const url=document.getElementById('siUrl').value;
+      const pages=parseInt(document.getElementById('siPages').value||'2')||2;
+      const status=document.getElementById('siStatus');
+      const resultsWrap=document.getElementById('resultsContent');
+      status.innerHTML='<span class="shine-text">جارٍ تحليل البيانات...</span>';
+      resultsWrap.style.display='none';
       try{
-        const keys = JSON.parse(localStorage.getItem('geo_keys') || '{}');
-        const r = await fetch('/api/search/intelligence', { 
-          method: 'POST', 
-          headers: {'Content-Type':'application/json'}, 
-          body: JSON.stringify({ url, max_pages: pages, api_keys: keys }) 
-        });
-        const j = await r.json();
-        
-        if (!j.ok){ 
-          status.innerHTML = `<span style="color:var(--red)"> Error: ${j.error||JSON.stringify(j)}</span>`; 
-          return;
+        const keys=JSON.parse(localStorage.getItem('geo_keys')||'{}');
+        const r=await fetch('/api/search/intelligence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,max_pages:pages,api_keys:keys})});
+        const j=await r.json();
+        if(!j.ok){ status.innerHTML=`<span style="color:var(--red)">❌ خطأ: ${j.error||JSON.stringify(j)}</span>`; return; }
+        status.innerHTML='<span style="color:var(--green)">✅ اكتمل التحليل.</span>';
+        resultsWrap.style.display='block';
+        const report=j.report;
+        document.getElementById('exportCSV').style.display='inline-block';
+        document.getElementById('rawData').textContent=JSON.stringify(report,null,2);
+
+        if(report.metrics&&report.metrics.quality_score){
+          const qs=report.metrics.quality_score;
+          document.getElementById('scoreValue').textContent=qs.score+'/'+qs.max_score;
+          document.getElementById('gradeValue').textContent=qs.grade;
+          document.getElementById('scoreFeedback').innerHTML=qs.feedback.map(f=>`<div style="margin-bottom:8px">• ${f}</div>`).join('');
+          document.getElementById('gradeValue').style.color=(qs.score>80?'var(--green)':(qs.score>50?'var(--yellow)':'var(--red)'));
         }
-        
-        status.innerHTML = '<span style="color:var(--green)"> Intelligence report synchronized.</span>';
-        resultsWrap.style.display = 'block';
-        const report = j.report;
-        
-        document.getElementById('exportCSV').style.display = 'inline-block';
-        document.getElementById('rawData').textContent = JSON.stringify(report, null, 2);
-        
-        // Quality Score
-        if (report.metrics && report.metrics.quality_score) {
-          const qs = report.metrics.quality_score;
-          document.getElementById('scoreValue').textContent = qs.score + '/' + qs.max_score;
-          document.getElementById('gradeValue').textContent = qs.grade;
-          document.getElementById('scoreFeedback').innerHTML = qs.feedback.map(f => `<div style="margin-bottom:8px">• ${f}</div>`).join('');
-          document.getElementById('gradeValue').style.color = (qs.score > 80 ? 'var(--green)' : (qs.score > 50 ? 'var(--yellow)' : 'var(--red)'));
-        }
-        
-        // Keywords
-        if (report.keyword_results) {
-          const kr = report.keyword_results;
-          document.getElementById('kwSummary').textContent = 
-            `Aggregated ${kr.total_found} verified keywords Across ${pages} pages.`;
-          
-          const primaryBody = document.getElementById('primaryBody');
-          primaryBody.innerHTML = '';
-          kr.classification.primary.keywords.slice(0,10).forEach(kw => {
-            const row = primaryBody.insertRow();
-            row.insertCell(0).innerHTML = `<strong>${kw.kw}</strong>`;
-            row.insertCell(1).textContent = kw.count;
-            row.insertCell(2).textContent = (kw.density || 0).toFixed(2) + '%';
-            row.insertCell(3).textContent = kw.volume ? kw.volume.toLocaleString() : '—';
-            row.insertCell(4).textContent = kw.cpc ? '$' + kw.cpc.toFixed(2) : '—';
-            const oppCell = row.insertCell(5);
-            const score = kw.opportunity_score || 0;
-            const color = score > 70 ? 'var(--green)' : (score > 40 ? 'var(--yellow)' : 'var(--red)');
-            oppCell.innerHTML = `<span style="color:${color}; font-weight:800;">${score}%</span>`;
+
+        if(report.keyword_results){
+          const kr=report.keyword_results;
+          document.getElementById('kwSummary').textContent=`تم تحليل ${kr.total_found} كلمة مفتاحية عبر ${pages} صفحات.`;
+          const primaryBody=document.getElementById('primaryBody');
+          primaryBody.innerHTML='';
+          kr.classification.primary.keywords.slice(0,10).forEach(kw=>{
+            const row=primaryBody.insertRow();
+            row.insertCell(0).innerHTML=`<strong>${kw.kw}</strong>`;
+            row.insertCell(1).textContent=kw.count;
+            row.insertCell(2).textContent=(kw.density||0).toFixed(2)+'%';
+            row.insertCell(3).textContent=kw.volume?kw.volume.toLocaleString('ar'):'—';
+            row.insertCell(4).textContent=kw.cpc?'$'+kw.cpc.toFixed(2):'—';
+            const oppCell=row.insertCell(5);
+            const score=kw.opportunity_score||0;
+            const color=score>70?'var(--green)':(score>40?'var(--yellow)':'var(--red)');
+            oppCell.innerHTML=`<span style="color:${color};font-weight:800;">${score}%</span>`;
           });
-          
-          document.getElementById('secondaryList').innerHTML = kr.classification.secondary.keywords.slice(0,12).map(kw => 
-            `<span class="badge secondary" style="background:rgba(0,212,255,0.05); color:var(--accent); border:1px solid rgba(0,212,255,0.1)">${kw.kw}</span>`
-          ).join('');
-          
-          document.getElementById('longtailList').innerHTML = kr.classification.long_tail.keywords.slice(0,15).map(kw => kw.kw).join(' • ');
+          document.getElementById('secondaryList').innerHTML=kr.classification.secondary.keywords.slice(0,12).map(kw=>`<span class="badge secondary" style="background:rgba(0,212,255,0.05);color:var(--accent);border:1px solid rgba(0,212,255,0.1)">${kw.kw}</span>`).join('');
+          document.getElementById('longtailList').innerHTML=kr.classification.long_tail.keywords.slice(0,15).map(kw=>kw.kw).join(' • ');
         }
-        
-        // Topic Clusters
-        if (report.topic_clusters) {
-          let html = '';
-          Object.entries(report.topic_clusters).slice(0, 5).forEach(([topic, data]) => {
-            html += `<div style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px;">
-              <div style="color:var(--accent); font-weight:700; font-size:12px; text-transform:uppercase;">${topic}</div>
-              <div style="color:var(--muted); font-size:13px; margin-top:4px;">${data.keywords.slice(0,6).map(k => k.kw).join(', ')}</div>
-            </div>`;
+
+        if(report.topic_clusters){
+          let html='';
+          Object.entries(report.topic_clusters).slice(0,5).forEach(([topic,data])=>{
+            html+=`<div style="margin-bottom:15px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:10px;"><div style="color:var(--accent);font-weight:700;font-size:12px;">${topic}</div><div style="color:var(--muted);font-size:13px;margin-top:4px;">${data.keywords.slice(0,6).map(k=>k.kw).join('، ')}</div></div>`;
           });
-          document.getElementById('clustersList').innerHTML = html || 'Insufficient data for clustering.';
-        }
-        
-        // Competitors
-        if (report.competitors) {
-          const comp = report.competitors;
-          let html = '';
-          if (comp.found === 0) {
-            html = '<div style="color:var(--muted)">No external market competitors detected in current crawl space.</div>';
-          } else {
-            html = comp.list.slice(0,5).map(c => `
-              <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px;">
-                <span>${c.domain}</span>
-                <span style="color:var(--accent);">${c.mentions} ref</span>
-              </div>
-            `).join('');
-          }
-          document.getElementById('compResults').innerHTML = html;
-        }
-        
-        // Intent Analysis
-        if (report.intent_analysis) {
-          const ia = report.intent_analysis;
-          document.getElementById('intentDist').innerHTML = Object.entries(ia.distribution).map(([k, v]) => `
-            <div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
-                <span>${k}</span>
-                <span>${v}%</span>
-              </div>
-              <div style="height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
-                <div style="height:100%; width:${v}%; background:var(--accent); box-shadow:0 0 10px var(--accent-glow);"></div>
-              </div>
-            </div>
-          `).join('');
+          document.getElementById('clustersList').innerHTML=html||'بيانات غير كافية للتجميع.';
         }
 
-        // Content Gaps
-        if (report.content_gaps) {
-          document.getElementById('gapList').innerHTML = report.content_gaps.map(g => `
-            <span class="badge" style="background:rgba(255,51,102,0.1); color:var(--red); border:1px solid rgba(255,51,102,0.2)">+ ${g}</span>
-          `).join('');
+        if(report.competitors){
+          const comp=report.competitors;
+          let html=comp.found===0?'<div style="color:var(--muted)">لم يتم اكتشاف منافسين خارجيين.</div>':comp.list.slice(0,5).map(c=>`<div style="display:flex;justify-content:space-between;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;"><span>${c.domain}</span><span style="color:var(--accent);">${c.mentions} إشارة</span></div>`).join('');
+          document.getElementById('compResults').innerHTML=html;
         }
 
-        // SERP Intelligence
-        if (report.serp_intelligence) {
-          const serpBody = document.getElementById('serpBody');
-          serpBody.innerHTML = report.serp_intelligence.map(s => `
-            <tr>
-              <td><span style="color:var(--accent); font-weight:800;">#${s.rank}</span></td>
-              <td>${s.domain}</td>
-              <td><span class="badge ${s.dr > 80 ? 'high' : 'medium'}">${s.dr}</span></td>
-              <td>${s.backlinks}</td>
-              <td style="color:var(--muted);">${s.length} words</td>
-            </tr>
-          `).join('');
+        if(report.intent_analysis){
+          const ia=report.intent_analysis;
+          document.getElementById('intentDist').innerHTML=Object.entries(ia.distribution).map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>${k}</span><span>${v}%</span></div><div style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${v}%;background:var(--accent);"></div></div></div>`).join('');
         }
 
-        // Entities
-        if (report.entities) {
-          document.getElementById('entityGraph').innerHTML = Object.entries(report.entities).map(([k, v]) => `
-            <div style="padding:10px; background:rgba(255,255,255,0.02); border-left:2px solid var(--accent); border-radius:4px;">
-              <div style="font-size:10px; color:var(--muted); text-transform:uppercase;">${k}</div>
-              <div style="font-size:13px; font-weight:600; color:var(--text);">${v}</div>
-            </div>
-          `).join('');
+        if(report.content_gaps){
+          document.getElementById('gapList').innerHTML=report.content_gaps.map(g=>`<span class="badge" style="background:rgba(255,51,102,0.1);color:var(--red);border:1px solid rgba(255,51,102,0.2)">+ ${g}</span>`).join('');
         }
-        
-        // Recommendations
-        if (report.recommendations) {
-          document.getElementById('recList').innerHTML = report.recommendations.slice(0,4).map(rec => `
-            <div class="rec-item">
-              <div style="display:flex; justify-content:space-between;">
-                <strong style="color:var(--text)">${rec.title}</strong>
-                <span class="badge ${rec.priority.toLowerCase()}">${rec.priority}</span>
-              </div>
-              <div style="color:var(--muted); font-size:12px; margin-top:5px;">${rec.description}</div>
-              <div style="margin-top:8px; color:var(--accent); font-weight:600;">Action: ${rec.action}</div>
-            </div>
-          `).join('');
+
+        if(report.serp_intelligence){
+          document.getElementById('serpBody').innerHTML=report.serp_intelligence.map(s=>`<tr><td><span style="color:var(--accent);font-weight:800;">#${s.rank}</span></td><td>${s.domain}</td><td><span class="badge ${s.dr>80?'high':'medium'}">${s.dr}</span></td><td>${s.backlinks}</td><td style="color:var(--muted);">${s.length} كلمة</td></tr>`).join('');
         }
-        
-      }catch(e){ 
-        status.innerHTML = `<span style="color:var(--red)">❌ Request failed: ${e.message}</span>`;
+
+        if(report.entities){
+          document.getElementById('entityGraph').innerHTML=Object.entries(report.entities).map(([k,v])=>`<div style="padding:10px;background:rgba(255,255,255,0.02);border-right:2px solid var(--accent);border-radius:4px;"><div style="font-size:10px;color:var(--muted);">${k}</div><div style="font-size:13px;font-weight:600;color:var(--text);">${v}</div></div>`).join('');
+        }
+
+        if(report.recommendations){
+          document.getElementById('recList').innerHTML=report.recommendations.slice(0,4).map(rec=>`<div class="rec-item"><div style="display:flex;justify-content:space-between;"><strong style="color:var(--text)">${rec.title}</strong><span class="badge ${rec.priority.toLowerCase()}">${rec.priority}</span></div><div style="color:var(--muted);font-size:12px;margin-top:5px;">${rec.description}</div><div style="margin-top:8px;color:var(--accent);font-weight:600;">الإجراء: ${rec.action}</div></div>`).join('');
+        }
+      }catch(e){
+        status.innerHTML=`<span style="color:var(--red)">❌ فشل الطلب: ${e.message}</span>`;
       }
     });
-    
-    document.getElementById('exportCSV').addEventListener('click', async () => {
-      const url = document.getElementById('siUrl').value;
-      const pages = parseInt(document.getElementById('siPages').value || '2') || 2;
-      try {
-        const response = await fetch('/api/export/keywords/csv', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ url, max_pages: pages })
-        });
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = `intelligence_${url.replace(/https?:\/\//, '').replace(/\//g, '_')}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      } catch(e) { alert('Export failed: ' + e.message); }
+
+    document.getElementById('exportCSV').addEventListener('click', async()=>{
+      const url=document.getElementById('siUrl').value;
+      const pages=parseInt(document.getElementById('siPages').value||'2')||2;
+      try{
+        const response=await fetch('/api/export/keywords/csv',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,max_pages:pages})});
+        const blob=await response.blob();
+        const downloadUrl=window.URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=downloadUrl;
+        a.download=`تحليل_${url.replace(/https?:\/\//,'').replace(/\//g,'_')}.csv`;
+        document.body.appendChild(a); a.click(); a.remove();
+      }catch(e){ alert('فشل التصدير: '+e.message); }
     });
   </script>
 </div>

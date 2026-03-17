@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Paid Ads — GEO Platform</title>
+<title>الإعلاнات المدفوعة — منصة GEO</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cairo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -195,44 +195,44 @@ textarea{resize:vertical;min-height:80px;width:100%}
 <body>
 
 <nav class="nav">
-  <div class="nav-brand">GEO / ADS</div>
-  <a href="/">Home</a>
-  <a href="/search">Intelligence</a>
-  <a href="/content">Content</a>
-  <a href="/recommendations">GEO Score</a>
-  <a href="/ads" class="active">Paid Ads</a>
-  <div class="status"><div class="pulse"></div><span id="mode-lbl">Demo Mode</span></div>
+  <div class="nav-brand">GEO / إعلانات</div>
+  <a href="/">الرئيسية</a>
+  <a href="/search">تحليل البحث</a>
+  <a href="/content">المحتوى</a>
+  <a href="/recommendations">درجة GEO</a>
+  <a href="/ads" class="active">الإعلانات</a>
+  <div class="status"><div class="pulse"></div><span id="mode-lbl">وضع تجريبي</span></div>
 </nav>
 
 <div class="wrap">
   <div class="page-hd">
-    <div class="label">Module — Paid Ads</div>
-    <h1>Ads <span>Intelligence</span></h1>
-    <p>Campaign analytics, AI bidding optimization, and ad copy generation</p>
+    <div class="label">وحدة — الإعلانات</div>
+    <h1>Ads <span>تحليل البحث</span></h1>
+    <p>تحليل الحملات، تحسين العروض بالذكاء الاصطناعي، وإنشاء نصوص الإعلانات</p>
     <div class="tabbar">
-      <button class="tb on" onclick="sw('dash',this)">Dashboard</button>
-      <button class="tb" onclick="sw('kw',this)">Keywords</button>
-      <button class="tb" onclick="sw('terms',this)">Search Terms</button>
-      <button class="tb" onclick="sw('bids',this)">AI Bidding</button>
-      <button class="tb" onclick="sw('copy',this)">Ad Copy</button>
-      <button class="tb" onclick="sw('neg',this)">Negatives</button>
-      <button class="tb" onclick="sw('rpt',this)">Weekly Report</button>
-      <button class="tb" onclick="sw('conn',this)">Connect</button>
+      <button class="tb on" onclick="sw('dash',this)">لوحة التحكم</button>
+      <button class="tb" onclick="sw('kw',this)">الكلمات المفتاحية</button>
+      <button class="tb" onclick="sw('terms',this)">مصطلحات البحث</button>
+      <button class="tb" onclick="sw('bids',this)">عروض الأسعار</button>
+      <button class="tb" onclick="sw('copy',this)">نصوص الإعلانات</button>
+      <button class="tb" onclick="sw('neg',this)">الكلمات السلبية</button>
+      <button class="tb" onclick="sw('rpt',this)">التقرير الأسبوعي</button>
+      <button class="tb" onclick="sw('conn',this)">ربط الحساب</button>
     </div>
   </div>
 
   <!-- DASHBOARD -->
   <div id="tp-dash" class="tp on">
     <div class="kpis stagger">
-      <div class="kpi blue"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">Total Spend (30d)</div><div class="kpi-val" id="kv-spend">—</div><div class="kpi-sub">across all campaigns</div></div>
-      <div class="kpi gre"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">Total Clicks</div><div class="kpi-val" id="kv-clicks">—</div><div class="kpi-sub" id="kv-cmp">— campaigns</div></div>
-      <div class="kpi yel"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">Conversions</div><div class="kpi-val" id="kv-conv">—</div><div class="kpi-sub">leads / sales</div></div>
-      <div class="kpi red"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">Avg CPA</div><div class="kpi-val" id="kv-cpa">—</div><div class="kpi-sub">cost per conversion</div></div>
+      <div class="kpi blue"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">إجمالي الإنفاق (30 يوم)</div><div class="kpi-val" id="kv-spend">—</div><div class="kpi-sub">عبر جميع الحملات</div></div>
+      <div class="kpi gre"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">إجمالي النقرات</div><div class="kpi-val" id="kv-clicks">—</div><div class="kpi-sub" id="kv-cmp">— campaigns</div></div>
+      <div class="kpi yel"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">Conversions</div><div class="kpi-val" id="kv-conv">—</div><div class="kpi-sub">عملاء / مبيعات</div></div>
+      <div class="kpi red"><div class="kpi-accent"></div><div class="kpi-glow"></div><div class="kpi-lbl">متوسط تكلفة التحويل</div><div class="kpi-val" id="kv-cpa">—</div><div class="kpi-sub">تكلفة كل تحويل</div></div>
     </div>
     <div class="panel">
-      <div class="panel-hd"><div class="panel-title">Campaign Performance</div></div>
+      <div class="panel-hd"><div class="panel-title">أداء الحملات</div></div>
       <table>
-        <thead><tr><th>Campaign</th><th>Status</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg CPC</th><th>Cost</th><th>Conv</th><th>CPA</th><th>Imp. Share</th></tr></thead>
+        <thead><tr><th>الحملة</th><th>الحالة</th><th>النقرات</th><th>الظهور</th><th>CTR</th><th>متوسط CPC</th><th>التكلفة</th><th>التحويلات</th><th>CPA</th><th>حصة الظهور</th></tr></thead>
         <tbody id="camp-tb"><tr><td colspan="10" style="text-align:center;color:var(--m1);padding:40px"><span class="spin"></span></td></tr></tbody>
       </table>
     </div>
@@ -241,9 +241,9 @@ textarea{resize:vertical;min-height:80px;width:100%}
   <!-- KEYWORDS -->
   <div id="tp-kw" class="tp">
     <div class="panel">
-      <div class="panel-hd"><div class="panel-title">Keyword Performance — Quality Scores</div></div>
+      <div class="panel-hd"><div class="panel-title">أداء الكلمات المفتاحية</div></div>
       <table>
-        <thead><tr><th>Keyword</th><th>Match</th><th>Quality Score</th><th>Clicks</th><th>CTR</th><th>CPC</th><th>Cost</th><th>Conv</th></tr></thead>
+        <thead><tr><th>الكلمة المفتاحية</th><th>نوع المطابقة</th><th>درجة الجودة</th><th>النقرات</th><th>CTR</th><th>CPC</th><th>التكلفة</th><th>التحويلات</th></tr></thead>
         <tbody id="kw-tb"><tr><td colspan="8" style="text-align:center;color:var(--m1);padding:40px"><span class="spin"></span></td></tr></tbody>
       </table>
     </div>
@@ -253,11 +253,11 @@ textarea{resize:vertical;min-height:80px;width:100%}
   <div id="tp-terms" class="tp">
     <div class="term-grid">
       <div class="panel" style="margin-bottom:0">
-        <div class="panel-title" style="color:var(--g2);margin-bottom:16px">Converting Terms</div>
+        <div class="panel-title" style="color:var(--g2);margin-bottom:16px">مصطلحات محولة</div>
         <div id="cv-terms"></div>
       </div>
       <div class="panel" style="margin-bottom:0">
-        <div class="panel-title" style="color:var(--r2);margin-bottom:16px">Wasted Spend</div>
+        <div class="panel-title" style="color:var(--r2);margin-bottom:16px">إنفاق مهدر</div>
         <div id="wt-terms"></div>
       </div>
     </div>
@@ -267,34 +267,34 @@ textarea{resize:vertical;min-height:80px;width:100%}
   <div id="tp-bids" class="tp">
     <div class="panel">
       <div class="panel-hd">
-        <div class="panel-title">AI Bid Optimization</div>
-        <button class="btn btn-p" onclick="loadBids()" id="bid-btn">Analyze Keywords</button>
+        <div class="panel-title">تحسين العروض بالذكاء الاصطناعي</div>
+        <button class="btn btn-p" onclick="loadBids()" id="bid-btn">تحليل الكلمات المفتاحية</button>
       </div>
       <div id="bid-st" style="font-size:12px;color:var(--m2);margin-bottom:14px"></div>
-      <div id="bid-out"><div style="text-align:center;color:var(--m1);padding:48px;font-size:13px">Click Analyze Keywords to get AI recommendations</div></div>
+      <div id="bid-out"><div style="text-align:center;color:var(--m1);padding:48px;font-size:13px">اضغط تحليل الكلمات للحصول على توصيات الذكاء الاصطناعي</div></div>
     </div>
   </div>
 
   <!-- AD COPY -->
   <div id="tp-copy" class="tp">
     <div class="panel">
-      <div class="panel-hd"><div class="panel-title">RSA Ad Copy Generator</div></div>
+      <div class="panel-hd"><div class="panel-title">مولّد نصوص الإعلانات RSA</div></div>
       <div class="row2" style="margin-bottom:14px">
-        <div class="inp-grp"><label>Language</label><select id="cp-lang"><option value="ar">Arabic</option><option value="en">English</option></select></div>
-        <div class="inp-grp"><label>Service / Product</label><input id="cp-svc" value="خدمات SEO" placeholder="e.g. SEO Services"></div>
+        <div class="inp-grp"><label>اللغة</label><select id="cp-lang"><option value="ar">العربية</option><option value="en">الإنجليزية</option></select></div>
+        <div class="inp-grp"><label>الخدمة / المنتج</label><input id="cp-svc" value="خدمات SEO" placeholder="e.g. SEO Services"></div>
       </div>
       <div class="row2" style="margin-bottom:20px">
-        <div class="inp-grp"><label>Unique Selling Point</label><input id="cp-usp" value="نتائج مضمونة في 90 يوم"></div>
-        <div class="inp-grp"><label>Target Audience</label><input id="cp-aud" value="شركات سعودية تريد زيادة العملاء"></div>
+        <div class="inp-grp"><label>نقطة البيع الفريدة</label><input id="cp-usp" value="نتائج مضمونة في 90 يوم"></div>
+        <div class="inp-grp"><label>الجمهور المستهدف</label><input id="cp-aud" value="شركات سعودية تريد زيادة العملاء"></div>
       </div>
-      <button class="btn btn-p" onclick="genCopy()" id="cp-btn">Generate Copy</button>
+      <button class="btn btn-p" onclick="genCopy()" id="cp-btn">إنشاء النصوص</button>
       <div id="cp-st" style="font-size:12px;color:var(--m2);margin-top:12px"></div>
       <div id="cp-out" style="display:none;margin-top:24px">
-        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m1);font-weight:700;margin-bottom:10px;font-family:'IBM Plex Mono',monospace">Headlines — max 30 chars</div>
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m1);font-weight:700;margin-bottom:10px;font-family:'IBM Plex Mono',monospace">عناوين — حد أقصى 30 حرف</div>
         <div id="hl-out" style="margin-bottom:18px"></div>
-        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m1);font-weight:700;margin-bottom:10px;font-family:'IBM Plex Mono',monospace">Descriptions — max 90 chars</div>
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m1);font-weight:700;margin-bottom:10px;font-family:'IBM Plex Mono',monospace">الأوصاف — حد أقصى 90 حرف</div>
         <div id="dc-out" style="margin-bottom:18px"></div>
-        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m1);font-weight:700;margin-bottom:8px;font-family:'IBM Plex Mono',monospace">Display Path</div>
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m1);font-weight:700;margin-bottom:8px;font-family:'IBM Plex Mono',monospace">مسار العرض</div>
         <div id="pt-out" style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--a1)"></div>
       </div>
     </div>
@@ -304,11 +304,11 @@ textarea{resize:vertical;min-height:80px;width:100%}
   <div id="tp-neg" class="tp">
     <div class="panel">
       <div class="panel-hd">
-        <div class="panel-title">Negative Keyword Detector</div>
-        <button class="btn btn-p" onclick="detectNeg()">Detect Negatives</button>
+        <div class="panel-title">كاشف الكلمات السلبية</div>
+        <button class="btn btn-p" onclick="detectNeg()">اكتشاف الكلمات السلبية</button>
       </div>
       <div id="neg-st" style="font-size:12px;color:var(--m2);margin-bottom:14px"></div>
-      <div id="neg-out"><div style="text-align:center;color:var(--m1);padding:48px;font-size:13px">Analyze wasted spend to find negative keywords</div></div>
+      <div id="neg-out"><div style="text-align:center;color:var(--m1);padding:48px;font-size:13px">حلل الإنفاق المهدر للعثور على الكلمات السلبية</div></div>
     </div>
   </div>
 
@@ -316,10 +316,10 @@ textarea{resize:vertical;min-height:80px;width:100%}
   <div id="tp-rpt" class="tp">
     <div class="panel">
       <div class="panel-hd">
-        <div class="panel-title">AI Weekly Report</div>
+        <div class="panel-title">التقرير الأسبوعي</div>
         <div style="display:flex;gap:10px;align-items:center">
-          <select id="rpt-lang" style="width:120px;padding:9px 12px"><option value="ar">Arabic</option><option value="en">English</option></select>
-          <button class="btn btn-p" onclick="genRpt()">Generate Report</button>
+          <select id="rpt-lang" style="width:120px;padding:9px 12px"><option value="ar">العربية</option><option value="en">الإنجليزية</option></select>
+          <button class="btn btn-p" onclick="genRpt()">إنشاء التقرير</button>
         </div>
       </div>
       <div id="rpt-st" style="font-size:12px;color:var(--m2);margin-bottom:12px"></div>
@@ -331,54 +331,54 @@ textarea{resize:vertical;min-height:80px;width:100%}
   <div id="tp-conn" class="tp">
     <div style="max-width:640px">
       <div class="panel">
-        <div class="panel-title" style="margin-bottom:24px">Connect Google Ads Account</div>
+        <div class="panel-title" style="margin-bottom:24px">ربط حساب Google Ads</div>
         <div class="wizard">
           <div class="wstep">
             <div class="wstep-num" id="sn1">1</div>
             <div style="flex:1">
-              <div class="wstep-ttl">Developer Token</div>
-              <div class="wstep-desc">Get from Google Ads → Tools → API Center. Test token is instant, production requires 1–3 days approval.</div>
-              <div class="inp-grp"><label>Developer Token</label><input type="password" id="f-dev" placeholder="ABcdEfGhIjKlMn..."></div>
+              <div class="wstep-ttl">رمز المطور</div>
+              <div class="wstep-desc">احصل عليه من Google Ads → Tools → API Center. Test token is instant, production requires 1–3 days approval.</div>
+              <div class="inp-grp"><label>رمز المطور</label><input type="password" id="f-dev" placeholder="ABcdEfGhIjKlMn..."></div>
             </div>
           </div>
           <div class="wstep">
             <div class="wstep-num" id="sn2">2</div>
             <div style="flex:1">
-              <div class="wstep-ttl">OAuth Credentials</div>
-              <div class="wstep-desc">Create in Google Cloud Console → APIs → OAuth 2.0 → Desktop App credentials.</div>
+              <div class="wstep-ttl">بيانات OAuth</div>
+              <div class="wstep-desc">أنشئها في Google Cloud Console → APIs → OAuth 2.0 → Desktop App credentials.</div>
               <div class="row2">
-                <div class="inp-grp"><label>Client ID</label><input type="text" id="f-cid" placeholder="123456-abc.apps.googleusercontent.com"></div>
-                <div class="inp-grp"><label>Client Secret</label><input type="password" id="f-sec" placeholder="GOCSPX-..."></div>
+                <div class="inp-grp"><label>معرف العميل</label><input type="text" id="f-cid" placeholder="123456-abc.apps.googleusercontent.com"></div>
+                <div class="inp-grp"><label>سر العميل</label><input type="password" id="f-sec" placeholder="GOCSPX-..."></div>
               </div>
             </div>
           </div>
           <div class="wstep">
             <div class="wstep-num" id="sn3">3</div>
             <div style="flex:1">
-              <div class="wstep-ttl">Refresh Token + Account</div>
-              <div class="wstep-desc">Generate via OAuth flow once. Customer ID is your 10-digit account number (no dashes).</div>
+              <div class="wstep-ttl">رمز التحديث + رقم الحساب</div>
+              <div class="wstep-desc">أنشئه مرة واحدة عبر OAuth. Customer ID is your 10-digit account number (no dashes).</div>
               <div class="row2">
-                <div class="inp-grp"><label>Refresh Token</label><input type="password" id="f-ref" placeholder="1//0ABCDE..."></div>
-                <div class="inp-grp"><label>Customer ID</label><input type="text" id="f-cust" placeholder="1234567890"></div>
+                <div class="inp-grp"><label>رمز التحديث</label><input type="password" id="f-ref" placeholder="1//0ABCDE..."></div>
+                <div class="inp-grp"><label>رقم الحساب</label><input type="text" id="f-cust" placeholder="1234567890"></div>
               </div>
             </div>
           </div>
         </div>
         <div style="display:flex;gap:12px;margin-top:24px">
-          <button class="btn btn-p btn-full" onclick="doConnect()" id="conn-btn">Connect Account</button>
-          <button class="btn btn-g" onclick="sw('dash',null);loadDash()">Use Demo</button>
+          <button class="btn btn-p btn-full" onclick="doConnect()" id="conn-btn">ربط الحساب</button>
+          <button class="btn btn-g" onclick="sw('dash',null);loadDash()">استخدام التجريبي</button>
         </div>
         <div id="conn-st" class="status-bar"></div>
       </div>
 
       <div class="panel">
-        <div class="panel-title" style="margin-bottom:16px">Open Source Tools Stack</div>
+        <div class="panel-title" style="margin-bottom:16px">المكتبات المستخدمة</div>
         <table>
-          <thead><tr><th>Library</th><th>Use</th><th>Cost</th></tr></thead>
+          <thead><tr><th>المكتبة</th><th>الاستخدام</th><th>التكلفة</th></tr></thead>
           <tbody>
-            <tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--t3)">google-ads</td><td style="color:var(--m2)">Official Python client for Google Ads API</td><td style="color:var(--g2)">Free</td></tr>
-            <tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--t3)">bingads</td><td style="color:var(--m2)">Microsoft Ads SDK</td><td style="color:var(--g2)">Free</td></tr>
-            <tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--t3)">groq / openai</td><td style="color:var(--m2)">AI bidding & copy generation</td><td style="color:var(--y2)">Key required</td></tr>
+            <tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--t3)">google-ads</td><td style="color:var(--m2)">عميل Python الرسمي لـ Google Ads API</td><td style="color:var(--g2)">مجاني</td></tr>
+            <tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--t3)">bingads</td><td style="color:var(--m2)">SDK إعلانات Microsoft</td><td style="color:var(--g2)">مجاني</td></tr>
+            <tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--t3)">groq / openai</td><td style="color:var(--m2)">AI bidding & copy generation</td><td style="color:var(--y2)">يتطلب مفتاح API</td></tr>
           </tbody>
         </table>
       </div>
@@ -411,20 +411,20 @@ async function loadDash(){
     document.getElementById('kv-clicks').textContent=s.total_clicks.toLocaleString();
     document.getElementById('kv-conv').textContent=s.total_conversions;
     document.getElementById('kv-cpa').textContent='$'+s.avg_cpa;
-    document.getElementById('kv-cmp').textContent=s.active_campaigns+' active';
+    document.getElementById('kv-cmp').textContent=s.active_campaigns+' نشط';
     const modeLbl=document.getElementById('mode-lbl');
     if(s.is_demo){
-      modeLbl.textContent='Demo Mode';
+      modeLbl.textContent='وضع تجريبي';
       let banner=document.getElementById('demo-banner');
       if(!banner){
         banner=document.createElement('div');
         banner.id='demo-banner';
         banner.style.cssText='background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:var(--y2);border-radius:10px;padding:10px 18px;font-size:12px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px';
-        banner.innerHTML='<span>⚠</span> Showing demo data — <a href="javascript:void(0)" onclick="sw(\'conn\',document.querySelector(\'.tb:last-child\'))" style="color:var(--y3);text-decoration:underline">Connect your Google Ads account</a> to see live data.';
+        banner.innerHTML='<span>⚠</span> يتم عرض بيانات تجريبية — <a href="javascript:void(0)" onclick="sw(\'conn\',document.querySelector(\'.tb:last-child\'))" style="color:var(--y3);text-decoration:underline">اربط حساب Google Ads</a> لعرض البيانات الحقيقية.';
         document.getElementById('tp-dash').prepend(banner);
       }
     } else {
-      modeLbl.textContent='Live Data';
+      modeLbl.textContent='بيانات حية';
       const banner=document.getElementById('demo-banner');
       if(banner)banner.remove();
     }
@@ -473,8 +473,8 @@ async function loadTerms(){
 // AI BIDS
 async function loadBids(){
   const btn=document.getElementById('bid-btn'),st=document.getElementById('bid-st');
-  btn.innerHTML='<span class="spin"></span> Analyzing...';btn.disabled=true;
-  st.textContent=apiKeys.groq?'Using Groq AI for analysis...':'Using demo suggestions — add Groq key in Settings for live AI';
+  btn.innerHTML='<span class="spin"></span> جارٍ التحليل...';btn.disabled=true;
+  st.textContent=apiKeys.groq?'جارٍ التحليل باستخدام Groq AI...':'استخدام اقتراحات تجريبية — add Groq key in Settings for live AI';
   try{
     const r=await fetch(`${A}/ai/bid-suggestions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_keys:Object.keys(apiKeys).length?apiKeys:null})});
     const d=await r.json();
@@ -493,50 +493,50 @@ async function loadBids(){
           <div style="font-size:11px;color:var(--a1);margin-top:2px">${s.expected_impact||''}</div>
         </div>
       </div>`).join('');
-    st.textContent=d.count+' recommendations generated';
+    st.textContent=d.count+' توصية تم إنشاؤها';
   }catch(e){st.textContent='Error: '+e.message}
-  btn.innerHTML='Analyze Keywords';btn.disabled=false;
+  btn.innerHTML='تحليل الكلمات المفتاحية';btn.disabled=false;
 }
 
 // AD COPY
 async function genCopy(){
   const btn=document.getElementById('cp-btn'),st=document.getElementById('cp-st');
-  btn.innerHTML='<span class="spin"></span> Generating...';btn.disabled=true;st.textContent='';
+  btn.innerHTML='<span class="spin"></span> جارٍ الإنشاء...';btn.disabled=true;st.textContent='';
   try{
     const r=await fetch(`${A}/ai/copy`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_keys:Object.keys(apiKeys).length?apiKeys:null,lang:document.getElementById('cp-lang').value,service_name:document.getElementById('cp-svc').value,usp:document.getElementById('cp-usp').value,target_audience:document.getElementById('cp-aud').value})});
     const d=await r.json();if(!d.ok)throw new Error(d.error);
     const c=d.copy;
     document.getElementById('hl-out').innerHTML=(c.headlines||[]).map(h=>`<span class="hchip">${h}<span class="chars">${h.length}</span></span>`).join('');
-    document.getElementById('dc-out').innerHTML=(c.descriptions||[]).map(dc=>`<div class="desc-row">${dc}<span style="float:right;font-size:10px;color:var(--m1);font-family:'IBM Plex Mono',monospace">${dc.length}/90</span></div>`).join('');
+    document.getElementById('dc-out').innerHTML=(c.وصف||[]).map(dc=>`<div class="desc-row">${dc}<span style="float:right;font-size:10px;color:var(--m1);font-family:'IBM Plex Mono',monospace">${dc.length}/90</span></div>`).join('');
     document.getElementById('pt-out').textContent=(c.display_path||[]).join(' / ');
     document.getElementById('cp-out').style.display='block';
-    st.textContent=(c.headlines||[]).length+' headlines, '+(c.descriptions||[]).length+' descriptions';
+    st.textContent=(c.headlines||[]).length+' عنوان، '+(c.وصف||[]).length+' وصف';
   }catch(e){st.textContent='Error: '+e.message}
-  btn.innerHTML='Generate Copy';btn.disabled=false;
+  btn.innerHTML='إنشاء النصوص';btn.disabled=false;
 }
 
 // NEGATIVES
 async function detectNeg(){
-  document.getElementById('neg-st').textContent='Analyzing wasted spend...';
+  document.getElementById('neg-st').textContent='جارٍ تحليل الإنفاق المهدر...';
   try{
     const r=await fetch(`${A}/ai/negatives`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_keys:Object.keys(apiKeys).length?apiKeys:null})});
     const d=await r.json();if(!d.ok)throw new Error(d.error);
     const res=d.result;
     document.getElementById('neg-out').innerHTML=`
       <div style="margin-bottom:18px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:1px;font-weight:700">Estimated Savings</span>
+        <span style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:1px;font-weight:700">التوفير المتوقع</span>
         <span class="savings">${res.estimated_savings}</span>
       </div>
       <div style="margin-bottom:16px">
-        <div style="font-size:9px;color:var(--r3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px">Exact Negatives — Add Now</div>
+        <div style="font-size:9px;color:var(--r3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px">كلمات سلبية دقيقة — أضف الآن</div>
         ${(res.negatives_exact||[]).map(n=>`<span class="ntag exact">${n}</span>`).join('')}
       </div>
       <div style="margin-bottom:16px">
-        <div style="font-size:9px;color:var(--y2);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px">Phrase Negatives</div>
+        <div style="font-size:9px;color:var(--y2);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px">كلمات سلبية عبارة</div>
         ${(res.negatives_phrase||[]).map(n=>`<span class="ntag phrase">${n}</span>`).join('')}
       </div>
       <div>
-        <div style="font-size:9px;color:var(--m1);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px">Monitor</div>
+        <div style="font-size:9px;color:var(--m1);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px">مراقبة</div>
         ${(res.keep_monitoring||[]).map(n=>`<span class="ntag watch">${n}</span>`).join('')}
       </div>`;
     document.getElementById('neg-st').textContent='';
@@ -546,34 +546,34 @@ async function detectNeg(){
 // REPORT
 async function genRpt(){
   const st=document.getElementById('rpt-st'),out=document.getElementById('rpt-out');
-  st.textContent='Generating AI report...';out.style.display='none';
+  st.textContent='جارٍ إنشاء التقرير...';out.style.display='none';
   try{
     const r=await fetch(`${A}/ai/weekly-report`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_keys:Object.keys(apiKeys).length?apiKeys:null,lang:document.getElementById('rpt-lang').value})});
     const d=await r.json();if(!d.ok)throw new Error(d.error);
     out.textContent=d.report;out.style.display='block';
-    st.textContent='Report generated';
+    st.textContent='تم إنشاء التقرير';
   }catch(e){st.textContent='Error: '+e.message}
 }
 
 // CONNECT
 async function doConnect(){
   const btn=document.getElementById('conn-btn'),stEl=document.getElementById('conn-st');
-  btn.innerHTML='<span class="spin"></span> Connecting...';btn.disabled=true;
-  stEl.className='status-bar inf';stEl.style.display='block';stEl.textContent='Verifying credentials...';
+  btn.innerHTML='<span class="spin"></span> جارٍ الربط...';btn.disabled=true;
+  stEl.className='status-bar inf';stEl.style.display='block';stEl.textContent='جارٍ التحقق من البيانات...';
   try{
     const r=await fetch(`${A}/connect`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({developer_token:document.getElementById('f-dev').value,client_id:document.getElementById('f-cid').value,client_secret:document.getElementById('f-sec').value,refresh_token:document.getElementById('f-ref').value,customer_id:document.getElementById('f-cust').value})});
     const d=await r.json();
     if(d.ok){
-      stEl.className='status-bar ok';stEl.textContent='Connected: '+(d.account_name||d.customer_id);
+      stEl.className='status-bar ok';stEl.textContent='تم الربط: '+(d.account_name||d.customer_id);
       document.getElementById('mode-lbl').textContent='Live — '+(d.account_name||d.customer_id);
       ['sn1','sn2','sn3'].forEach(id=>{const n=document.getElementById(id);if(n)n.classList.add('done')});
       // reload dashboard with live data
       setTimeout(()=>{ sw('dash',document.querySelector('.tb')); loadDash(); }, 800);
     }else{
-      stEl.className='status-bar err';stEl.textContent='Failed: '+d.error;
+      stEl.className='status-bar err';stEl.textContent='فشل: '+d.error;
     }
   }catch(e){stEl.className='status-bar err';stEl.textContent='Network error: '+e.message}
-  btn.innerHTML='Connect Account';btn.disabled=false;
+  btn.innerHTML='ربط الحساب';btn.disabled=false;
 }
 
 loadKeys();
