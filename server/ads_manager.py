@@ -7,7 +7,7 @@ import os
 from typing import List, Dict, Optional
 from pathlib import Path
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / 'output'
+OUTPUT_DIR = Path(os.environ.get('OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / 'output')))
 
 # ── Dependency Guards ──────────────────────────────────────────────────────────
 try:

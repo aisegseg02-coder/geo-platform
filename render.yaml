@@ -1,2 +1,11 @@
-build_command: pip install -r requirements.txt && python -m spacy download en_core_web_sm
-start_command: uvicorn server.api:app --host 0.0.0.0 --port $PORT
+services:
+  - type: web
+    name: geo-platform
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python -m spacy download en_core_web_sm
+    startCommand: uvicorn server.api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OUTPUT_DIR
+        value: /tmp/geo-output
+      - key: PYTHON_VERSION
+        value: 3.12.0

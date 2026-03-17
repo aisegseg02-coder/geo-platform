@@ -7,8 +7,8 @@ import binascii
 import time
 from pathlib import Path
 
-OUTPUT = Path(__file__).resolve().parent.parent / 'output'
-OUTPUT.mkdir(exist_ok=True)
+OUTPUT = Path(os.environ.get('OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / 'output')))
+OUTPUT.mkdir(parents=True, exist_ok=True)
 DB_PATH = OUTPUT / 'users.db'
 
 def get_conn():

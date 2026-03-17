@@ -18,7 +18,8 @@ RUN python -m spacy download en_core_web_sm
 COPY . .
 
 # Create output dir
-RUN mkdir -p output
+ENV OUTPUT_DIR=/tmp/geo-output
+RUN mkdir -p /tmp/geo-output
 
 EXPOSE 8000
 

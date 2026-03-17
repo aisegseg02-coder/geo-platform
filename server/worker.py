@@ -10,6 +10,9 @@ from server import ai_visibility, ai_analysis
 import json
 from pathlib import Path
 
+OUTPUT_DIR = Path(os.environ.get('OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / 'output')))
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 def process_job(job):
     jid = job['id']
@@ -20,7 +23,7 @@ def process_job(job):
         return
     job_queue.update_job(jid, progress={'stage':'started', 'percent':0})
     try:
-        out_dir = Path(__file__).resolve().parent.parent / 'output' / f'job-{jid}'
+        out_dir = OUTPUT_DIR / f'job-{jid}'
         out_dir.mkdir(parents=True, exist_ok=True)
 
         job_queue.update_job(jid, progress={'stage':'crawling', 'percent':10})

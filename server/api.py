@@ -21,8 +21,8 @@ from server import search_intel
 from fastapi import WebSocket
 import asyncio
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / 'output'
-OUTPUT_DIR.mkdir(exist_ok=True)
+OUTPUT_DIR = Path(os.environ.get('OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / 'output')))
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title='GEO Platform API')
 

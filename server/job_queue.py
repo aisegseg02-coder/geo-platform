@@ -3,8 +3,10 @@ import json
 from pathlib import Path
 import datetime
 
-DB_PATH = Path(__file__).resolve().parent.parent / 'output' / 'jobs.db'
-DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+import os
+_OUTPUT = Path(os.environ.get('OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / 'output')))
+_OUTPUT.mkdir(parents=True, exist_ok=True)
+DB_PATH = _OUTPUT / 'jobs.db'
 
 
 def _conn():
