@@ -1,0 +1,13 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Abaya Noir",
+      "url": "https://abayanoir.com",
+      "inLanguage": "en",
+      "sameAs": [],
+      "alternateName": []
+    }
+  ]
+}

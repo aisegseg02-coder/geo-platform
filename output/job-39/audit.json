@@ -1,0 +1,31 @@
+{
+  "pages": [
+    {
+      "url": "https://app.snov.io/",
+      "title": "Snov.io",
+      "headings": [],
+      "paragraphs": [],
+      "links": []
+    }
+  ],
+  "audits": [
+    {
+      "url": "https://app.snov.io/",
+      "title": "Snov.io",
+      "headings_ok": false,
+      "density": {
+        "avg_words": 0,
+        "paras": 0
+      },
+      "entities": {
+        "entities": [],
+        "summary": {}
+      }
+    }
+  ],
+  "ai_visibility": {
+    "enabled": false,
+    "reason": "OPENAI_API_KEY not set",
+    "results": []
+  }
+}

@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GEO Recommendations | Content Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css" />
+  <style>
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      border-radius: 99px;
+      background: hsla(190, 100%, 50%, 0.1);
+      border: 1px solid var(--border-glow);
+      font-weight: 700;
+      font-family: 'Outfit';
+    }
+    .score-value {
+      font-size: 24px;
+      color: var(--accent);
+    }
+    .gauge-wrap {
+      max-width: 400px;
+      margin-bottom: 30px;
+    }
+    .gauge-bar {
+      height: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .gauge-fill {
+      height: 100%;
+      background: var(--accent-grad);
+      width: 0%;
+      transition: width 2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .priority-critical { border-left: 6px solid var(--red) !important; }
+    .priority-warning { border-left: 6px solid var(--yellow) !important; }
+    .priority-ok { border-left: 6px solid var(--green) !important; }
+    pre {
+      background: rgba(0,0,0,0.3);
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    .card { margin-bottom: 24px; }
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 768px) { .analysis-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stagger-item" style="animation-delay: 0.1s">
+    <a href="/" style="color:var(--muted); text-decoration: none; display:inline-flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Dashboard
+    </a>
+  </div>
+
+  <div class="stagger-item" style="animation-delay: 0.2s">
+    <h1 class="shine-text" style="font-size: 48px; margin-bottom: 12px;">GEO Recommendations</h1>
+    <p style="color:var(--muted); margin-bottom: 16px; font-size: 18px;">Actionable intelligence to dominate Generative Search Engines.</p>
+    <div id="site-context" style="font-size:13px; margin-bottom:32px; padding:10px 16px; background:rgba(0,242,255,0.05); border:1px solid var(--border); border-radius:10px;"></div>
+  </div>
+
+  <div id="loading" class="panel stagger-item" style="text-align: center; padding: 60px;">
+    <div class="shine-text" style="font-size: 24px;">Synthesizing Intelligence...</div>
+    <p style="color:var(--muted); margin-top: 12px;">Running visibility checks and semantic audits.</p>
+  </div>
+
+  <div id="content" style="display:none">
+    <div class="analysis-grid">
+      <div id="score_panel" class="card stagger-item" style="animation-delay: 0.3s">
+        <h3 style="margin-top: 0;">Visibility Score</h3>
+        <div class="gauge-wrap">
+          <div style="display:flex; justify-content: space-between; font-weight: 600;">
+            <span id="score_label">Loading...</span>
+            <span id="score_pct">0%</span>
+          </div>
+          <div class="gauge-bar"><div id="score_fill" class="gauge-fill"></div></div>
+        </div>
+        <div id="score_breakdown" style="font-size: 14px; color: var(--muted); display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+      </div>
+
+      <div id="aiVisibility" class="card stagger-item" style="animation-delay: 0.4s">
+        <h3 style="margin-top: 0;">AI Presence</h3>
+        <div id="ai_vis_content" style="color:var(--muted); font-size: 14px;"></div>
+      </div>
+    </div>
+
+    <div class="card stagger-item" style="animation-delay: 0.5s">
+      <h2 style="margin-top: 0; color:var(--accent);">Global Strategies</h2>
+      <div id="global_actions" style="margin-top: 12px;"></div>
+    </div>
+
+    <h2 class="stagger-item" style="color:var(--accent); margin-top: 40px; animation-delay: 0.6s">Per-Page Optimization</h2>
+    <div id="pages" class="stagger-item" style="animation-delay: 0.7s"></div>
+  </div>
+
+  <script>
+    // Read job_id from URL: /recommendations.html?job_id=42
+    const params = new URLSearchParams(location.search);
+    const JOB_ID = params.get('job_id') ? parseInt(params.get('job_id')) : null;
+
+    async function load(){
+      try {
+        // Show which job/site we're analyzing
+        if (JOB_ID) {
+          const jr = await fetch(`/api/jobs/${JOB_ID}`);
+          const jd = await jr.json();
+          if (jd.ok && jd.job) {
+            const j = jd.job;
+            document.getElementById('site-context').innerHTML =
+              `Analyzing: <strong style="color:var(--accent)">${j.url}</strong>
+               &nbsp;·&nbsp; <span style="color:var(--muted)">Job #${JOB_ID} &mdash; ${j.org_name || ''}</span>`;
+          }
+        } else {
+          document.getElementById('site-context').innerHTML =
+            '<span style="color:var(--yellow)">⚠ No job selected — showing last crawl. <a href="/jobs.html" style="color:var(--accent)">Pick a job</a> to see site-specific results.</span>';
+        }
+
+        // Collect keys from local storage
+        const api_keys = {
+          groq: localStorage.getItem('geo_groq_key'),
+          openai: localStorage.getItem('geo_openai_key'),
+          perplexity: localStorage.getItem('geo_perplexity_key')
+        };
+
+        const body = { api_keys };
+        if (JOB_ID) body.job_id = JOB_ID;
+
+        const r = await fetch('/api/recommendations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        
+        const j = await r.json();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+        if (!j.ok){ 
+          document.getElementById('content').innerHTML = `<div class="card priority-critical">Error: ${j.error||JSON.stringify(j)}</div>`;
+          return;
+        }
+
+        // 1. Score Panel
+        if (j.geo_score) {
+          const gs = j.geo_score;
+          document.getElementById('score_pct').textContent = gs.score + '%';
+          document.getElementById('score_fill').style.width = gs.score + '%';
+          document.getElementById('score_label').textContent = gs.status;
+          
+          const b = gs.breakdown || {};
+          document.getElementById('score_breakdown').innerHTML = `
+            <div>Headings: ${b.headings || 0}/20</div>
+            <div>Density: ${b.density || 0}/20</div>
+            <div>Entities: ${b.entities || 0}/20</div>
+            <div>FAQ: ${b.faq || 0}/20</div>
+            <div>AI Vis: ${b.ai_visibility || 0}/20</div>
+          `;
+        }
+
+        // 2. AI Visibility
+        const aiVisEl = document.getElementById('ai_vis_content');
+        if (j.ai_visibility && j.ai_visibility.enabled){
+           let html = '<div style="margin-bottom:10px">Your brand was found in Generative results:</div>';
+           (j.ai_visibility.results || []).forEach(res => {
+              const color = res.mentioned ? 'var(--green)' : 'var(--red)';
+              html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px;">
+                <span>${res.query}</span>
+                <span style="color:${color}; font-weight:700">${res.mentioned ? 'FOUND' : 'MISSING'}</span>
+              </div>`;
+           });
+           aiVisEl.innerHTML = html;
+        } else {
+           aiVisEl.innerHTML = `<div class="priority-warning" style="padding:10px; border-radius:8px; background:rgba(255,204,0,0.1)">
+             ${j.ai_visibility?.reason || 'AI Visibility data unavailable.'}
+           </div>`;
+        }
+
+        // 3. Global Actions
+        const actionsDiv = document.getElementById('global_actions');
+        const actions = (j.recommendations?.actions || []);
+        if (actions.length) {
+          actionsDiv.innerHTML = actions.map(a => `<div style="margin-bottom:8px; display:flex; gap:10px;">
+            <span style="color:var(--accent)">•</span> <span>${a}</span>
+          </div>`).join('');
+        } else {
+          actionsDiv.textContent = 'Intelligence reports optimal visibility configurations.';
+        }
+
+        // 4. Per Page
+        const pagesEl = document.getElementById('pages');
+        const perPage = (j.recommendations?.per_page || []).sort((a,b)=> (b.issues?.length||0) - (a.issues?.length||0));
+        
+        perPage.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'card ' + (p.issues?.length > 1 ? 'priority-critical' : (p.issues?.length > 0 ? 'priority-warning' : 'priority-ok'));
+          
+          let html = `
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <strong>${p.title || p.url}</strong><br>
+                <small style="color:var(--muted)">${p.url}</small>
+              </div>
+              ${p.issues?.length ? `<span class="score-badge" style="background:rgba(255,51,102,0.1); border-color:rgba(255,51,102,0.2); color:var(--red); font-size:12px;">${p.issues.length} ISSUES</span>` : ''}
+            </div>
+            <div style="margin-top:20px; display:grid; grid-template-columns: 1fr; gap:15px;">
+          `;
+
+          if (p.issues?.length) {
+             html += `<div><strong style="color:var(--red); font-size:13px; text-transform:uppercase;">Identified Issues</strong>
+               <div style="margin-top:5px;">${p.issues.map(i => `<span style="display:inline-block; padding:4px 10px; border-radius:6px; background:rgba(255,255,255,0.05); margin-right:5px; font-size:12px;">${i}</span>`).join('')}</div>
+             </div>`;
+          }
+
+          if (p.suggestions?.length) {
+             html += `<div><strong style="color:var(--accent); font-size:13px; text-transform:uppercase;">Optimization Steps</strong><div style="margin-top:5px; font-size:14px; color:var(--muted);">`;
+             p.suggestions.forEach(s => {
+               if (typeof s === 'string') html += `<div style="margin-bottom:4px">• ${s}</div>`;
+               else if (s.rewrite) html += `<div style="margin-top:10px; background:var(--surface-hover); padding:15px; border-radius:12px; border-left:4px solid var(--accent);">
+                 <div style="font-size:11px; margin-bottom:5px; color:var(--accent); font-weight:700;">AI REWRITE SUGGESTION</div>
+                 <div style="font-style:italic; color:var(--text);">${s.rewrite}</div>
+               </div>`;
+             });
+             html += `</div></div>`;
+          }
+
+          if (p.schema_example) {
+             const codeId = 'code_' + Math.random().toString(36).substr(2, 9);
+             html += `<div>
+               <div style="display:flex; justify-content:space-between; align-items:center;">
+                 <strong style="color:var(--ultra-accent); font-size:13px; text-transform:uppercase;">Semantic Metadata (FAQ)</strong>
+                 <button class="btn" style="padding:6px 12px; font-size:11px;" onclick="copyCode('${codeId}', this)">Copy JSON-LD</button>
+               </div>
+               <pre id="${codeId}">${JSON.stringify(p.schema_example, null, 2)}</pre>
+             </div>`;
+          }
+
+          html += `</div>`;
+          card.innerHTML = html;
+          pagesEl.appendChild(card);
+        });
+
+      } catch (err) {
+        document.getElementById('loading').innerHTML = `<div class="priority-critical">Critical System Error: ${err.message}</div>`;
+      }
+    }
+
+    function copyCode(id, btn) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text);
+      const old = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = old, 1500);
+    }
+
+    load();
+  </script>
+</div>
+</body>
+</html>

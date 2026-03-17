@@ -1,0 +1,10 @@
+venv_new/
+__pycache__/
+*.pyc
+*.pyo
+.env
+output/ads_config.json
+output/users.db
+output/jobs.db
+.venv/
+*.egg-info/

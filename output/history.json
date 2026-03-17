@@ -1,0 +1,478 @@
+[
+  {
+    "timestamp": "20260312T085146Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      58
+    ],
+    "mean": 58,
+    "median": 58,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T085146Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T085146Z-1/audit.json",
+        "geo_score": {
+          "score": 58,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 13,
+            "density": 4,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 2,
+            "warnings": 1,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T085155Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      58
+    ],
+    "mean": 58,
+    "median": 58,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T085155Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T085155Z-1/audit.json",
+        "geo_score": {
+          "score": 58,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 13,
+            "density": 4,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 2,
+            "warnings": 1,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T085408Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      59
+    ],
+    "mean": 59,
+    "median": 59,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T085408Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T085408Z-1/audit.json",
+        "geo_score": {
+          "score": 59,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 13,
+            "density": 5,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 2,
+            "warnings": 1,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T090343Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      55
+    ],
+    "mean": 55,
+    "median": 55,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T090343Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T090343Z-1/audit.json",
+        "geo_score": {
+          "score": 55,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 13,
+            "density": 2,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 3,
+            "warnings": 0,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T091207Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      58
+    ],
+    "mean": 58,
+    "median": 58,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T091207Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T091207Z-1/audit.json",
+        "geo_score": {
+          "score": 58,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 13,
+            "density": 5,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 2,
+            "warnings": 1,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T091734Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      62
+    ],
+    "mean": 62,
+    "median": 62,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T091734Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T091734Z-1/audit.json",
+        "geo_score": {
+          "score": 62,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 20,
+            "density": 2,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 3,
+            "warnings": 0,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T091847Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      62
+    ],
+    "mean": 62,
+    "median": 62,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T091847Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T091847Z-1/audit.json",
+        "geo_score": {
+          "score": 62,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 20,
+            "density": 2,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 3,
+            "warnings": 0,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T092544Z",
+    "url": "https://mohrek.com/",
+    "org_name": "moharek",
+    "runs": 1,
+    "scores": [
+      71
+    ],
+    "mean": 71,
+    "median": 71,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T092544Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T092544Z-1/audit.json",
+        "geo_score": {
+          "score": 71,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 20,
+            "density": 11,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 1,
+            "warnings": 2,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T095852Z",
+    "url": "https://mohrek.com/",
+    "org_name": "moharek",
+    "runs": 1,
+    "scores": [
+      69
+    ],
+    "mean": 69,
+    "median": 69,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T095852Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T095852Z-1/audit.json",
+        "geo_score": {
+          "score": 69,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 20,
+            "density": 9,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 2,
+            "warnings": 1,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T095930Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      65
+    ],
+    "mean": 65,
+    "median": 65,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T095930Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T095930Z-1/audit.json",
+        "geo_score": {
+          "score": 65,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 20,
+            "density": 5,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 2,
+            "warnings": 1,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T100856Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      58
+    ],
+    "mean": 58,
+    "median": 58,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T100856Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T100856Z-1/audit.json",
+        "geo_score": {
+          "score": 58,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 13,
+            "density": 5,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 2,
+            "warnings": 1,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T102232Z",
+    "url": "https://mohrek.com/",
+    "org_name": "moharek",
+    "runs": 1,
+    "scores": [
+      69
+    ],
+    "mean": 69,
+    "median": 69,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T102232Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T102232Z-1/audit.json",
+        "geo_score": {
+          "score": 69,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 20,
+            "density": 9,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 1,
+            "warnings": 2,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T102531Z",
+    "url": "https://mohrek.com/",
+    "org_name": "moharek",
+    "runs": 1,
+    "scores": [
+      71
+    ],
+    "mean": 71,
+    "median": 71,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T102531Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T102531Z-1/audit.json",
+        "geo_score": {
+          "score": 71,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 20,
+            "density": 11,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 0,
+            "warnings": 3,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "20260312T102800Z",
+    "url": "https://abayanoir.com/",
+    "org_name": "abayanoir ",
+    "runs": 1,
+    "scores": [
+      55
+    ],
+    "mean": 55,
+    "median": 55,
+    "variance": 0.0,
+    "runs_info": [
+      {
+        "ts": "20260312T102800Z",
+        "audit_path": "/home/ali/Downloads/t/geo-platform/output/run-20260312T102800Z-1/audit.json",
+        "geo_score": {
+          "score": 55,
+          "status": "Needs Work",
+          "breakdown": {
+            "headings": 13,
+            "density": 2,
+            "entities": 20,
+            "faq": 20,
+            "ai_visibility": 0
+          },
+          "counts": {
+            "critical": 3,
+            "warnings": 0,
+            "passed": 0
+          }
+        }
+      }
+    ]
+  }
+]

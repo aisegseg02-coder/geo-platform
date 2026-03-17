@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GEO Platform — UI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="brand">GEO Platform</div>
+      <div style="color:var(--muted);">Run crawls, audits and AI visibility checks</div>
+      <nav style="margin-left:auto;display:flex;gap:10px;align-items:center">
+        <a href="#" data-page="home" class="nav-link" style="color:var(--accent);text-decoration:none">Home</a>
+        <a href="#" data-page="recommendations" class="nav-link" style="color:var(--accent);text-decoration:none">Recommendations</a>
+        <a href="#" data-page="search" class="nav-link" style="color:var(--accent);text-decoration:none">Search Intelligence</a>
+        <a href="#" data-page="jobs" class="nav-link" style="color:var(--accent);text-decoration:none">Jobs</a>
+        <a href="/content" data-page="content" class="nav-link" style="color:var(--accent);text-decoration:none"> Content</a>
+        <a href="/ads" class="nav-link" style="color:var(--accent);text-decoration:none"> Paid Ads</a>
+      </nav>
+    </div>
+
+    <div id="homeView">
+      <div class="panel stagger-item">
+        <form id="crawlForm">
+          <input id="url" placeholder="https://example.com" style="flex:1" required />
+          <input id="orgName" placeholder="Organization name" required />
+          <input id="orgUrl" placeholder="Organization URL" />
+          <input id="runs" placeholder="Runs (1)" style="width:84px" />
+          <button type="submit" class="btn">Start Crawl</button>
+        </form>
+        <div id="status" style="margin-top:12px;color:var(--muted)"></div>
+        <div style="margin-top:12px">
+          <button id="keywordsBtn" class="btn">Extract Keywords (quick)</button>
+          <div id="keywordsOut" style="margin-top:8px;color:var(--muted)"></div>
+        </div>
+      </div>
+ 
+      <div class="grid">
+        <div class="stagger-item" style="animation-delay: 0.2s;">
+          <div class="panel" id="resultsPanel">
+            <h3>Results</h3>
+            <div id="geoScore" style="margin-bottom:12px">GEO Score: —</div>
+            <div id="results">No results yet.</div>
+            <div style="margin-top:12px">
+              <button id="analyzeBtn" class="btn">Run Intelligence</button>
+              <span id="analyzeStatus" style="margin-left:10px;color:var(--muted)"></span>
+            </div>
+          </div>
+        </div>
+        <div class="stagger-item" style="animation-delay: 0.4s;">
+          <div class="panel">
+            <h4>Raw Audit</h4>
+            <pre id="raw">—</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="mainContent">
+      <!-- main content will be loaded here; default to home view -->
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('crawlForm');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const rawEl = document.getElementById('raw');
+
+    // track the last enqueued job id so nav links can carry it
+    let _lastJobId = null;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = document.getElementById('url').value;
+      const orgName = document.getElementById('orgName').value;
+      const orgUrl = document.getElementById('orgUrl').value || url;
+      statusEl.textContent = 'Starting crawl...';
+
+      try {
+        const runs = parseInt(document.getElementById('runs').value || '1') || 1;
+        const resp = await fetch('/api/jobs', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ url, org_name: orgName, org_url: orgUrl, max_pages: 3, runs })
+        });
+        const data = await resp.json();
+        if (!data.ok) {
+          statusEl.textContent = 'Error: ' + (data.error || JSON.stringify(data));
+          return;
+        }
+        _lastJobId = data.job_id;
+        statusEl.innerHTML = `Job enqueued: <strong>${data.job_id}</strong>. Open <a href='/jobs.html'>Jobs</a> to view progress.`;
+      } catch (err) {
+        statusEl.textContent = 'Request failed: ' + err.message;
+      }
+    });
+
+    async function loadResults(){
+      try{
+        const r = await fetch('/api/results');
+        const j = await r.json();
+        resultsEl.innerHTML = '';
+        if (j.audit && j.audit.audits){
+          j.audit.audits.forEach(a => {
+            const d = document.createElement('div');
+            d.style.marginBottom='10px';
+            d.innerHTML = `<strong>${a.title||a.url}</strong><div style="color:var(--muted);font-size:13px">Headings OK: ${a.headings_ok} • Paras: ${a.density.paras} • Avg words: ${Math.round(a.density.avg_words)}</div>`;
+            resultsEl.appendChild(d);
+          });
+        }
+        rawEl.textContent = JSON.stringify(j, null, 2);
+      }catch(e){ rawEl.textContent = 'Failed to load results: '+e.message }
+    }
+
+
+    // SPA navigation: load other pages into the main content area
+    const mainContent = document.getElementById('mainContent');
+    const homeView = document.getElementById('homeView');
+    function showHome(){ mainContent.innerHTML = ''; mainContent.appendChild(homeView); }
+
+    async function loadPage(path){
+      try{
+        const r = await fetch(path);
+        if (!r.ok) { mainContent.innerHTML = `<div class="panel">Failed to load page ${path}</div>`; return }
+        const txt = await r.text();
+        // parse HTML and extract body while handling scripts and links
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(txt, 'text/html');
+
+        // copy stylesheet links from fetched head if not already present
+        const links = Array.from(doc.querySelectorAll('link[rel="stylesheet"]'));
+        links.forEach(link => {
+          const href = link.getAttribute('href');
+          if (!href) return;
+          if (!document.querySelector(`link[rel="stylesheet"][href="${href}"]`)){
+            const nl = document.createElement('link'); nl.rel = 'stylesheet'; nl.href = href; document.head.appendChild(nl);
+          }
+        });
+
+        // extract body content but remove scripts from it
+        const body = doc.body || document.createElement('body');
+        const scripts = Array.from(body.querySelectorAll('script'));
+        scripts.forEach(s=>s.parentNode && s.parentNode.removeChild(s));
+        const content = body.innerHTML;
+        mainContent.innerHTML = content;
+
+        // load external scripts (if not already loaded) and execute inline scripts
+        for (const s of scripts){
+          const src = s.getAttribute && s.getAttribute('src');
+          if (src){
+            if (!document.querySelector(`script[src="${src}"]`)){
+              await new Promise((resolve, reject)=>{
+                const ns = document.createElement('script'); ns.src = src; ns.async = false; ns.onload = resolve; ns.onerror = ()=>resolve(); document.head.appendChild(ns);
+              });
+            }
+          } else {
+            // inline script: create and append to mainContent so it runs in page context
+            try{
+              const ni = document.createElement('script'); ni.text = s.textContent || s.innerText || ''; mainContent.appendChild(ni);
+            }catch(e){ /* ignore */ }
+          }
+        }
+      }catch(e){ mainContent.innerHTML = `<div class="panel">Error loading ${path}: ${e.message}</div>` }
+    }
+
+    function setActiveNav(page){
+      document.querySelectorAll('.nav-link').forEach(n=>{
+        if (n.getAttribute('data-page')===page) n.classList.add('nav-active'); else n.classList.remove('nav-active');
+      });
+    }
+
+    document.querySelectorAll('.nav-link').forEach(a=>{
+      a.addEventListener('click', async (ev)=>{
+        const page = a.getAttribute('data-page');
+        if (!page) return; // Let regular links (like Content) work normally
+        ev.preventDefault();
+        setActiveNav(page);
+        if (page === 'home'){
+          mainContent.innerHTML = '';
+          mainContent.appendChild(homeView);
+        } else if (page === 'recommendations'){
+          const suffix = _lastJobId ? `?job_id=${_lastJobId}` : '';
+          await loadPage('/recommendations.html' + suffix);
+        } else if (page === 'search'){
+          await loadPage('/search.html');
+        } else if (page === 'jobs'){
+          await loadPage('/jobs.html');
+        } else if (page === 'content'){
+          window.location.href = '/content';
+        }
+      })
+    });
+
+    // on initial load, place the home view into mainContent
+    (function initMain(){ mainContent.innerHTML = ''; mainContent.appendChild(homeView); setActiveNav('home'); })();
+
+    document.getElementById('analyzeBtn').addEventListener('click', async () => {
+      const s = document.getElementById('analyzeStatus');
+      s.textContent = 'Running intelligence...';
+      try{
+        const r = await fetch('/api/analyze', { method: 'POST' });
+        const j = await r.json();
+        if (!j.ok) { s.textContent = 'Error: '+(j.error||JSON.stringify(j)); return }
+        s.textContent = 'Done.';
+        // show analysis in raw panel and a short summary
+        const ana = j.analysis || j.analysis;
+        if (ana && ana.openai && ana.openai.result){
+          const res = ana.openai.result;
+          const sum = document.createElement('div');
+          sum.style.marginTop='12px';
+          sum.innerHTML = `<strong>AI Summary</strong><div style="color:var(--muted)">${res.summary||res}</div>`;
+          resultsEl.prepend(sum);
+        }
+        if (j.geo_score){
+          const g = j.geo_score;
+          const scoreEl = document.getElementById('geoScore');
+          scoreEl.innerHTML = `GEO Score: <strong style="color:${g.score>=75? '#10b981': g.score>=40? '#f59e0b':'#ef4444'}">${g.score}%</strong> — ${g.status}`;
+          // show counts
+          const counts = document.createElement('div');
+          counts.style.color='var(--muted)';
+          counts.style.marginTop='8px';
+          counts.textContent = `Critical Issues: ${g.counts.critical} • Warnings: ${g.counts.warnings} • Passed: ${g.counts.passed}`;
+          scoreEl.appendChild(counts);
+        }
+        rawEl.textContent = JSON.stringify(j, null, 2);
+      }catch(e){ s.textContent = 'Request failed: '+e.message }
+    });
+
+    document.getElementById('keywordsBtn').addEventListener('click', async () => {
+      const out = document.getElementById('keywordsOut');
+      out.textContent = 'Fetching keywords...';
+      const url = document.getElementById('url').value;
+      if (!url) { out.textContent = 'Enter a URL first.'; return }
+      try{
+        const r = await fetch('/api/keywords', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ url, max_pages: 1 }) });
+        const j = await r.json();
+        if (!j.ok){ out.textContent = 'Error: ' + (j.error||JSON.stringify(j)); return }
+        let html = '<strong>Keywords</strong><ul>';
+        for (const k of j.keywords || []) html += `<li>${k.kw} <span style="color:var(--muted)">(${k.count})</span></li>`;
+        html += '</ul>';
+        out.innerHTML = html;
+      }catch(e){ out.textContent = 'Request failed: '+e.message }
+    });
+
+    // poll results periodically
+    setInterval(loadResults, 8000);
+  </script>
+</body>
+</html>

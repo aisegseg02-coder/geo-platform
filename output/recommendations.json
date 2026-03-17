@@ -1,0 +1,58 @@
+{
+  "actions": [
+    "Increase paragraph depth: aim for 40–120 words in core paragraphs; add definitions and examples.",
+    "Run Perplexity and Groq checks; create short definitional content to increase brand mention likelihood."
+  ],
+  "per_page": [
+    {
+      "url": "https://rabhanagency.com/",
+      "title": "إنشاء متجر إلكتروني | شركة ربحان – حلول تجارة إلكترونية احترافية",
+      "issues": [
+        "Short paragraphs"
+      ],
+      "suggestions": [
+        "Expand core paragraphs to 40–120 words; lead with a one-sentence answer.",
+        "Add the FAQ JSON-LD for the question above to improve AI extraction."
+      ],
+      "schema_example": {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "نصمّم لك اسم، شعار، ألوان وهوية متكاملة.",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Rabhanagency"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://rabhanagency.com/#content",
+      "title": "إنشاء متجر إلكتروني | شركة ربحان – حلول تجارة إلكترونية احترافية",
+      "issues": [
+        "Short paragraphs"
+      ],
+      "suggestions": [
+        "Expand core paragraphs to 40–120 words; lead with a one-sentence answer.",
+        "Add the FAQ JSON-LD for the question above to improve AI extraction."
+      ],
+      "schema_example": {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "نصمّم لك اسم، شعار، ألوان وهوية متكاملة.",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Rabhanagency"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

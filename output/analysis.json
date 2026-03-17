@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-2b7b1725-f789-4c3c-af45-3b69aedd2b31')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"data\": [\\n    {\\n      \"title\": \"الرئيسية-2 - ELBATT GROUP\",\\n      \"url\": \"https://elbatt.com/\",\\n      \"text\": \"ELBATT GROUP\"\\n    },\\n    {\\n      \"title\": \"\\\\u0627\\\\u0644\\\\u0627\\\\u0643\\\\u0627\\\\u062f\\\\u064a\\\\u0645\\\\u064a\\\\u0629 - ELBATT GROUP\",\\n      \"url\": \"https://elbatt.com/%d8%a7%d9%84%d8%a3%d9%83%d8%a7%d8%af%d9%8a%d9%85%d9%8a%d8%a9/\",\\n      \"text\": \"ELBATT GROUP\"\\n    },\\n    {\\n      \"title\": \"\\\\u062a\\\\u0628\\\\u0644\\\\u064a\\\\u0642\\\\u0627\\\\u062a \\\\u0627\\\\u0644\\\\u0645\\\\u0648\\\\u0628\\\\u0627\\\\u064a\\\\u0644 - ELBATT GROUP\",\\n      \"url\": \"https://elbatt.com/%d8%aa%d8%b7%d8%a8%d9%8a%d9%82%d8%a7%d8%aa-%d8%a7%d9%84%d9%85%d9%88%d8%a8%d8%a7%d9%8a%d9%84/\",\\n      \"text\": \"ELBATT GROUP\"\\n    }\\n  ]\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1773739324)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_8639719ff2')('usage', CompletionUsage(completion_tokens=324, prompt_tokens=250, total_tokens=574, completion_time=0.373420474, completion_tokens_details=None, prompt_time=0.013872018, prompt_tokens_details=None, queue_time=0.01896521, total_time=0.387292492))('usage_breakdown', None)('x_groq', XGroq(id='req_01kkxhmd36fpysvcb131gcgeet', debug=None, seed=1775009705, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 58,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 13,
+      "density": 5,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 2,
+      "warnings": 1,
+      "passed": 0
+    }
+  }
+}

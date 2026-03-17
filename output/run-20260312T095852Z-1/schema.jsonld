@@ -1,0 +1,26 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "moharek",
+      "url": "https://mohrek.com/",
+      "inLanguage": "en",
+      "sameAs": [],
+      "alternateName": []
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "شهادة توثيق التجارة الالكترونية",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "محرّكهي شركة السيو الأفضل في تهيئة وتحسين محركات البحث في الوطن العربي، وأيضاً إدارة السوشيال ميديا بالاضافة لتطوير المواقع لمساعدة موقعك في تحقيق المزيد من التقدم والوصول لأضعاف الزوار والحفاظ على النتيجة الأولى في كافة محركات البحث."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Content Engine</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css?v=1.2" />
+</head>
+
+<body>
+  <div class="wrap">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
+      <h2 class="shine-text" style="font-size: 38px; margin: 0; letter-spacing: -1.5px;"> AI Content Dashboard</h2>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span class="badge badge-accent" style="letter-spacing: 2px;">v2.0-ULTRA</span>
+        <button id="main-settings-btn" class="btn" style="padding:10px 20px; font-size:14px;">
+          ⚙️ Backend Config
+        </button>
+        <a href="/"
+          style="color:var(--text); text-decoration:none; font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; transition: 0.3s;">
+          🏠 Back Home
+        </a>
+      </div>
+    </div>
+    <div class="sub"
+      style="opacity: 0.8; font-weight: 500; letter-spacing: 0.5px; margin-top: 10px; animation: slideInRight 0.8s ease-out both;">
+      Next-Gen Content Intelligence & Semantic SEO Architecture
+    </div>
+
+    <div style="margin-top: 40px;">
+      <div class="tabs">
+        <button class="tab active" data-tab="generate"> Generator</button>
+        <button class="tab" data-tab="optimize">⚡ Optimizer</button>
+        <button class="tab" data-tab="faqs"> FAQ Forge</button>
+        <button class="tab" data-tab="semantic"> Semantic Scan</button>
+      </div>
+
+      <!-- Main Dashboard Area -->
+      <div class="dashboard-grid">
+        <!-- Left Column: Inputs -->
+        <div class="workspace-main">
+
+          <!-- Research Connection Bar -->
+          <div class="panel stagger-item"
+            style="margin-bottom: 24px; padding: 25px; display:flex; justify-content:space-between; align-items:center; background: linear-gradient(90deg, var(--surface) 0%, rgba(0, 242, 255, 0.1) 100%); border-left: 4px solid var(--accent);">
+            <div>
+              <div style="font-weight: 800; font-size: 18px; color: var(--accent); letter-spacing: -0.5px;">Connected
+                Intelligence</div>
+              <div id="active-research-status" style="font-size: 13px; color: var(--muted); margin-top: 4px;">Inject crawled research directly into
+                your SEO workflow</div>
+            </div>
+            <button class="btn btn-primary" id="connect-research-btn"
+              style="padding: 12px 24px; font-size: 15px; box-shadow: 0 10px 30px rgba(0, 242, 255, 0.2);">
+              🔍 RESEARCH HISTORY
+            </button>
+          </div>
+
+          <div id="tab-generate" class="tab-content">
+            <div class="panel stagger-item">
+              <div class="row" style="align-items: flex-end;">
+                <div style="flex:3">
+                  <label>Primary Keyword / الكلمة المفتاحية</label>
+                  <div style="display:flex; gap:10px;">
+                    <input id="gen-keyword" placeholder="e.g. Best organic skincare for anti-aging" />
+                    <button class="btn" id="gen-example"
+                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                      Example</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row"
+                style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="flex:1"><label>Language</label>
+                  <select id="gen-lang">
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                  </select>
+                </div>
+                <div style="flex:1"><label>Target Backend</label>
+                  <select id="gen-backend">
+                    <option value="demo">Smart Demo (Data-Aware)</option>
+                    <option value="ollama">Ollama (Local AI)</option>
+                    <option value="groq">Groq (Ultra-Fast)</option>
+                    <option value="openai">OpenAI (Advanced)</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin:20px 0"><label>Competitors' Content (Optional context)</label>
+                <textarea id="gen-competitors" placeholder="Paste competitor content snippets here..."
+                  style="min-height: 80px;"></textarea>
+              </div>
+              <button class="btn btn-primary btn-main-action" id="gen-btn"
+                style="width:100%; height:64px; font-size:20px; text-transform:uppercase; letter-spacing:2px; font-weight:800; margin-top:10px;">
+                CREATE INTELLIGENT CONTENT</button>
+              <div id="gen-status"
+                style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
+            </div>
+          </div>
+
+          <!-- Optimize Content -->
+          <div id="tab-optimize" class="tab-content hidden">
+            <div class="panel stagger-item">
+              <div class="row" style="align-items: flex-end;">
+                <div style="flex:3">
+                  <label>Target Keyword</label>
+                  <div style="display:flex; gap:10px;">
+                    <input id="opt-keyword" placeholder="e.g. AI SEO optimization" />
+                    <button class="btn" id="opt-example"
+                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                      Try Example</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row"
+                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="flex:1"><label>Language</label>
+                  <select id="opt-lang">
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                  </select>
+                </div>
+                <div style="flex:1"><label>LLM Backend</label>
+                  <select id="opt-backend">
+                    <option value="demo">Smart Demo (Data-Aware)</option>
+                    <option value="ollama">Ollama (Local AI)</option>
+                    <option value="groq">Groq (Ultra-Fast)</option>
+                    <option value="openai">OpenAI (Advanced)</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin:20px 0"><label>Content to Optimize</label>
+                <textarea id="opt-content" placeholder="Paste your existing content here..."
+                  style="min-height: 120px;"></textarea>
+              </div>
+              <button class="btn btn-primary btn-main-action" id="opt-btn"
+                style="width:100%; height:54px; font-size:18px;">Optimize
+                Content</button>
+              <div id="opt-status"
+                style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
+            </div>
+          </div>
+
+          <!-- FAQ Generator -->
+          <div id="tab-faqs" class="tab-content hidden">
+            <div class="panel stagger-item">
+              <div class="row" style="align-items: flex-end;">
+                <div style="flex:3">
+                  <label>Topic / الموضوع</label>
+                  <div style="display:flex; gap:10px;">
+                    <input id="faq-topic" placeholder="e.g. GEO optimization for Arabic websites" />
+                    <button class="btn" id="faq-example"
+                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                      Try Example</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row"
+                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="flex:1"><label>Language</label>
+                  <select id="faq-lang">
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                  </select>
+                </div>
+                <div style="flex:0.5"><label>Count</label>
+                  <input id="faq-count" type="number" value="5" min="1" max="15" />
+                </div>
+                <div style="flex:1"><label>LLM Backend</label>
+                  <select id="faq-backend">
+                    <option value="demo">Smart Demo (Data-Aware)</option>
+                    <option value="ollama">Ollama (Local AI)</option>
+                    <option value="groq">Groq (Ultra-Fast)</option>
+                    <option value="openai">OpenAI (Advanced)</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin:20px 0"><label>Page context (optional)</label>
+                <textarea id="faq-context" placeholder="Paste page content to ground the FAQs..."
+                  style="min-height:80px"></textarea>
+              </div>
+              <button class="btn btn-primary btn-main-action" id="faq-btn"
+                style="width:100%; height:54px; font-size:18px;">Generate
+                FAQs</button>
+              <div id="faq-status"
+                style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
+            </div>
+          </div>
+
+          </div>
+
+          <!-- Semantic Analysis -->
+          <div id="tab-semantic" class="tab-content hidden">
+            <div class="panel stagger-item">
+              <div class="row" style="align-items: flex-end;">
+                <div style="flex:3">
+                  <label>Sample Content</label>
+                  <div style="display:flex; gap:10px;">
+                    <div style="flex:1; color: var(--muted); font-size: 13px; font-style: italic; margin-bottom: 5px;">
+                      Paste below or try an example</div>
+                    <button class="btn" id="sem-example"
+                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                      Try Example</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row"
+                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="flex:1"><label>Language</label>
+                  <select id="sem-lang">
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                  </select>
+                </div>
+                <div style="flex:1"><label>LLM Backend</label>
+                  <select id="sem-backend">
+                    <option value="demo">Smart Demo (Data-Aware)</option>
+                    <option value="ollama">Ollama (Local AI)</option>
+                    <option value="groq">Groq (Ultra-Fast)</option>
+                    <option value="openai">OpenAI (Advanced)</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin:20px 0"><label>Content to Analyze</label>
+                <textarea id="sem-content" placeholder="Paste content for semantic analysis..."
+                  style="min-height: 120px;"></textarea>
+              </div>
+              <button class="btn btn-primary btn-main-action" id="sem-btn"
+                style="width:100%; height:54px; font-size:18px;"> Analyze Semantics</button>
+              <div id="sem-status"
+                style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
+              <!-- Semantic Results Container -->
+              <div id="sem-results" class="hidden" style="margin-top:20px;">
+                <div style="font-weight:700; font-size:14px; color:var(--accent); margin-bottom:12px;"> Semantic Analysis Results</div>
+                <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
+                <div id="sem-topics" style="display:flex; flex-direction:column; gap:8px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="competitor-matrix-section" class="hidden" style="margin-top: 24px;">
+            <div class="panel stagger-item" style="border-left: 4px solid var(--yellow); background: linear-gradient(135deg, var(--surface) 0%, rgba(255, 184, 0, 0.05) 100%);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight: 800; font-size: 18px; color: var(--yellow); letter-spacing: -0.5px;">Strategic Competitor Matrix</div>
+                  <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Market positioning & success factor analysis</div>
+                </div>
+                <div id="market-grade-badge" class="badge" style="background:var(--yellow); color:var(--surface); font-weight:800; font-size:16px; padding:8px 15px;">B</div>
+              </div>
+
+              <!-- Positioning Map (Visual Representation) -->
+              <div id="positioning-map-container" style="margin-top:20px; height:200px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.1);"></div>
+                <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.1);"></div>
+                <div style="position:absolute; top:5px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">High Authority</div>
+                <div style="position:absolute; bottom:5px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">Low Authority</div>
+                <div style="position:absolute; top:50%; right:5px; transform:translateY(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">Niche Focus</div>
+                <div style="position:absolute; top:50%; left:5px; transform:translateY(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">Broad Reach</div>
+                <div id="map-points"></div>
+              </div>
+
+              <div class="row" style="margin-top:20px; gap:20px;">
+                <div style="flex:1">
+                  <div style="font-weight:700; font-size:12px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;"> Success Factors</div>
+                  <div id="success-factors-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+                <div style="flex:1">
+                  <div style="font-weight:700; font-size:12px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;"> Competitive Gaps</div>
+                  <div id="competitive-gaps-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> <!-- End workspace-main -->
+
+        <!-- Right Column: Results & Analytics -->
+        <div class="results-sidebar stagger-item">
+
+          <!-- Generator Result Display -->
+          <div id="gen-result" class="hidden">
+            <div class="panel" style="border-color: var(--accent);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 id="gen-title" style="margin:0; font-size:24px; color:white;"></h3>
+                <span id="gen-backend-tag" class="badge-accent"
+                  style="padding:4px 10px; border-radius:6px; font-size:10px;"></span>
+              </div>
+              <p id="gen-meta" style="color:var(--muted); font-size:14px; font-style:italic; margin:10px 0;"></p>
+              <div class="result-box" id="gen-content" style="height: 400px;"></div>
+              <div style="margin-top:20px;">
+                <button class="btn" id="gen-copy"
+                  style="background:rgba(255,255,255,0.05); border:1px solid var(--border); width:100%;"> Copy Article
+                  Content</button>
+              </div>
+              <div style="margin-top:24px; font-weight:700; color:var(--accent);">Suggested Add-ons</div>
+              <div id="gen-faqs"></div>
+            </div>
+          </div>
+
+          <!-- Optimizer Result Display -->
+          <div id="opt-result" class="hidden">
+            <div class="panel">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="score-ring" id="opt-score" style="font-size: 32px; padding: 15px;"></div>
+                <span id="opt-backend-tag" class="badge badge-accent"></span>
+              </div>
+              <div
+                style="margin-top:20px; color:var(--red); font-weight:700; font-size:12px; text-transform:uppercase;">
+                Critical Issues</div>
+              <div id="opt-issues"></div>
+              <div
+                style="margin-top:20px; color:var(--green); font-weight:700; font-size:12px; text-transform:uppercase;">
+                Optimization Suggestions</div>
+              <div id="opt-suggestions"></div>
+              <div
+                style="margin-top:20px; color:var(--blue); font-weight:700; font-size:12px; text-transform:uppercase;">
+                Optimized Version</div>
+              <div class="result-box" id="opt-content-out" style="height: 300px;"></div>
+            </div>
+          </div>
+
+          <!-- FAQ Result Display -->
+          <div id="faq-result" class="hidden">
+            <div class="panel">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; font-size:20px;">Forged FAQs</h3>
+                <span id="faq-backend-tag" class="badge badge-accent"></span>
+              </div>
+              <div id="faq-list" style="margin-top:20px;"></div>
+              <div style="margin-top:24px; font-weight:700; font-size:12px; color:var(--accent);">JSON-LD SCHEMA</div>
+              <div class="result-box" id="faq-schema" style="height:150px; font-family:monospace; font-size:11px;">
+              </div>
+              <button class="btn" id="faq-copy-schema" style="margin-top:10px; width:100%; padding:8px;"> Copy
+                Schema</button>
+            </div>
+          </div>
+
+          <!-- Semantic Result Display -->
+          <div id="sem-result" class="hidden">
+            <div class="panel">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="score-ring" id="sem-score" style="font-size: 32px; padding: 15px;"></div>
+                <span id="sem-backend-tag" class="badge badge-accent"></span>
+              </div>
+              <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--blue);">IDENTIFIED ENTITIES
+              </div>
+              <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;"></div>
+              <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--accent);">TOPICS & LSI</div>
+              <div id="sem-topics" style="margin-top:8px;"></div>
+              <div id="sem-lsi" style="margin-top:4px;"></div>
+              <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--yellow);">MISSING OPPORTUNITIES
+              </div>
+              <div id="sem-missing" style="margin-top:8px;"></div>
+            </div>
+          </div>
+
+          <!-- Placeholder if no result -->
+          <div id="empty-state" class="panel"
+            style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; opacity: 0.5;">
+            <div style="font-size: 48px; margin-bottom: 20px;">🧠</div>
+            <div style="font-weight:700; font-size:18px;">Ready for Intelligence</div>
+            <div style="font-size:14px; color:var(--muted); margin-top:10px;">Configure inputs and run a task to see
+              results here.</div>
+          </div>
+
+        </div> <!-- End sidebar -->
+      </div> <!-- End dashboard-grid -->
+    </div> <!-- End container offset -->
+
+    <!-- Research Modal -->
+    <div id="research-modal" class="modal-overlay hidden">
+      <div class="modal-content" style="width: 550px; max-height: 80vh; overflow: auto;">
+        <h3 style="margin-top:0; font-family:'Outfit'; font-size:24px; color:var(--accent);"> Research Repository</h3>
+        <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Connect previously crawled data to your AI
+          workflow.</p>
+        <div id="research-list" style="margin: 20px 0; min-height: 100px;">
+          <div style="text-align:center; padding: 20px;">
+            <div class="spinner" style="margin: 0 auto 10px;"></div>
+            <div style="color:var(--muted); font-size:12px;">Initializing connection...</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; border-top: 1px solid var(--border); padding-top: 20px;">
+          <button class="btn" id="modal-close-btn" style="flex:1; background:transparent;">Cancel</button>
+          <button class="btn btn-primary" id="modal-fetch-btn" style="flex:1.5;"> Refresh History</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backend Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width:400px;">
+        <h2 style="margin-top:0; font-family:'Outfit'; font-size:20px;"> Backend Settings</h2>
+        <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Enter your API keys to enable real AI
+          generation. Keys are saved locally in your browser.</p>
+
+        <div style="margin-bottom:15px;">
+          <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">Groq API Key</label>
+          <input type="password" id="groq-key" class="input" placeholder="gsk_..." style="width:100%;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">OpenAI API Key</label>
+          <input type="password" id="openai-key" class="input" placeholder="sk-..." style="width:100%;">
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="save-settings-btn" style="flex:1">Save Changes</button>
+          <button class="btn" id="close-settings-btn" style="flex:1">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Settings Management ──────────────────────────────────────────────────
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    const saveSettingsBtn = document.getElementById('save-settings-btn');
+    const groqInput = document.getElementById('groq-key');
+    const openaiInput = document.getElementById('openai-key');
+
+    // Pre-fill keys from conversation if localstorage is empty
+    if (!localStorage.getItem('geo_groq_key')) {
+      localStorage.setItem('geo_groq_key', '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');
+    }
+    if (!localStorage.getItem('geo_openai_key')) {
+      localStorage.setItem('geo_openai_key', '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');
+    }
+
+    function loadSettings() {
+      groqInput.value = localStorage.getItem('geo_groq_key') || '';
+      openaiInput.value = localStorage.getItem('geo_openai_key') || '';
+    }
+    function getApiKeys() {
+      return {
+        groq: localStorage.getItem('geo_groq_key'),
+        openai: localStorage.getItem('geo_openai_key')
+      };
+    }
+    const mainSettingsBtn = document.getElementById('main-settings-btn');
+    const modalSettingsBtn = document.getElementById('modal-settings-btn');
+
+    if (mainSettingsBtn) {
+      mainSettingsBtn.addEventListener('click', () => { loadSettings(); settingsModal.classList.remove('hidden'); });
+    }
+    if (modalSettingsBtn) {
+      modalSettingsBtn.addEventListener('click', () => { loadSettings(); settingsModal.classList.remove('hidden'); });
+    }
+    if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
+    if (saveSettingsBtn) {
+      saveSettingsBtn.addEventListener('click', () => {
+        localStorage.setItem('geo_groq_key', groqInput.value.trim());
+        localStorage.setItem('geo_openai_key', openaiInput.value.trim());
+        alert('Settings Saved Successfully!');
+        settingsModal.classList.add('hidden');
+      });
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
+        t.classList.add('active');
+        document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    function setLoading(statusEl, btnEl, loading, msg = '') {
+      statusEl.innerHTML = loading ? `<span class="spinner"></span>${msg}` : msg;
+      btnEl.disabled = loading;
+    }
+
+    function scoreColor(s) {
+      return s >= 75 ? 'var(--green)' : s >= 40 ? 'var(--yellow)' : 'var(--red)';
+    }
+
+    function applyStaggeredEntry(container) {
+      const items = container.children;
+      for (let i = 0; i < items.length; i++) {
+        items[i].classList.add('stagger-item');
+        items[i].style.animationDelay = (i * 0.1) + 's';
+      }
+    }
+
+    function showSuccessEffect(el) {
+      el.classList.add('success-glow');
+      setTimeout(() => el.classList.remove('success-glow'), 1000);
+    }
+
+    function showSidebarResult(resultId) {
+      document.getElementById('empty-state').classList.add('hidden');
+      // Hide all results first
+      ['gen-result', 'opt-result', 'faq-result', 'sem-result'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      const target = document.getElementById(resultId);
+      target.classList.remove('hidden');
+      target.classList.add('stagger-item');
+      showSuccessEffect(target);
+    }
+
+    // Haptic feedback logic
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('mousedown', () => {
+        btn.style.transform = 'scale(0.95) translateZ(-5px)';
+      });
+      btn.addEventListener('mouseup', () => {
+        btn.style.transform = '';
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+
+    // ── Example Data Triggers ────────────────────────────────────────────────
+    document.getElementById('gen-example').addEventListener('click', () => {
+      document.getElementById('gen-keyword').value = 'Top 10 Abaya Trends for 2024';
+      document.getElementById('gen-competitors').value = 'Abaya style guide\nModern modest fashion\nLatest abaya collections';
+    });
+
+    document.getElementById('opt-example').addEventListener('click', () => {
+      document.getElementById('opt-keyword').value = 'Luxury Abayas Dubai';
+      document.getElementById('opt-content').value = 'We offer the best abayas in Dubai. Our collection features premium fabrics and unique designs for every occasion. Visit our shop to see more.';
+    });
+
+    document.getElementById('faq-example').addEventListener('click', () => {
+      document.getElementById('faq-topic').value = 'How to care for silk abayas';
+      document.getElementById('faq-context').value = 'Silk is a delicate natural fiber. Hand wash in cold water with mild detergent. Do not wring or twist. Air dry in shade.';
+    });
+
+    document.getElementById('sem-example').addEventListener('click', () => {
+      document.getElementById('sem-content').value = 'AI-driven SEO optimization is revolutionizing how search engines understand semantic relevance. By leveraging LSI keywords and entity extraction, content engines can now produce articles that rank higher for complex queries and user intent.';
+    });
+
+    // ── Generate Article ──────────────────────────────────────────────────────
+    document.getElementById('gen-btn').addEventListener('click', async () => {
+      const keyword = document.getElementById('gen-keyword').value.trim();
+      if (!keyword) return;
+      const statusEl = document.getElementById('gen-status');
+      const btn = document.getElementById('gen-btn');
+      setLoading(statusEl, btn, true, 'Generating article...');
+      document.getElementById('gen-result').classList.add('hidden');
+      try {
+        const competitors = document.getElementById('gen-competitors').value
+          .split('\n').map(s => s.trim()).filter(Boolean);
+        const resp = await fetch('/api/content/generate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            keyword,
+            lang: document.getElementById('gen-lang').value,
+            competitors_content: competitors,
+            prefer_backend: document.getElementById('gen-backend').value,
+            api_keys: getApiKeys()
+          })
+        });
+        const data = await resp.json();
+        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        const r = data.result;
+        document.getElementById('gen-title').textContent = r.title || '';
+        document.getElementById('gen-meta').textContent = r.meta_description || '';
+        document.getElementById('gen-backend-tag').textContent = r.backend || '';
+        document.getElementById('gen-content').textContent = r.content || '';
+        const faqsEl = document.getElementById('gen-faqs');
+        faqsEl.innerHTML = '';
+        (r.faqs || []).forEach(f => {
+          const div = document.createElement('div');
+          div.className = 'faq-item';
+          div.innerHTML = `<div class="faq-q">Q: ${f.question}</div><div class="faq-a">A: ${f.answer}</div>`;
+          faqsEl.appendChild(div);
+        });
+        applyStaggeredEntry(faqsEl);
+        showSidebarResult('gen-result');
+        setLoading(statusEl, btn, false, '');
+      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+    });
+
+    document.getElementById('gen-copy').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('gen-content').textContent);
+    });
+
+    // ── Research Integration ──────────────────────────────────────────────────
+    const researchModal = document.getElementById('research-modal');
+    const researchList = document.getElementById('research-list');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    function hideModal() { researchModal.classList.add('hidden'); }
+    modalCloseBtn.addEventListener('click', hideModal);
+
+    function renderStrategicIntel(intel) {
+      if(!intel) return;
+      document.getElementById('competitor-matrix-section').classList.remove('hidden');
+      
+      const gradeBadge = document.getElementById('market-grade-badge');
+      gradeBadge.textContent = intel.market_grade || 'B';
+      
+      // Render Positioning Map
+      const mapPoints = document.getElementById('map-points');
+      mapPoints.innerHTML = '';
+      (intel.positioning_map || []).forEach(p => {
+        const x = 50 + (p.x / 2); // Convert -100..100 to 0..100%
+        const y = 50 - (p.y / 2);
+        const dot = document.createElement('div');
+        dot.style.cssText = `position:absolute; left:${x}%; top:${y}%; width:10px; height:10px; background:var(--accent); border-radius:50%; box-shadow:0 0 10px var(--accent); cursor:pointer;`;
+        dot.title = `${p.name} (${p.role})`;
+        
+        const label = document.createElement('div');
+        label.style.cssText = `position:absolute; left:${x}%; top:${y+2}%; font-size:9px; color:white; font-weight:700; white-space:nowrap; transform:translateX(-50%);`;
+        label.textContent = p.name;
+        
+        mapPoints.appendChild(dot);
+        mapPoints.appendChild(label);
+      });
+
+      // Success Factors
+      const successList = document.getElementById('success-factors-list');
+      successList.innerHTML = (intel.success_factors || []).map(f => `
+        <div style="background:rgba(0,255,100,0.05); padding:10px; border-radius:8px; border-left:3px solid var(--green);">
+          <div style="font-weight:700; font-size:13px; color:var(--green);">${f.factor}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">Impact: ${f.impact} • Used by ${f.competitors.join(', ')}</div>
+        </div>
+      `).join('');
+
+      // Competitive Gaps
+      const gapList = document.getElementById('competitive-gaps-list');
+      gapList.innerHTML = (intel.competitive_gaps || []).map(g => `
+        <div style="background:rgba(255,200,0,0.05); padding:10px; border-radius:8px; border-left:3px solid var(--yellow);">
+          <div style="font-weight:700; font-size:13px; color:var(--yellow);">${g.gap}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">${g.description}</div>
+        </div>
+      `).join('');
+    }
+
+    async function performResearchFetch() {
+      console.log("Diagnostic: Starting Research History Fetch");
+      researchList.innerHTML = '<div class="spinner"></div> [Step 1] Loading Research History...';
+      try {
+        const hResp = await fetch('/api/history');
+        const hData = await hResp.json();
+        const history = hData.history || [];
+
+        if (history.length === 0) {
+          researchList.innerHTML = '<div style="color:var(--yellow)">[Info] No crawl history found. Run a crawl from Home first.</div>';
+          return;
+        }
+
+        // Show recent list
+        researchList.innerHTML = '<div style="margin-bottom:10px; font-weight:700; font-size:14px; color:var(--accent);">Select Research to Connect:</div>';
+
+        // Sort by newest
+        const sortedHistory = [...history].sort((a, b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 5);
+
+        sortedHistory.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'faq-item';
+          div.style.cursor = 'pointer';
+          div.style.margin = '5px 0';
+          div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; pointer-events:none;">
+            <div>
+              <div style="font-weight:700; color:#fff;">${item.org_name || item.url}</div>
+              <div style="font-size:11px; color:var(--muted);">${item.timestamp}</div>
+            </div>
+            <div class="badge badge-blue">${item.mean || 0} Score</div>
+          </div>
+        `;
+          div.addEventListener('click', () => {
+            console.log("Diagnostic: Selected Research", item.timestamp);
+            loadResearchDetail(item.timestamp, item.org_name);
+          });
+          researchList.appendChild(div);
+        });
+
+        const footer = document.createElement('div');
+        footer.style.cssText = 'margin-top:15px; font-size:12px; color:var(--muted); text-align:center;';
+        footer.textContent = 'Showing last 5 researches';
+        researchList.appendChild(footer);
+
+      } catch (e) {
+        console.error("History Error:", e);
+        researchList.innerHTML = `<div style="color:var(--red)">[Error] Failed to load history.</div>
+      <button class="btn btn-retry-fetch" style="margin-top:10px; width:100%; font-size:13px;"> Retry</button>`;
+        researchList.querySelector('.btn-retry-fetch').addEventListener('click', performResearchFetch);
+      }
+    }
+
+    async function loadResearchDetail(ts, orgName) {
+      researchList.innerHTML = `<div class="spinner"></div> Connecting to "${orgName}"...`;
+      try {
+        const resp = await fetch(`/api/results?ts=${ts}`);
+        if (!resp.ok) throw new Error(`Status ${resp.status}`);
+        const data = await resp.json();
+        const audit = data.audit;
+
+        if (!audit || !audit.pages) throw new Error("No data in snapshot");
+
+        const pages = audit.pages;
+        const actualOrg = audit.org_name || orgName || 'Organization';
+
+        researchList.innerHTML = `
+        <div style="margin-bottom:15px; padding:15px; background:rgba(0,0,0,0.2); border:1px solid var(--accent); border-radius:12px;">
+          <div style="color:var(--accent); font-weight:700; font-size:16px;">${actualOrg}</div>
+          <div style="color:var(--muted); font-size:13px;">Found ${pages.length} pages of research</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <button class="btn btn-activate-sync" style="background:var(--accent); color:var(--surface); font-weight:800;">⚡ ACTIVATE & SYNC PLATFORM</button>
+          <button class="btn btn-apply-keyword" style="background:var(--blue); color:white;">Inject "${actualOrg}" into Input</button>
+          <button class="btn btn-apply-snippets" style="background:rgba(255,255,255,0.05); border:1px solid var(--border);">Auto-fill Competitor Snippets</button>
+          <button class="btn btn-back-list" style="background:transparent; border:1px solid var(--border); font-size:12px;">← Back to List</button>
+        </div>
+      `;
+
+        researchList.querySelector('.btn-activate-sync').addEventListener('click', async () => {
+          researchList.innerHTML = `<div class="spinner"></div> Activating "${actualOrg}" globally...`;
+          try {
+            const actResp = await fetch(`/api/history/activate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ts, api_keys: getApiKeys() })
+            });
+            const actData = await actResp.json();
+            if(!actData.ok) throw new Error(actData.error);
+            
+            // Success: Update UI and close modal
+            localStorage.setItem('active_research_name', actualOrg);
+            localStorage.setItem('active_research_ts', ts);
+            // Render Strategic Intelligence if available
+            if(actData.ok && actData.report && actData.report.competitors) {
+              renderStrategicIntel(actData.report.competitors.strategic_intel);
+            }
+            
+            updateConnectionStatus();
+            alert(`Platform Activated: ${actualOrg} is now the primary data source.`);
+            hideModal();
+          } catch(e) {
+            alert("Activation Failed: " + e.message);
+            loadResearchDetail(ts, orgName);
+          }
+        });
+
+        researchList.querySelector('.btn-apply-keyword').addEventListener('click', () => {
+          applyResearch('keyword', actualOrg);
+        });
+        researchList.querySelector('.btn-apply-snippets').addEventListener('click', () => {
+          applyResearch('snippets', null, audit);
+        });
+        researchList.querySelector('.btn-back-list').addEventListener('click', performResearchFetch);
+
+        window.latestAudit = audit;
+        document.querySelectorAll('.btn-main-action').forEach(b => b.classList.add('ai-pulse-active'));
+      } catch (e) {
+        researchList.innerHTML = `<div style="color:var(--red)">[Error] ${e.message}</div>
+      <button class="btn" onclick="performResearchFetch()" style="width:100%; margin-top:10px;">Back to History</button>`;
+      }
+    }
+
+    function applyResearch(type, value, auditData) {
+      const activeTab = document.querySelector('.tab.active').dataset.tab;
+      console.log(`Applying research: ${type} to tab: ${activeTab}`);
+
+      if (type === 'keyword') {
+        if (activeTab === 'generate') document.getElementById('gen-keyword').value = value;
+        if (activeTab === 'optimize') document.getElementById('opt-keyword').value = value;
+        if (activeTab === 'faqs') document.getElementById('faq-topic').value = value;
+      } else if (type === 'snippets') {
+        const audit = auditData || window.latestAudit;
+        if (audit && audit.pages) {
+          const snippets = audit.pages.slice(0, 3).map(p => p.title + ": " + (p.headings && p.headings[0] ? p.headings[0].text : '')).join('\n');
+          if (activeTab === 'generate') document.getElementById('gen-competitors').value = snippets;
+          if (activeTab === 'faqs') document.getElementById('faq-context').value = snippets;
+          if (activeTab === 'optimize') document.getElementById('opt-content').value = snippets;
+          if (activeTab === 'semantic') document.getElementById('sem-content').value = snippets;
+        }
+      }
+      hideModal();
+    }
+
+    function updateConnectionStatus() {
+      const activeName = localStorage.getItem('active_research_name');
+      const statusEl = document.getElementById('active-research-status');
+      if (activeName) {
+        statusEl.innerHTML = `<span style="color:var(--accent); font-weight:700;">ACTIVE: ${activeName}</span> • Intelligence synchronized globally`;
+        statusEl.style.opacity = '1';
+      } else {
+        statusEl.textContent = 'Inject crawled research directly into your SEO workflow';
+        statusEl.style.opacity = '0.8';
+      }
+    }
+
+    document.getElementById('connect-research-btn').addEventListener('click', () => {
+      researchModal.classList.remove('hidden');
+      performResearchFetch();
+    });
+
+    window.addEventListener('load', () => {
+      const mbtn = document.getElementById('modal-fetch-btn');
+      if (mbtn) mbtn.addEventListener('click', performResearchFetch);
+      updateConnectionStatus();
+    });
+
+    // ── Optimize Content ──────────────────────────────────────────────────────
+    document.getElementById('opt-btn').addEventListener('click', async () => {
+      const content = document.getElementById('opt-content').value.trim();
+      const keyword = document.getElementById('opt-keyword').value.trim();
+      if (!content || !keyword) return;
+      const statusEl = document.getElementById('opt-status');
+      const btn = document.getElementById('opt-btn');
+      setLoading(statusEl, btn, true, 'Optimizing...');
+      document.getElementById('opt-result').classList.add('hidden');
+      try {
+        const resp = await fetch('/api/content/optimize', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, keyword, lang: document.getElementById('opt-lang').value, prefer_backend: document.getElementById('opt-backend').value, api_keys: getApiKeys() })
+        });
+        const data = await resp.json();
+        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        const r = data.result;
+        const scoreEl = document.getElementById('opt-score');
+        scoreEl.innerHTML = `<span style="color:${scoreColor(r.score)}">${r.score}</span><div style="font-size:13px;color:var(--muted)">GEO Score</div>`;
+        document.getElementById('opt-backend-tag').textContent = r.backend || '';
+        document.getElementById('opt-issues').innerHTML = (r.issues || []).map(i => `<div class="issue-item">⚠ ${i}</div>`).join('');
+        document.getElementById('opt-suggestions').innerHTML = (r.suggestions || []).map(s => `<div class="suggestion-item">✓ ${s}</div>`).join('');
+        applyStaggeredEntry(document.getElementById('opt-issues'));
+        applyStaggeredEntry(document.getElementById('opt-suggestions'));
+        document.getElementById('opt-content-out').textContent = r.optimized_content || '';
+        showSidebarResult('opt-result');
+        setLoading(statusEl, btn, false, '');
+      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+    });
+
+    // ── FAQ Generator ─────────────────────────────────────────────────────────
+    document.getElementById('faq-btn').addEventListener('click', async () => {
+      const topic = document.getElementById('faq-topic').value.trim();
+      if (!topic) return;
+      const statusEl = document.getElementById('faq-status');
+      const btn = document.getElementById('faq-btn');
+      setLoading(statusEl, btn, true, 'Generating FAQs...');
+      document.getElementById('faq-result').classList.add('hidden');
+      try {
+        const resp = await fetch('/api/content/faqs', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic,
+            page_content: document.getElementById('faq-context').value,
+            lang: document.getElementById('faq-lang').value,
+            count: parseInt(document.getElementById('faq-count').value) || 5,
+            prefer_backend: document.getElementById('faq-backend').value,
+            api_keys: getApiKeys()
+          })
+        });
+        const data = await resp.json();
+        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        const r = data.result;
+        document.getElementById('faq-backend-tag').textContent = r.backend || '';
+        const listEl = document.getElementById('faq-list');
+        listEl.innerHTML = '';
+        (r.faqs || []).forEach(f => {
+          const div = document.createElement('div');
+          div.className = 'faq-item';
+          div.innerHTML = `<div class="faq-q">Q: ${f.question}</div><div class="faq-a">A: ${f.answer}</div>`;
+          listEl.appendChild(div);
+        });
+        applyStaggeredEntry(listEl);
+        // build JSON-LD
+        const schema = {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": (r.faqs || []).map(f => ({
+            "@type": "Question",
+            "name": f.question,
+            "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+          }))
+        };
+        document.getElementById('faq-schema').textContent = JSON.stringify(schema, null, 2);
+        showSidebarResult('faq-result');
+        setLoading(statusEl, btn, false, '');
+      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+    });
+
+    document.getElementById('faq-copy-schema').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('faq-schema').textContent);
+    });
+
+    // ── Semantic Analysis ─────────────────────────────────────────────────────
+    document.getElementById('sem-btn').addEventListener('click', async () => {
+      const content = document.getElementById('sem-content').value.trim();
+      if (!content) return;
+      const statusEl = document.getElementById('sem-status');
+      const btn = document.getElementById('sem-btn');
+      setLoading(statusEl, btn, true, 'Analyzing semantics...');
+      document.getElementById('sem-result').classList.add('hidden');
+      try {
+        const resp = await fetch('/api/content/semantic', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, lang: document.getElementById('sem-lang').value, prefer_backend: document.getElementById('sem-backend').value, api_keys: getApiKeys() })
+        });
+        const data = await resp.json();
+        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        const r = data.result;
+        const scoreEl = document.getElementById('sem-score');
+        scoreEl.innerHTML = `<span style="color:${scoreColor(r.semantic_score)}">${r.semantic_score}</span><div style="font-size:13px;color:var(--muted)">Semantic Score</div>`;
+        document.getElementById('sem-backend-tag').textContent = r.backend || '';
+        document.getElementById('sem-entities').innerHTML = (r.entities || []).map(e =>
+          `<span class="entity-tag">${e.text} <span style="opacity:0.6">${e.type}</span></span>`).join('');
+        document.getElementById('sem-topics').innerHTML = (r.topics || []).map(t =>
+          `<span class="badge badge-blue" style="margin:2px">${t}</span>`).join('');
+        document.getElementById('sem-lsi').innerHTML = (r.lsi_keywords || []).map(k =>
+          `<span class="badge badge-green" style="margin:2px">${k}</span>`).join('');
+        document.getElementById('sem-missing').innerHTML = (r.missing_concepts || []).map(c =>
+          `<span class="badge badge-yellow" style="margin:2px">${c}</span>`).join('');
+
+        applyStaggeredEntry(document.getElementById('sem-entities'));
+        applyStaggeredEntry(document.getElementById('sem-topics'));
+        applyStaggeredEntry(document.getElementById('sem-lsi'));
+        applyStaggeredEntry(document.getElementById('sem-missing'));
+
+        showSidebarResult('sem-result');
+        setLoading(statusEl, btn, false, '');
+      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+    });
+  </script>
+</body>
+
+</html>

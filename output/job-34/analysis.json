@@ -1,0 +1,28 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": false,
+      "reason": "OPENAI_API_KEY not set"
+    },
+    "groq": {
+      "enabled": false,
+      "reason": "failed to init Groq client: The api_key client option must be set either by passing api_key to the client or by setting the GROQ_API_KEY environment variable"
+    }
+  },
+  "geo_score": {
+    "score": 61,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 13,
+      "density": 7,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 1,
+      "warnings": 2,
+      "passed": 0
+    }
+  }
+}

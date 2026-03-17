@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zaher AI — Free GEO Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a12;
+    --surface: #0c1420;
+    --surface2: #111c2e;
+    --border: #1a2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --text: #e2eaf4;
+    --muted: #5a7a99;
+    --danger: #ef4444;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none; z-index:0;
+  }
+
+  .container { max-width:1100px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  /* HEADER */
+  header {
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .header-tag {
+    display:inline-flex; align-items:center; gap:8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--accent);
+    padding: 4px 14px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .header-tag::before { content:'◆'; font-size:8px; }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px,5vw,56px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 600px;
+    line-height: 1.8;
+  }
+  .stats-row {
+    display: flex; gap: 32px;
+    margin-top: 32px; flex-wrap: wrap;
+  }
+  .stat { display:flex; flex-direction:column; gap:4px; }
+  .stat-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:var(--accent); }
+  .stat-lbl { font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+
+  /* TABS */
+  .tabs {
+    display:flex; gap:4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px;
+    margin-bottom: 36px;
+    overflow-x: auto;
+  }
+  .tab {
+    flex:1; min-width:120px;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 12px;
+    cursor:pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+  .tab:hover:not(.active) { color: var(--accent); }
+
+  /* PANEL */
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family:'Syne',sans-serif;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:20px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* TOOL CARDS */
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; margin-bottom:40px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position:relative;
+    overflow:hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor:default;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background: var(--card-accent, var(--accent));
+  }
+  .card-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+  .card-icon { font-size:24px; }
+  .badge {
+    font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
+    padding: 3px 10px;
+    border: 1px solid currentColor;
+  }
+  .badge.free { color:var(--accent3); border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.08); }
+  .badge.python { color:var(--accent4); border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); }
+  .badge.api { color:var(--accent2); border-color:rgba(124,58,237,0.4); background:rgba(124,58,237,0.08); }
+  .badge.js { color:#f97316; border-color:rgba(249,115,22,0.4); background:rgba(249,115,22,0.08); }
+  .card h3 { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; margin-bottom:8px; }
+  .card p { font-size:12px; color:var(--muted); line-height:1.8; margin-bottom:14px; }
+  .card-link {
+    font-size:11px; color:var(--accent); text-decoration:none;
+    border-bottom:1px solid rgba(0,212,255,0.3);
+    padding-bottom:1px;
+    display:inline-block;
+  }
+  .card-link:hover { border-color:var(--accent); }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #060e18;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    font-size: 12px;
+    line-height: 2;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    position:relative;
+  }
+  .code-block .comment { color: #3a5a78; }
+  .code-block .keyword { color: var(--accent2); }
+  .code-block .string { color: var(--accent3); }
+  .code-block .fn { color: var(--accent); }
+  .code-block .num { color: var(--accent4); }
+  .code-block pre { white-space:pre-wrap; }
+  .copy-btn {
+    position:absolute; top:10px; right:10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    padding: 4px 12px;
+    cursor:pointer;
+    letter-spacing:1px;
+  }
+  .copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+
+  /* PIPELINE */
+  .pipeline {
+    display:flex; align-items:stretch; gap:0;
+    margin-bottom:32px; overflow-x:auto;
+    border: 1px solid var(--border);
+  }
+  .pipe-step {
+    flex:1; min-width:140px;
+    padding: 20px 16px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    text-align:center;
+    position:relative;
+  }
+  .pipe-step:last-child { border-right:none; }
+  .pipe-step:hover { background:var(--surface2); }
+  .pipe-num {
+    font-size:10px; color:var(--muted);
+    letter-spacing:2px; margin-bottom:8px; display:block;
+  }
+  .pipe-icon { font-size:22px; margin-bottom:8px; display:block; }
+  .pipe-label { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:6px; }
+  .pipe-tool { font-size:10px; color:var(--accent); }
+  .pipe-arrow {
+    position:absolute; right:-12px; top:50%; transform:translateY(-50%);
+    color:var(--accent); font-size:16px; z-index:2;
+    background: var(--bg);
+    padding: 2px;
+  }
+  .pipe-step:last-child .pipe-arrow { display:none; }
+
+  /* CHECKLIST */
+  .checklist { display:flex; flex-direction:column; gap:10px; margin-bottom:32px; }
+  .check-item {
+    display:flex; align-items:flex-start; gap:14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    transition: border-color 0.2s;
+    cursor:pointer;
+  }
+  .check-item:hover { border-color:var(--accent3); }
+  .check-item input[type=checkbox] { display:none; }
+  .check-box {
+    width:18px; height:18px; border:1.5px solid var(--muted);
+    flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center;
+    transition: all 0.2s;
+  }
+  .check-item.done .check-box { background:var(--accent3); border-color:var(--accent3); color:#000; font-size:12px; }
+  .check-content h4 { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:4px; }
+  .check-content p { font-size:11px; color:var(--muted); line-height:1.7; }
+
+  /* COMPARE TABLE */
+  .compare-table { width:100%; border-collapse:collapse; font-size:12px; margin-bottom:32px; }
+  .compare-table th {
+    background:var(--surface2); padding:12px 16px;
+    text-align:left; border:1px solid var(--border);
+    font-family:'Syne',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted);
+  }
+  .compare-table td {
+    padding:12px 16px; border:1px solid var(--border);
+    background: var(--surface);
+    line-height:1.6;
+  }
+  .compare-table tr:hover td { background:var(--surface2); }
+  .yes { color:var(--accent3); }
+  .no { color:var(--danger); }
+  .partial { color:var(--accent4); }
+
+  /* ALERT BOX */
+  .alert {
+    border-left:3px solid var(--accent4);
+    background: rgba(245,158,11,0.06);
+    padding:16px 20px;
+    font-size:12px;
+    line-height:1.8;
+    margin-bottom:24px;
+    color:#c9a84c;
+  }
+  .alert strong { color:var(--accent4); display:block; margin-bottom:6px; font-family:'Syne',sans-serif; }
+
+  /* ARABIC TAG */
+  .arabic-badge {
+    display:inline-block;
+    font-family:'Cairo',sans-serif;
+    background:rgba(124,58,237,0.15);
+    border:1px solid rgba(124,58,237,0.4);
+    color:#a78bfa;
+    padding:4px 14px;
+    font-size:14px;
+    margin:4px;
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top:60px; padding:32px 0;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:16px;
+    font-size:11px; color:var(--muted);
+  }
+  .footer-brand { font-family:'Syne',sans-serif; font-weight:700; color:var(--accent); }
+
+  /* GLOW EFFECT */
+  .glow { box-shadow: 0 0 30px rgba(0,212,255,0.12); }
+
+  @media (max-width:600px) {
+    .pipeline { flex-direction:column; }
+    .pipe-step { border-right:none; border-bottom:1px solid var(--border); }
+    .pipe-arrow { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-tag">GEO Integration Toolkit</div>
+    <h1>Free Tools to Build<br>Your GEO Platform</h1>
+    <p class="subtitle">
+      A complete technical roadmap for integrating Generative Engine Optimization capabilities into your project — 100% free & open-source tools.
+    </p>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-val">9</span><span class="stat-lbl">Free Tools</span></div>
+      <div class="stat"><span class="stat-val">5</span><span class="stat-lbl">AI Engines</span></div>
+      <div class="stat"><span class="stat-val">3</span><span class="stat-lbl">Code Recipes</span></div>
+      <div class="stat"><span class="stat-val">100%</span><span class="stat-lbl">Open Source</span></div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tools')">🛠 Free Tools</button>
+    <button class="tab" onclick="switchTab('pipeline')">⚡ Build Pipeline</button>
+    <button class="tab" onclick="switchTab('code')">💻 Code Recipes</button>
+    <button class="tab" onclick="switchTab('audit')">🔍 Audit Checklist</button>
+    <button class="tab" onclick="switchTab('arabic')">🌐 Arabic GEO</button>
+  </div>
+
+  <!-- PANEL: FREE TOOLS -->
+  <div id="panel-tools" class="panel active">
+    <div class="section-title">AI Visibility & Crawling</div>
+    <div class="cards-grid">
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <div class="card-head">
+          <span class="card-icon">🕷️</span>
+          <span class="badge free">FREE</span>
+        </div>
+        <h3>Scrapy + Playwright</h3>
+        <p>Crawl your website and extract all content, headings, and structured data. Identify missing schema markup and thin content that AI engines ignore.</p>
+        <a href="https://scrapy.org" class="card-link" target="_blank">scrapy.org →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#7c3aed;">
+        <div class="card-head">
+          <span class="card-icon">📊</span>
+          <span class="badge python">PYTHON</span>
+        </div>
+        <h3>Schema Markup Validator</h3>
+        <p>Use Google's free Rich Results Test API + schema.org library to validate and generate JSON-LD structured data — the #1 signal for AI engines.</p>
+        <a href="https://schema.org" class="card-link" target="_blank">schema.org →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#10b981;">
+        <div class="card-head">
+          <span class="card-icon">🤖</span>
+          <span class="badge free">FREE API</span>
+        </div>
+        <h3>Perplexity API (Free Tier)</h3>
+        <p>Query Perplexity AI's API to check if your brand appears in AI answers. Use this to automate your AI visibility score tracking across topics.</p>
+        <a href="https://docs.perplexity.ai" class="card-link" target="_blank">docs.perplexity.ai →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#f59e0b;">
+        <div class="card-head">
+          <span class="card-icon">📝</span>
+          <span class="badge python">PYTHON</span>
+        </div>
+        <h3>spaCy NLP (Entity Extraction)</h3>
+        <p>Free NLP library to extract named entities from your content — people, organizations, products. Align entities with Wikidata for knowledge graph optimization.</p>
+        <a href="https://spacy.io" class="card-link" target="_blank">spacy.io →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <div class="card-head">
+          <span class="card-icon">🔗</span>
+          <span class="badge free">FREE</span>
+        </div>
+        <h3>Wikidata SPARQL API</h3>
+        <p>Free access to Wikidata's knowledge graph. Check if your brand has an entity, create/enrich it. Critical for AI citation and knowledge graph optimization.</p>
+        <a href="https://query.wikidata.org" class="card-link" target="_blank">query.wikidata.org →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#7c3aed;">
+        <div class="card-head">
+          <span class="card-icon">📡</span>
+          <span class="badge api">API</span>
+        </div>
+        <h3>Google Search Console API</h3>
+        <p>Free API to track organic visibility, AI Overview appearances, and click-through rates. Use as baseline data for your AI visibility scoring dashboard.</p>
+        <a href="https://developers.google.com/webmaster-tools" class="card-link" target="_blank">developers.google.com →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#10b981;">
+        <div class="card-head">
+          <span class="card-icon">⚡</span>
+          <span class="badge js">JS</span>
+        </div>
+        <h3>Cheerio / Puppeteer</h3>
+        <p>Node.js tools to scrape and audit content structure. Check heading hierarchy, paragraph density, FAQ presence — all signals that AI engines use to extract answers.</p>
+        <a href="https://cheerio.js.org" class="card-link" target="_blank">cheerio.js.org →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#f59e0b;">
+        <div class="card-head">
+          <span class="card-icon">🧪</span>
+          <span class="badge free">FREE</span>
+        </div>
+        <h3>Ollama (Local LLM Testing)</h3>
+        <p>Run LLaMA, Mistral locally for FREE. Test how your content gets processed and quoted by AI — simulate AI answer generation without API costs.</p>
+        <a href="https://ollama.ai" class="card-link" target="_blank">ollama.ai →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <div class="card-head">
+          <span class="card-icon">📈</span>
+          <span class="badge free">FREE</span>
+        </div>
+        <h3>Apache Superset (Analytics)</h3>
+        <p>Free open-source BI tool to build your AI visibility dashboard. Visualize AI citation frequency, score trends, and competitor comparisons over time.</p>
+        <a href="https://superset.apache.org" class="card-link" target="_blank">superset.apache.org →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANEL: PIPELINE -->
+  <div id="panel-pipeline" class="panel">
+    <div class="section-title">GEO Platform Architecture</div>
+
+    <div class="alert">
+      <strong>⚡ HOW IT WORKS</strong>
+      This is the complete free pipeline to replicate Zaher AI's core functionality. Each step maps to a service they offer — built entirely with open-source tools.
+    </div>
+
+    <div class="pipeline glow">
+      <div class="pipe-step">
+        <span class="pipe-num">STEP 01</span>
+        <span class="pipe-icon">🕷️</span>
+        <div class="pipe-label">Content Crawl</div>
+        <div class="pipe-tool">Scrapy + Playwright</div>
+        <span class="pipe-arrow">→</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">STEP 02</span>
+        <span class="pipe-icon">🔬</span>
+        <div class="pipe-label">Content Audit</div>
+        <div class="pipe-tool">spaCy + Cheerio</div>
+        <span class="pipe-arrow">→</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">STEP 03</span>
+        <span class="pipe-icon">📊</span>
+        <div class="pipe-label">Schema Gen</div>
+        <div class="pipe-tool">schema.org + JSON-LD</div>
+        <span class="pipe-arrow">→</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">STEP 04</span>
+        <span class="pipe-icon">🤖</span>
+        <div class="pipe-label">AI Query Test</div>
+        <div class="pipe-tool">Perplexity API + Ollama</div>
+        <span class="pipe-arrow">→</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">STEP 05</span>
+        <span class="pipe-icon">📈</span>
+        <div class="pipe-label">Score & Report</div>
+        <div class="pipe-tool">Superset + Python</div>
+      </div>
+    </div>
+
+    <div class="section-title">Service-to-Tool Mapping</div>
+    <table class="compare-table">
+      <tr>
+        <th>Zaher AI Service</th>
+        <th>Free Tool Equivalent</th>
+        <th>Cost</th>
+        <th>Arabic Support</th>
+      </tr>
+      <tr>
+        <td><strong>GEO Audit</strong></td>
+        <td>Scrapy + spaCy + Cheerio</td>
+        <td class="yes">FREE</td>
+        <td class="yes">✓ Yes</td>
+      </tr>
+      <tr>
+        <td><strong>AI Visibility Score</strong></td>
+        <td>Perplexity API + Python scoring</td>
+        <td class="yes">FREE tier</td>
+        <td class="partial">Partial</td>
+      </tr>
+      <tr>
+        <td><strong>Schema Optimization</strong></td>
+        <td>schema.org + Google Rich Results API</td>
+        <td class="yes">FREE</td>
+        <td class="yes">✓ Yes</td>
+      </tr>
+      <tr>
+        <td><strong>Entity / Knowledge Graph</strong></td>
+        <td>Wikidata SPARQL + spaCy NER</td>
+        <td class="yes">FREE</td>
+        <td class="partial">Limited</td>
+      </tr>
+      <tr>
+        <td><strong>AI Answer Testing</strong></td>
+        <td>Ollama (local LLM)</td>
+        <td class="yes">FREE</td>
+        <td class="partial">Partial</td>
+      </tr>
+      <tr>
+        <td><strong>Analytics Dashboard</strong></td>
+        <td>Apache Superset</td>
+        <td class="yes">FREE</td>
+        <td class="yes">✓ Yes</td>
+      </tr>
+      <tr>
+        <td><strong>Competitor Comparison</strong></td>
+        <td>GSC API + custom Python scripts</td>
+        <td class="yes">FREE</td>
+        <td class="yes">✓ Yes</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- PANEL: CODE RECIPES -->
+  <div id="panel-code" class="panel">
+    <div class="section-title">Recipe 1 — AI Visibility Checker</div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+      <pre><span class="comment"># Check if your brand appears in Perplexity AI answers</span>
+<span class="comment"># pip install requests</span>
+
+<span class="keyword">import</span> requests, json
+
+<span class="fn">def</span> check_ai_visibility(brand_name, queries):
+    headers = {
+        <span class="string">"Authorization"</span>: <span class="string">f"Bearer YOUR_PERPLEXITY_KEY"</span>,
+        <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>
+    }
+    results = []
+    <span class="keyword">for</span> query <span class="keyword">in</span> queries:
+        response = requests.post(
+            <span class="string">"https://api.perplexity.ai/chat/completions"</span>,
+            headers=headers,
+            json={
+                <span class="string">"model"</span>: <span class="string">"sonar"</span>,   <span class="comment"># free tier model</span>
+                <span class="string">"messages"</span>: [{<span class="string">"role"</span>:<span class="string">"user"</span>, <span class="string">"content"</span>:query}]
+            }
+        )
+        answer = response.json()[<span class="string">"choices"</span>][<span class="num">0</span>][<span class="string">"message"</span>][<span class="string">"content"</span>]
+        mentioned = brand_name.lower() <span class="keyword">in</span> answer.lower()
+        results.append({<span class="string">"query"</span>: query, <span class="string">"mentioned"</span>: mentioned, <span class="string">"answer"</span>: answer})
+    
+    score = sum(<span class="num">1</span> <span class="keyword">for</span> r <span class="keyword">in</span> results <span class="keyword">if</span> r[<span class="string">"mentioned"</span>]) / len(results) * <span class="num">100</span>
+    <span class="keyword">return</span> {<span class="string">"brand"</span>: brand_name, <span class="string">"visibility_score"</span>: score, <span class="string">"details"</span>: results}
+
+<span class="comment"># Example usage</span>
+queries = [
+    <span class="string">"best AI search optimization tools"</span>,
+    <span class="string">"GEO companies in Egypt"</span>,
+    <span class="string">"Arabic SEO tools for AI"</span>
+]
+result = check_ai_visibility(<span class="string">"Zaher AI"</span>, queries)
+print(<span class="fn">f</span><span class="string">"AI Visibility Score: {result['visibility_score']:.1f}%"</span>)</pre>
+    </div>
+
+    <div class="section-title">Recipe 2 — Auto JSON-LD Schema Generator</div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+      <pre><span class="comment"># Generate AI-optimized schema markup for any page</span>
+<span class="comment"># pip install beautifulsoup4 requests</span>
+
+<span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup
+<span class="keyword">import</span> requests, json
+
+<span class="fn">def</span> generate_schema(url, org_name, org_url):
+    soup = BeautifulSoup(requests.get(url).text, <span class="string">"html.parser"</span>)
+    
+    <span class="comment"># Extract FAQs from H3 tags + next sibling paragraphs</span>
+    faqs = []
+    <span class="keyword">for</span> h3 <span class="keyword">in</span> soup.find_all(<span class="string">"h3"</span>):
+        answer = h3.find_next_sibling(<span class="string">"p"</span>)
+        <span class="keyword">if</span> answer:
+            faqs.append({
+                <span class="string">"@type"</span>: <span class="string">"Question"</span>,
+                <span class="string">"name"</span>: h3.get_text(strip=True),
+                <span class="string">"acceptedAnswer"</span>: {
+                    <span class="string">"@type"</span>: <span class="string">"Answer"</span>,
+                    <span class="string">"text"</span>: answer.get_text(strip=True)
+                }
+            })
+    
+    schema = {
+        <span class="string">"@context"</span>: <span class="string">"https://schema.org"</span>,
+        <span class="string">"@graph"</span>: [
+            {
+                <span class="string">"@type"</span>: <span class="string">"Organization"</span>,
+                <span class="string">"name"</span>: org_name,
+                <span class="string">"url"</span>: org_url,
+                <span class="string">"sameAs"</span>: []  <span class="comment"># Add LinkedIn, Twitter URLs here</span>
+            },
+            {
+                <span class="string">"@type"</span>: <span class="string">"FAQPage"</span>,
+                <span class="string">"mainEntity"</span>: faqs
+            }
+        ]
+    }
+    <span class="keyword">return</span> f<span class="string">'&lt;script type="application/ld+json"&gt;\n{json.dumps(schema, indent=2, ensure_ascii=False)}\n&lt;/script&gt;'</span>
+
+print(generate_schema(<span class="string">"https://yoursite.com"</span>, <span class="string">"Zaher AI"</span>, <span class="string">"https://zaher.ai"</span>))</pre>
+    </div>
+
+    <div class="section-title">Recipe 3 — Local AI Testing with Ollama</div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+      <pre><span class="comment"># Test content against local LLM — zero API cost</span>
+<span class="comment"># 1. Install: https://ollama.ai → run: ollama pull llama3</span>
+<span class="comment"># pip install ollama</span>
+
+<span class="keyword">import</span> ollama
+
+<span class="fn">def</span> test_content_for_ai(content_chunk, test_query):
+    <span class="comment">"""Check if your content would be cited in an AI answer"""</span>
+    prompt = f<span class="string">"""
+You are an AI answer engine. A user asks: "{test_query}"
+You have this content available: 
+---
+{content_chunk}
+---
+Would you cite this content in your answer? 
+Rate relevance 0-10 and explain why.
+"""</span>
+    response = ollama.chat(
+        model=<span class="string">"llama3"</span>,
+        messages=[{<span class="string">"role"</span>: <span class="string">"user"</span>, <span class="string">"content"</span>: prompt}]
+    )
+    <span class="keyword">return</span> response[<span class="string">"message"</span>][<span class="string">"content"</span>]
+
+<span class="comment"># Example test</span>
+my_content = <span class="string">"Zaher AI helps brands appear in AI-generated answers through GEO..."</span>
+query = <span class="string">"What is Generative Engine Optimization?"</span>
+result = test_content_for_ai(my_content, query)
+print(result)</pre>
+    </div>
+  </div>
+
+  <!-- PANEL: AUDIT CHECKLIST -->
+  <div id="panel-audit" class="panel">
+    <div class="section-title">GEO Audit Checklist — 12 Steps</div>
+    <div class="checklist" id="checklist">
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <div class="check-content">
+          <h4>1. Add JSON-LD Organization Schema</h4>
+          <p>Every page should have Organization schema with name, URL, sameAs links to social profiles. This is how AI engines identify your brand.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>2. Create FAQ Schema on Key Pages</h4>
+          <p>FAQ structured data is the #1 signal for AI answer extraction. Use H3 questions + paragraph answers + FAQPage schema markup.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>3. Add HowTo Schema for Process Pages</h4>
+          <p>Step-by-step content with HowTo schema gets extracted directly into ChatGPT and Google AI Overviews answers.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>4. Create / Verify Wikidata Entity</h4>
+          <p>Check if your company exists on Wikidata. If not, create it. This is a strong knowledge graph signal for AI engines.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>5. Write "What is X?" Definitional Content</h4>
+          <p>AI engines love authoritative definitions. Write a clear, concise definition paragraph for each key topic you want to own.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>6. Optimize for Direct Answer Format</h4>
+          <p>Start paragraphs with direct answers. AI engines prefer content that answers the question in the first 40-60 words.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>7. Add sameAs Links to Authority Sources</h4>
+          <p>Link your brand entity to Wikipedia, LinkedIn, Crunchbase, and industry databases in your Organization schema's sameAs array.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>8. Test AI Citation Frequency (Baseline)</h4>
+          <p>Query Perplexity, ChatGPT, and Gemini manually with 10 queries in your niche. Record baseline citations before optimization.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>9. Audit Heading Structure (H1→H2→H3)</h4>
+          <p>AI engines use heading hierarchy to understand content structure. Missing or skipped heading levels reduce extraction quality.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>10. Add Arabic Language Hreflang Tags</h4>
+          <p>For MENA visibility, add correct hreflang="ar" and hreflang="ar-eg" tags. Ensures AI engines serve Arabic content to Arabic users.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>11. Create robots.txt Allowing AI Crawlers</h4>
+          <p>Don't block GPTBot, Google-Extended, or PerplexityBot. AI engines need to crawl your content to cite it.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>12. Submit Updated Sitemap to Search Engines</h4>
+          <p>Keep your sitemap fresh. AI-powered search crawlers use sitemaps to prioritize content discovery and re-indexing.</p>
+        </div>
+      </label>
+    </div>
+    <div id="progress-display" style="font-size:13px; color:var(--accent); margin-top:8px;"></div>
+  </div>
+
+  <!-- PANEL: ARABIC GEO -->
+  <div id="panel-arabic" class="panel">
+    <div class="section-title">Arabic GEO — Key Techniques</div>
+
+    <div class="alert">
+      <strong>🌐 THE ARABIC OPPORTUNITY</strong>
+      Arabic content is severely underrepresented in AI training data and responses. This is Zaher AI's core differentiator — and it's achievable with free tools.
+    </div>
+
+    <div class="section-title">Arabic Schema & Entity Keywords</div>
+    <div style="margin-bottom:28px; line-height:2.5;">
+      <span class="arabic-badge">تحسين محركات البحث</span>
+      <span class="arabic-badge">ذكاء اصطناعي</span>
+      <span class="arabic-badge">تحسين محركات الذكاء</span>
+      <span class="arabic-badge">مرئية الذكاء الاصطناعي</span>
+      <span class="arabic-badge">محتوى عربي</span>
+      <span class="arabic-badge">نتائج الذكاء الاصطناعي</span>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card" style="--card-accent:#7c3aed;">
+        <div class="card-head">
+          <span class="card-icon">🔤</span>
+          <span class="badge free">FREE</span>
+        </div>
+        <h3>Arabic NLP: CAMeL Tools</h3>
+        <p>Free Arabic NLP library from NYU Abu Dhabi. Handles morphological analysis, named entity recognition, and POS tagging for Arabic text — essential for Arabic GEO.</p>
+        <a href="https://github.com/CAMeL-Lab/camel_tools" class="card-link" target="_blank">CAMeL-Lab/camel_tools →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <div class="card-head">
+          <span class="card-icon">🌍</span>
+          <span class="badge python">PYTHON</span>
+        </div>
+        <h3>AraBERT (Hugging Face)</h3>
+        <p>Free pre-trained Arabic BERT model. Use it to understand how AI systems process your Arabic content and optimize semantic similarity scores.</p>
+        <a href="https://huggingface.co/aubmindlab/bert-base-arabertv2" class="card-link" target="_blank">HuggingFace: AraBERT →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#10b981;">
+        <div class="card-head">
+          <span class="card-icon">🗂️</span>
+          <span class="badge free">FREE</span>
+        </div>
+        <h3>Arabic Schema Templates</h3>
+        <p>schema.org supports Arabic content natively. Use inLanguage: "ar" in all schema objects. Add Arabic name variants in alternateName fields for dual-language indexing.</p>
+        <a href="https://schema.org/inLanguage" class="card-link" target="_blank">schema.org/inLanguage →</a>
+      </div>
+    </div>
+
+    <div class="section-title">Arabic robots.txt — Allow AI Crawlers</div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+      <pre><span class="comment"># robots.txt — Allow all major AI crawlers</span>
+<span class="comment"># Critical: blocking these = invisible to AI search</span>
+
+User-agent: <span class="string">GPTBot</span>          <span class="comment"># ChatGPT</span>
+Allow: /
+
+User-agent: <span class="string">Google-Extended</span>   <span class="comment"># Gemini training</span>
+Allow: /
+
+User-agent: <span class="string">PerplexityBot</span>     <span class="comment"># Perplexity AI</span>
+Allow: /
+
+User-agent: <span class="string">ClaudeBot</span>         <span class="comment"># Claude (Anthropic)</span>
+Allow: /
+
+User-agent: <span class="string">CCBot</span>             <span class="comment"># Common Crawl</span>
+Allow: /
+
+<span class="comment"># Block bad bots but NOT AI engines</span>
+User-agent: <span class="string">AhrefsBot</span>
+Disallow: /</pre>
+    </div>
+  </div>
+
+  <footer>
+    <span>Built for <span class="footer-brand">Zaher AI</span> integration</span>
+    <span>All tools listed are free & open-source</span>
+    <span style="color:var(--accent3);">GEO Toolkit v1.0</span>
+  </footer>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = ['tools','pipeline','code','audit','arabic'];
+  const idx = tabs.indexOf(name);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  if (el.classList.contains('done')) {
+    el.querySelector('.check-box').textContent = '✓';
+  } else {
+    el.querySelector('.check-box').textContent = '';
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = document.querySelectorAll('.check-item.done').length;
+  const total = document.querySelectorAll('.check-item').length;
+  const pct = Math.round(done/total*100);
+  document.getElementById('progress-display').textContent =
+    `Progress: ${done}/${total} completed (${pct}% GEO ready)`;
+}
+
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'COPIED!';
+    setTimeout(() => btn.textContent = 'COPY', 2000);
+  });
+}
+
+// Init first check as done
+document.querySelector('.check-item').classList.add('done');
+document.querySelector('.check-item .check-box').textContent = '✓';
+updateProgress();
+</script>
+</body>
+</html>
