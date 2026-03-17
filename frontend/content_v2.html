@@ -421,13 +421,7 @@
     const groqInput = document.getElementById('groq-key');
     const openaiInput = document.getElementById('openai-key');
 
-    // Pre-fill keys from conversation if localstorage is empty
-    if (!localStorage.getItem('geo_groq_key')) {
-      localStorage.setItem('geo_groq_key', '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');
-    }
-    if (!localStorage.getItem('geo_openai_key')) {
-      localStorage.setItem('geo_openai_key', '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');
-    }
+    // Keys are entered by the user via the Backend Config button
 
     function loadSettings() {
       groqInput.value = localStorage.getItem('geo_groq_key') || '';
