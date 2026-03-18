@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>التحليل الإقليمي — منصة GEO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      margin: 0;
+    }
+    .wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 100px 24px 60px;
+    }
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Search Bar Input */
+    .search-box {
+      margin: 0 auto 40px;
+      max-width: 600px;
+      display: flex;
+      gap: 12px;
+    }
+    .search-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-family: 'Cairo', sans-serif;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
+    }
+    .search-btn {
+      padding: 14px 24px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #00d4ff, #7c3aed);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .search-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    /* Grid layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      /* Add glowing hover effect */
+      transition: all 0.3s ease;
+    }
+    .panel:hover {
+      border-color: rgba(124, 58, 237, 0.4);
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.08);
+    }
+    .panel-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+    }
+    
+    /* Stats Layout */
+    .stat-circle {
+      width: 120px;
+      height: 120px;
+      background: conic-gradient(var(--accent) var(--pct), var(--surface2) 0deg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+    .stat-circle::after {
+      content: '';
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      background: var(--surface);
+      border-radius: 50%;
+    }
+    .stat-circle span {
+      position: relative;
+      z-index: 10;
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .metrics-bar {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 24px;
+    }
+    .metric { text-align: center; }
+    .metric-val { font-size: 20px; font-weight: 700; color: var(--text); }
+    .metric-lbl { font-size: 11px; color: var(--muted); }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .status-قوي { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-متوسط { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-ضعيف { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Results layout */
+    #results { display: none; }
+    #loader { display: none; text-align: center; padding: 60px 40px; color: var(--accent); }
+    
+    /* 3D Progress Bar */
+    .progress-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      perspective: 1000px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(20deg);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #a78bfa);
+      border-radius: 10px;
+      position: relative;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 20px var(--accent);
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(transparent, rgba(255,255,255,0.2), transparent);
+      animation: shine 2s infinite;
+    }
+    @keyframes shine {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(100%); }
+    }
+    .stage-label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 15px;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .stage-detail {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 5px;
+    }
+
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">GEO<span>.</span>Platform</div>
+    <div class="nav-links">
+      <a href="/jobs.html">المهام</a>
+      <a href="/recommendations.html">التوصيات</a>
+      <a href="/search.html">تحليل البحث</a>
+      <a href="/content_v2.html">المحتوى</a>
+      <a href="/ads.html">الإعلانات</a>
+      <a href="/geo-toolkit.html">خدمات GEO</a>
+    </div>
+    <a href="/index.html" class="nav-cta">الرئيسية</a>
+  </nav>
+
+  <div class="wrapper">
+    <div class="hero">
+      <h1>التحليل الجغرافي والإقليمي</h1>
+      <p>قس أداء ظهور علامتك التجارية عبر محركات البحث للذكاء الاصطناعي مقسمة بناءً على اللهجات والمناطق الجغرافية (الخليج، مصر، الشام، والنتائج العالمية).</p>
+    </div>
+
+    <form class="search-box" style="display:flex; gap:12px; align-items:center;" id="regionalForm">
+      <input type="text" id="brandInput" class="search-input" style="flex:2;" placeholder="أدخل اسم علامتك التجارية أو رابط الموقع (مثل: إحسان، أو https://ehsan.sa)" required>
+      <select id="regionTarget" class="search-input" style="flex:1;">
+        <option value="all">المنطقة الجغرافية: الكل</option>
+        <option value="gulf_arabic">الخليج العربي</option>
+        <option value="egyptian_arabic">مصر</option>
+        <option value="modern_standard_arabic">الفصحى (الشرق الأوسط)</option>
+        <option value="english_global">عالمي</option>
+      </select>
+      <button type="submit" class="search-btn">🚀 تحليل الظهور</button>
+    </form>
+
+    <div id="loader">
+      <div class="progress-container">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+        <div class="stage-label" id="stageLabel">جارٍ تهيئة المحرك الجغرافي...</div>
+        <div class="stage-detail" id="stageDetail">نقوم الآن بربط القنوات وتحليل اللهجات الإقليمية</div>
+      </div>
+    </div>
+
+    <div id="results">
+      <!-- Top Overview Bar -->
+      <div class="panel" style="margin-bottom: 24px; display:flex; justify-content: space-between; align-items: center;">
+        <div>
+           <div class="panel-title">ملخص الأداء الإقليمي</div>
+           <div id="brandLabel" style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#fff;margin-top:8px;"></div>
+           <div style="font-size:13px; color:var(--muted); margin-top:4px;">الصناعة: <span id="industryLabel" style="color:var(--accent);"></span></div>
+        </div>
+        <div style="text-align: left; max-width: 300px;">
+           <div style="font-size:12px; color:var(--muted); margin-bottom: 6px;">أبرز المنافسين رصداً بالذكاء الاصطناعي:</div>
+           <div id="competitorPills" style="display:flex; flex-wrap:wrap; gap:6px; justify-content: flex-end;"></div>
+           <div style="font-size:11px; color:#a78bfa; margin-top: 8px; text-align: left;">الترتيب بين المنافسين: <span id="rankLabel" style="font-weight:bold; color:#fff;">-</span></div>
+        </div>
+      </div>
+      
+      <div class="panel" style="margin-bottom: 24px;">
+        <div class="metrics-bar" style="margin-top:0;">
+          <div class="metric">
+            <div class="metric-val" id="strongestRegion" style="color:var(--accent)">-</div>
+            <div class="metric-lbl">أقوى تواجد إقليمي</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" id="weakestRegion" style="color:#ef4444">-</div>
+            <div class="metric-lbl">أضعف تواجد إقليمي</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" id="arabicAvg">-</div>
+            <div class="metric-lbl">متوسط الظهور (العربي)</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" id="globalAvg">-</div>
+            <div class="metric-lbl">متوسط الظهور (العالمي)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" id="regionCards">
+        <!-- Cards will be injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const regionNames = {
+      "gulf_arabic": "الخليج العربي",
+      "egyptian_arabic": "مصر",
+      "modern_standard_arabic": "العربية الفصحى (الشرق الأوسط)",
+      "english_global": "عالمي (انجليزي)"
+    };
+
+    document.getElementById('regionalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const brand = document.getElementById('brandInput').value;
+      const targetRegionFilter = document.getElementById('regionTarget').value;
+      
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('loader').style.display = 'block';
+      
+      try {
+        const resp = await fetch('/api/geo/regional', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ brand: brand })
+        });
+        
+        const data = await resp.json();
+        if (!data.ok) throw new Error(data.error);
+
+        const res = data.result;
+        
+        // Populate Overview
+        document.getElementById('brandLabel').textContent = res.brand_analyzed || brand;
+        document.getElementById('industryLabel').textContent = res.industry || 'غير محدد';
+        document.getElementById('strongestRegion').textContent = regionNames[res.strongest] || res.strongest;
+        document.getElementById('weakestRegion').textContent = regionNames[res.weakest] || res.weakest;
+        document.getElementById('arabicAvg').textContent = res.arabic_avg + "%";
+        document.getElementById('globalAvg').textContent = res.global_avg + "%";
+        document.getElementById('rankLabel').textContent = res.estimated_rank !== "غير متوفر" ? "#" + res.estimated_rank : "غير متوفر";
+
+        // Competitors
+        const compContainer = document.getElementById('competitorPills');
+        compContainer.innerHTML = '';
+        if (res.competitors && res.competitors.length > 0) {
+            res.competitors.forEach(c => {
+                const el = document.createElement('span');
+                el.style.cssText = "background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-family: 'Syne', sans-serif;";
+                el.textContent = c;
+                compContainer.appendChild(el);
+            });
+        }
+
+        // Populate Cards
+        const container = document.getElementById('regionCards');
+        container.innerHTML = '';
+
+        for (const [key, details] of Object.entries(res.by_region)) {
+          if (targetRegionFilter !== 'all' && targetRegionFilter !== key) continue;
+          
+          const card = document.createElement('div');
+          card.className = 'panel';
+          
+          // 1. Competitor Mentions Section
+          let compMentionsHtml = '';
+          if (details.competitor_mentions) {
+            compMentionsHtml = `
+              <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:12px;">
+                <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">حضور المنافسين في إجابات AI:</div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  ${Object.entries(details.competitor_mentions).map(([c, count]) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <span style="font-size:11px; color:#fff;">${c}</span>
+                      <div style="flex:1; height:4px; background:var(--surface2); margin:0 10px; border-radius:2px; position:relative;">
+                        <div style="position:absolute; left:0; top:0; height:100%; width:${Math.min(100, (count/(details.queries_tested||1))*100)}%; background:var(--accent); border-radius:2px;"></div>
+                      </div>
+                      <span style="font-size:10px; color:var(--muted);">${count} إشارة</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }
+
+          // 2. Evidence Section
+          let evidenceHtml = '';
+          if (details.evidence && details.evidence.length > 0) {
+            evidenceHtml = `
+              <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:12px;">
+                <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">عينة من الاستجوابات والنتائج (Evidence):</div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                  ${details.evidence.map(ev => `
+                    <div style="background:var(--surface2); padding:10px; border-radius:8px; border-left:3px solid var(--accent);">
+                      <div style="font-size:11px; font-weight:700; color:#fff; margin-bottom:4px;">Q: ${ev.query}</div>
+                      <div style="font-size:10px; color:var(--muted); font-style:italic; line-height:1.4;">"${ev.snippet}"</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }
+
+          // 3. Header + Metrics + Success Rate
+          let diagnosticHtml = '';
+          if (details.llm_diagnostics) {
+            diagnosticHtml = `
+              <div style="margin-top:15px; background:rgba(255,100,100,0.1); border:1px solid rgba(255,100,100,0.3); border-radius:8px; padding:10px;">
+                <div style="font-size:11px; color:#ff8888; font-weight:bold; margin-bottom:4px;">⚠️ خطأ في الاتصال (LLM Error):</div>
+                <div style="font-size:10px; color:#ffaaaa; line-height:1.4;">${details.llm_diagnostics}</div>
+                <div style="font-size:10px; color:var(--muted); margin-top:8px;">تأكد من تشغيل Ollama محلياً أو تحديث مفاتيح OpenAI/Groq في ملف .env</div>
+              </div>
+            `;
+          }
+
+          card.innerHTML = `
+            <div class="panel-hdr">
+              <div class="panel-title">
+                ${regionNames[key] || key}
+                <span style="font-size:10px; color:var(--muted); margin-right:8px; font-weight:normal;">
+                   (Success: ${details.success_rate}%)
+                </span>
+              </div>
+              <div class="status-badge status-${details.status}">${details.status}</div>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:30px;">
+              <div class="stat-circle" style="--pct:${details.visibility_pct}%; margin:0;">
+                <span>${details.visibility_pct}%</span>
+              </div>
+              <div style="flex:1;">
+                <div class="metrics-bar" style="justify-content:flex-start; gap:30px; margin-top:0;">
+                  <div class="metric">
+                    <div class="metric-val">${details.mentions}</div>
+                    <div class="metric-lbl">الإشارات</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-val">${details.queries_tested}</div>
+                    <div class="metric-lbl">عدد الاستجوابات</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            ${diagnosticHtml}
+            ${compMentionsHtml}
+            ${evidenceHtml}
+          `;
+
+          container.appendChild(card);
+        }
+
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ أثناء الاتصال بالخادم: ' + err.message);
+        document.getElementById('loader').style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

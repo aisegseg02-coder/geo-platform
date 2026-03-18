@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-f33519ac-cc2f-4d06-b23f-f4ffd4b22967')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n[\\n  {\\n    \"title\": \"الرئيسية-2 - ELBATT GROUP\",\\n    \"url\": \"https://elbatt.com/\",\\n    \"text\": \"ELBATT GROUP\"\\n  },\\n  {\\n    \"title\": \"التسويق الرقمى - ELBATT GROUP\",\\n    \"url\": \"https://elbatt.com/%d8%a7%d9%84%d8%aa%d8%b3%d9%88%d9%8a%d9%82-%d8%a7%d9%84%d8%b1%d9%82%d9%85%d9%89/\",\\n    \"text\": \"ELBATT GROUP\"\\n  },\\n  {\\n    \"title\": \"تواصل معنا - ELBATT GROUP\",\\n    \"url\": \"https://elbatt.com/%d8%aa%d9%88%d8%a7%d8%b5%d9%84-%d9%85%d8%b9%d9%86%d8%a7/\",\\n    \"text\": \"ELBATT GROUP\"\\n  }\\n]\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1773836887)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_e09ee421cf')('usage', CompletionUsage(completion_tokens=236, prompt_tokens=234, total_tokens=470, completion_time=0.21554784, completion_tokens_details=None, prompt_time=0.015124365, prompt_tokens_details=None, queue_time=0.045695463, total_time=0.230672205))('usage_breakdown', None)('x_groq', XGroq(id='req_01km0enrx0f85schyh0dvnjr71', debug=None, seed=1476935855, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 48,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 7,
+      "density": 1,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 3,
+      "warnings": 0,
+      "passed": 0
+    }
+  }
+}

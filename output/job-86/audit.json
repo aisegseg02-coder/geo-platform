@@ -1,0 +1,9 @@
+{
+  "pages": [],
+  "audits": [],
+  "ai_visibility": {
+    "enabled": false,
+    "reason": "OPENAI_API_KEY not set",
+    "results": []
+  }
+}

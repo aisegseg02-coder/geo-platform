@@ -91,16 +91,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .panel-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
 .panel-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--a1);font-family:'IBM Plex Mono',monospace}
 
-/* Table */
-table{width:100%;border-collapse:collapse}
-th{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--m1);padding:10px 14px;border-bottom:1px solid var(--b1);text-align:left;font-family:'IBM Plex Mono',monospace}
-td{padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.025)}
-tr{transition:background .15s}
-tr:hover td{background:rgba(37,99,235,0.04)}
-.badge{font-size:9px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
-.badge.on{background:rgba(16,185,129,0.12);color:var(--g2);border:1px solid rgba(16,185,129,0.2)}
-.badge.off{background:rgba(245,158,11,0.10);color:var(--y2);border:1px solid rgba(245,158,11,0.2)}
-
 /* QS bars */
 .qs{display:flex;align-items:center;gap:8px}
 .qs-track{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);flex:1;overflow:hidden}
@@ -194,17 +184,23 @@ textarea{resize:vertical;min-height:80px;width:100%}
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-brand">GEO / إعلانات</div>
-  <a href="/">الرئيسية</a>
-  <a href="/search">تحليل البحث</a>
-  <a href="/content">المحتوى</a>
-  <a href="/recommendations">درجة GEO</a>
-  <a href="/ads" class="active">الإعلانات</a>
-  <div class="status"><div class="pulse"></div><span id="mode-lbl">وضع تجريبي</span></div>
+<nav>
+  <div class="nav-logo">GEO<span>.</span>AI</div>
+  <div class="nav-links">
+    <a href="/jobs.html">المهام</a>
+    <a href="/recommendations.html">التوصيات</a>
+    <a href="/search.html">تحليل البحث</a>
+    <a href="/content_v2.html">المحتوى</a>
+    <a href="/ads.html" style="color:var(--accent);">الإعلانات</a>
+    <a href="/geo-toolkit.html">خدمات GEO</a>
+  </div>
+  <div style="display:flex; gap:16px; align-items:center;">
+    <div class="status" style="display:flex;align-items:center;gap:8px;font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 14px;border-radius:20px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:var(--y2);"><div class="pulse"></div><span id="mode-lbl">وضع تجريبي</span></div>
+    <a href="/" class="nav-cta" id="navCta">الرئيسية</a>
+  </div>
 </nav>
 
-<div class="wrap">
+<div class="wrap" style="padding-top: 100px;">
   <div class="page-hd">
     <div class="label">وحدة — الإعلانات</div>
     <h1>Ads <span>تحليل البحث</span></h1>
@@ -231,7 +227,7 @@ textarea{resize:vertical;min-height:80px;width:100%}
     </div>
     <div class="panel">
       <div class="panel-hd"><div class="panel-title">أداء الحملات</div></div>
-      <table>
+      <table class="table-glow">
         <thead><tr><th>الحملة</th><th>الحالة</th><th>النقرات</th><th>الظهور</th><th>CTR</th><th>متوسط CPC</th><th>التكلفة</th><th>التحويلات</th><th>CPA</th><th>حصة الظهور</th></tr></thead>
         <tbody id="camp-tb"><tr><td colspan="10" style="text-align:center;color:var(--m1);padding:40px"><span class="spin"></span></td></tr></tbody>
       </table>
@@ -242,7 +238,7 @@ textarea{resize:vertical;min-height:80px;width:100%}
   <div id="tp-kw" class="tp">
     <div class="panel">
       <div class="panel-hd"><div class="panel-title">أداء الكلمات المفتاحية</div></div>
-      <table>
+      <table class="table-glow">
         <thead><tr><th>الكلمة المفتاحية</th><th>نوع المطابقة</th><th>درجة الجودة</th><th>النقرات</th><th>CTR</th><th>CPC</th><th>التكلفة</th><th>التحويلات</th></tr></thead>
         <tbody id="kw-tb"><tr><td colspan="8" style="text-align:center;color:var(--m1);padding:40px"><span class="spin"></span></td></tr></tbody>
       </table>
@@ -373,7 +369,7 @@ textarea{resize:vertical;min-height:80px;width:100%}
 
       <div class="panel">
         <div class="panel-title" style="margin-bottom:16px">المكتبات المستخدمة</div>
-        <table>
+        <table class="table-glow">
           <thead><tr><th>المكتبة</th><th>الاستخدام</th><th>التكلفة</th></tr></thead>
           <tbody>
             <tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--t3)">google-ads</td><td style="color:var(--m2)">عميل Python الرسمي لـ Google Ads API</td><td style="color:var(--g2)">مجاني</td></tr>

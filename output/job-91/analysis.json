@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-3f492e73-94c2-46eb-8131-28b5fdd3e04c')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"data\": [\\n    {\\n      \"title\": \"محرك - Mohrek\",\\n      \"url\": \"https://mohrek.com/\",\\n      \"text\": \"محرك – Mohrek\"\\n    },\\n    {\\n      \"title\": \"تحسين SEO اليوتيوب | محرك\",\\n      \"url\": \"https://mohrek.com/%d8%aa%d8%ad%d8%b3%d9%8a%d9%86-seo-%d8%a7%d9%84%d9%8a%d9%88%d8%aa%d9%8a%d9%88%d8%a8/\",\\n      \"text\": \"محرك – Mohrek\"\\n    },\\n    {\\n      \"title\": \"تحسين بحث التطبيقات ASO | محرك\",\\n      \"url\": \"https://mohrek.com/%d8%aa%d8%ad%d8%b3%d9%8a%d9%86-%d8%a8%d8%ad%d8%ab-%d8%a7%d9%84%d8%aa%d8%b7%d8%a8%d9%8a%d9%82%d8%a7%d8%aa-aso/\",\\n      \"text\": \"محرك – Mohrek\"\\n    }\\n  ]\\n}\\n```\\n\\nThis JSON output contains an array of objects, each representing a webpage with its title, URL, and text.', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1773834842)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_6a1eabf260')('usage', CompletionUsage(completion_tokens=309, prompt_tokens=276, total_tokens=585, completion_time=0.278783017, completion_tokens_details=None, prompt_time=0.018363001, prompt_tokens_details=None, queue_time=0.018290278, total_time=0.297146018))('usage_breakdown', None)('x_groq', XGroq(id='req_01km0cqc2gfvarsrpv2p53ew4n', debug=None, seed=619198591, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 74,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 20,
+      "density": 14,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 0,
+      "warnings": 3,
+      "passed": 0
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": false,
+      "reason": "OPENAI_API_KEY not set"
+    },
+    "groq": {
+      "enabled": false,
+      "reason": "GROQ_API_KEY not set"
+    }
+  },
+  "geo_score": {
+    "score": 70,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 20,
+      "density": 10,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 1,
+      "warnings": 2,
+      "passed": 0
+    }
+  }
+}

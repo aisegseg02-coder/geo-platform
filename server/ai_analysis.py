@@ -12,12 +12,46 @@ try:
     from groq import Groq
 except Exception:
     Groq = None
-    if openai is not None:
-        try:
-            openai.api_key = os.getenv('OPENAI_API_KEY')
-        except Exception:
-            pass
+
+try:
+    from langdetect import detect
+except Exception:
+    detect = None
+
+if openai is not None:
+    openai.api_key = os.getenv('OPENAI_API_KEY')
+
 DEFAULT_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+
+# Professional Bilingual Recommendations
+RECS_CONTENT = {
+    'ar': {
+        'headings': 'تحسين تسلسل العناوين: تأكد من وجود H1 واحد فقط واستخدام H2 ثم H3 بشكل منطقي لتسهيل الفهرسة.',
+        'density': 'زيادة عمق المحتوى: استهدف 40-120 كلمة في الفقرات الرئيسية مع تقديم إجابات مباشرة وسهلة القراءة.',
+        'entities': 'إضافة الكيانات المسماة: اذكر أسماء المنظمة، الأشخاص، والمنتجات بوضوح واربطها ببيانات Schema.',
+        'faq': 'إنشاء صفحات الأسئلة والأجوبة (FAQ): أضف قسم للأسئلة الشائعة باستخدام JSON-LD لزيادة فرص الظهور في المحركات التوليدية.',
+        'ai_visibility': 'تحسين الظهور في الذكاء الاصطناعي: أنشئ محتوى تعريفياً قصيراً (Definitional Content) يسهل على النماذج مثل ChatGPT وPerplexity اقتباسه.',
+        'h1_missing': 'إضافة عنوان H1: أضف عنواناً رئيسياً واضحاً يحتوي على الكلمة المفتاحية واسم العلامة التجارية.',
+        'short_paras': 'تطوير الفقرات: اجعل الفقرة الأولى تبدأ بإجابة مباشرة ومختصرة لزيادة احتمالية الاقتباس.',
+        'thin_content': 'محتوى ضيق: أضف فقرات تعريفية وبيانات منظمة للمؤسسة (Organization Schema).'
+    },
+    'en': {
+        'headings': 'Fix heading hierarchy: Ensure one H1 per page and incremental H2 → H3 structure for better indexing.',
+        'density': 'Increase content depth: Aim for 40–120 words in core paragraphs with direct, readable answers.',
+        'entities': 'Add named entities: Clearly mention Organizations, People, and Products and link them via Schema.',
+        'faq': 'Create FAQ sections: Use FAQPage JSON-LD to increase chances of being featured in AI search results.',
+        'ai_visibility': 'Optimize for AI: Create short, authoritative definitions of your services to encourage LLM citations.',
+        'h1_missing': 'Add H1 heading: Ensure a clear H1 containing your primary keyword and brand name.',
+        'short_paras': 'Expand paragraphs: Lead with a one-sentence "direct answer" to improve AI extraction likelihood.',
+        'thin_content': 'Thin content: Add a definitional paragraph and an Organization JSON-LD block.'
+    }
+}
+
+def _is_arabic(text: str) -> bool:
+    if not text: return False
+    # Simple regex for Arabic characters range
+    import re
+    return bool(re.search(r'[\u0600-\u06FF]', text))
 
 
 def _build_prompt(pages: List[dict]):
@@ -368,40 +402,58 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
             ai_res = ai_analysis_results['openai']['result']
         
         if ai_res and ai_res.get('suggestions'):
-            recs['actions'] = ai_res.get('suggestions')
+            recs['actions'] = ai_res.get('suggestions') or []
     
+    # Detect dominant language - Safely handle empty paragraphs
+    is_ar = False
+    for p in pages[:3]:
+        paras = p.get('paragraphs') or []
+        sample_text = p.get('title', '') + ' ' + (paras[0] if paras else '')
+        if _is_arabic(sample_text):
+            is_ar = True
+            break
+    lang = 'ar' if is_ar else 'en'
+    content = RECS_CONTENT[lang]
+
     # Fallback/Heuristic actions if AI didn't provide any or as supplements
     if not recs['actions'] and geo_score:
         b = geo_score.get('breakdown', {})
         if b.get('headings', 0) < 12:
-            recs['actions'].append('Fix heading hierarchy: ensure one H1 per page and incremental H2 → H3 structure.')
+            recs['actions'].append(content['headings'])
         if b.get('density', 0) < 12:
-            recs['actions'].append('Increase paragraph depth: aim for 40–120 words in core paragraphs; add definitions and examples.')
+            recs['actions'].append(content['density'])
         if b.get('entities', 0) < 10:
-            recs['actions'].append('Add named entities and link to Wikidata (Organization, People, Products).')
+            recs['actions'].append(content['entities'])
         if b.get('faq', 0) < 10:
-            recs['actions'].append('Create FAQPage JSON-LD for key pages with clear Q&A pairs (H3 + paragraph).')
+            recs['actions'].append(content['faq'])
         if b.get('ai_visibility', 0) < 10:
-            recs['actions'].append('Run Perplexity and Groq checks; create short definitional content to increase brand mention likelihood.')
+            recs['actions'].append(content['ai_visibility'])
 
     # Per-page recommendations
     for p in pages:
         page_rec = {'url': p.get('url'), 'title': p.get('title'), 'issues': [], 'suggestions': [], 'schema_example': None}
         tags = [h.get('tag','') for h in p.get('headings', [])]
         if 'h1' not in tags:
-            page_rec['issues'].append('Missing H1')
-            page_rec['suggestions'].append('Add one clear H1 that contains the primary keyword and brand name.')
+            page_rec['issues'].append('Missing H1' if lang == 'en' else 'عنوان H1 مفقود')
+            page_rec['suggestions'].append(content['h1_missing'])
         # paragraph length
         paras = p.get('paragraphs', [])
         avg = (sum(len(x.split()) for x in paras) / len(paras)) if paras else 0
         if avg < 30:
-            page_rec['issues'].append('Short paragraphs')
-            page_rec['suggestions'].append('Expand core paragraphs to 40–120 words; lead with a one-sentence answer.')
+            page_rec['issues'].append('Short paragraphs' if lang == 'en' else 'فقرات قصيرة جداً')
+            page_rec['suggestions'].append(content['short_paras'])
 
-        # FAQ suggestion: collect h3 candidate
-        faq_candidates = [h['text'] for h in p.get('headings', []) if h.get('tag') == 'h3']
-        if faq_candidates:
-            q = faq_candidates[0]
+        # FAQ suggestion: collect h3 candidate - Improved cleaning
+        import re
+        faq_candidates = [h['text'].strip() for h in p.get('headings', []) if h.get('tag') == 'h3']
+        valid_q = None
+        for q in faq_candidates:
+            # Avoid headings that are obviously UI elements or too long/short
+            if len(q) > 10 and len(q) < 100 and not q.startswith('[') and not q.endswith(']'):
+                valid_q = q
+                break
+
+        if valid_q:
             ans = (paras[0] if paras else '')[:300]
             schema = {
                 "@context": "https://schema.org",
@@ -409,29 +461,66 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
                 "mainEntity": [
                     {
                         "@type": "Question",
-                        "name": q,
+                        "name": valid_q,
                         "acceptedAnswer": { "@type": "Answer", "text": ans }
                     }
                 ]
             }
             page_rec['schema_example'] = schema
-            page_rec['suggestions'].append('Add the FAQ JSON-LD for the question above to improve AI extraction.')
+            page_rec['suggestions'].append('Add the FAQ JSON-LD for the question above to improve AI extraction.' if lang == 'en' else 'أضف بيانات FAQ JSON-LD للسؤال أعلاه لتحسين استخلاص الإجابة بالذكاء الاصطناعي.')
 
         # Entities hint
         if not p.get('headings') and not paras:
-            page_rec['issues'].append('Thin content')
-            page_rec['suggestions'].append('Add a definitional paragraph and an Organization JSON-LD block.')
+            page_rec['issues'].append('Thin content' if lang == 'en' else 'محتوى ضعيف')
+            page_rec['suggestions'].append(content['thin_content'])
 
-        # Optionally ask OpenAI to produce a short rewrite suggestion for the first paragraph
-        if api_keys.get('openai') or openai.api_key:
+        # AI Rewrite: Use the common LLM chain logic
+        if (api_keys.get('openai') or api_keys.get('groq') or os.getenv('OPENAI_API_KEY') or os.getenv('GROQ_API_KEY')) and paras:
             try:
-                prompt = f"Rewrite the following paragraph to be authoritative, concise (1-2 sentences), and include the brand name: {paras[0][:800]}"
-                # Ensure key is set globally if using legacy openai library interface in this module
-                if api_keys.get('openai'): openai.api_key = api_keys.get('openai')
+                # We reuse the _llm chain from geo_services if possible, 
+                # but to avoid circularity we'll define a simple request here or rely on analyze_with_openai
+                prompt = (
+                    f"Rewrite this Arabic/English paragraph for AI Search Optimization (ASO). "
+                    f"Make it authoritative, lead with a direct definition, and include the brand name. "
+                    f"Return ONLY the rewritten text. TEXT: {paras[0][:800]}"
+                )
                 
-                resp = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[{'role':'user','content':prompt}], temperature=0.2, max_tokens=120)
-                rewrite = resp['choices'][0]['message']['content']
-                page_rec['suggestions'].append({'rewrite': rewrite})
+                # Check for Groq first (free/fast)
+                rewrite = ""
+                key = api_keys.get('groq') or os.getenv('GROQ_API_KEY')
+                if key:
+                   res = analyze_with_groq([{ 'url': p.get('url'), 'title': p.get('title'), 'paragraphs': [prompt] }], api_key=key)
+                   if res.get('raw') and isinstance(res['raw'], str): 
+                       rewrite = res['raw']
+                   elif res.get('result'):
+                       # If it parsed as a dict but we wanted a string, extract the summary/rewrite if possible
+                       if isinstance(res['result'], dict):
+                           rewrite = res['result'].get('summary') or res['result'].get('rewrite') or str(res['result'])
+                       else:
+                           rewrite = str(res['result'])
+
+                if not rewrite:
+                   key = api_keys.get('openai') or os.getenv('OPENAI_API_KEY')
+                   if key:
+                       res = analyze_with_openai([{ 'url': p.get('url'), 'title': p.get('title'), 'paragraphs': [prompt] }], api_key=key)
+                       if res.get('raw') and isinstance(res['raw'], str):
+                           rewrite = res['raw']
+                       elif res.get('result'):
+                           if isinstance(res['result'], dict):
+                               rewrite = res['result'].get('summary') or res['result'].get('rewrite') or str(res['result'])
+                           else:
+                               rewrite = str(res['result'])
+
+                # Final cleanup: If we still have a tuple-like string (due to str() on a message object)
+                if rewrite and ("ChatCompletionMessage" in rewrite or "choices=" in rewrite):
+                    # Attempt to extract content via regex if LLM returned a raw object representation
+                    import re
+                    match = re.search(r"content=['\"](.*?)['\"]", rewrite, re.DOTALL)
+                    if match: rewrite = match.group(1)
+                
+                if rewrite and len(rewrite) > 10:
+                    label = "AI ASO Rewrite" if lang == 'en' else "اقتراح إعادة صياغة لتحسين الظهور (ASO)"
+                    page_rec['suggestions'].append({'rewrite': rewrite.strip(), 'label': label})
             except Exception:
                 pass
 

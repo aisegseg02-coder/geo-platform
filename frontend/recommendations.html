@@ -20,16 +20,60 @@
     .card { margin-bottom:24px; }
     .analysis-grid { display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px; }
     @media(max-width:768px){ .analysis-grid{grid-template-columns:1fr} }
+
+    /* 3D Progress Bar */
+    .progress-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      perspective: 1000px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 16px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(15deg);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #a78bfa);
+      border-radius: 8px;
+      position: relative;
+      transition: width 1s ease;
+      box-shadow: 0 0 15px var(--accent);
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+      animation: shine 2s infinite;
+    }
+    @keyframes shine { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+    .stage-label { font-size: 14px; font-weight: 600; margin-top: 15px; color: #fff; }
+    .stage-detail { font-size: 11px; color: var(--muted); margin-top: 5px; }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="stagger-item" style="animation-delay:0.1s">
-    <a href="/" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      العودة للوحة التحكم
-    </a>
+<nav>
+  <div class="nav-logo">GEO<span>.</span>AI</div>
+  <div class="nav-links">
+    <a href="/jobs.html">المهام</a>
+    <a href="/recommendations.html">التوصيات</a>
+    <a href="/search.html">تحليل البحث</a>
+    <a href="/content_v2.html">المحتوى</a>
+    <a href="/ads.html">الإعلانات</a>
+    <a href="/geo-toolkit.html">خدمات GEO</a>
   </div>
+  <a href="/" class="nav-cta" id="navCta">الرئيسية</a>
+</nav>
+<div class="wrap" style="padding-top: 100px;">
 
   <div class="stagger-item" style="animation-delay:0.2s">
     <h1 class="shine-text" style="font-size:48px;margin-bottom:12px;">توصيات GEO</h1>
@@ -38,8 +82,13 @@
   </div>
 
   <div id="loading" class="panel stagger-item" style="text-align:center;padding:60px;">
-    <div class="shine-text" style="font-size:24px;">جارٍ تحليل البيانات...</div>
-    <p style="color:var(--muted);margin-top:12px;">تشغيل فحوصات الظهور والتدقيق الدلالي.</p>
+    <div class="progress-container">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressBar" style="width: 30%"></div>
+      </div>
+      <div class="stage-label" id="stageLabel">جارٍ تحليل البيانات...</div>
+      <div class="stage-detail" id="stageDetail">تشغيل فحوصات الظهور والتدقيق الدلالي للهجات الإقليمية</div>
+    </div>
   </div>
 
   <div id="content" style="display:none">
@@ -152,7 +201,10 @@
             html+=`<div><strong style="color:var(--accent);font-size:13px;">خطوات التحسين</strong><div style="margin-top:5px;font-size:14px;color:var(--muted);">`;
             p.suggestions.forEach(s=>{
               if(typeof s==='string') html+=`<div style="margin-bottom:4px">• ${s}</div>`;
-              else if(s.rewrite) html+=`<div style="margin-top:10px;background:var(--surface-hover);padding:15px;border-radius:12px;border-right:4px solid var(--accent);"><div style="font-size:11px;margin-bottom:5px;color:var(--accent);font-weight:700;">اقتراح إعادة الكتابة بالذكاء الاصطناعي</div><div style="font-style:italic;color:var(--text);">${s.rewrite}</div></div>`;
+              else if(s.rewrite) {
+                const label = s.label || 'AI ASO Rewrite / إعادة صياغة ذكية';
+                html+=`<div style="margin-top:10px;background:var(--surface-hover);padding:15px;border-radius:12px;border-right:4px solid var(--accent);"><div style="font-size:11px;margin-bottom:5px;color:var(--accent);font-weight:700;">${label}</div><div style="font-style:italic;color:var(--text);">${s.rewrite}</div></div>`;
+              }
             });
             html+=`</div></div>`;
           }

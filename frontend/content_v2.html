@@ -6,37 +6,149 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AI Content Engine</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/theme.css?v=1.2" />
+  <style>
+    body {
+      font-family: 'Cairo', 'Outfit', sans-serif;
+    }
+
+    /* 3D and Premium Effects */
+    .panel {
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .panel:hover {
+      transform: translateY(-5px) rotateX(2deg);
+      box-shadow: 0 20px 50px rgba(0, 242, 255, 0.1);
+    }
+
+    .workspace-main {
+      perspective: 1500px;
+    }
+
+    /* 3D Progress Bar */
+    .progress-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      perspective: 1000px;
+      display: none;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 9px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(20deg);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #a78bfa);
+      border-radius: 9px;
+      position: relative;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 20px var(--accent);
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: shine 2s infinite;
+    }
+
+    @keyframes shine {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    .stage-label {
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 15px;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .stage-detail {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    /* Animated entry */
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) rotateX(-10deg);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+      }
+    }
+
+    .dashboard-grid>div {
+      animation: floatIn 0.8s ease-out both;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <nav>
+    <div class="nav-logo">GEO<span>.</span>AI</div>
+    <div class="nav-links">
+      <a href="/jobs.html">المهام</a>
+      <a href="/recommendations.html">التوصيات</a>
+      <a href="/search.html">تحليل البحث</a>
+      <a href="/content_v2.html" style="color:var(--accent)">المحتوى</a>
+      <a href="/ads.html">الإعلانات</a>
+      <a href="/geo-toolkit.html">خدمات GEO</a>
+    </div>
+    <a href="/" class="nav-cta" id="navCta">الرئيسية</a>
+  </nav>
+  <div class="wrap" style="padding-top: 100px;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
-      <h2 class="shine-text" style="font-size: 38px; margin: 0; letter-spacing: -1.5px;"> AI Content Dashboard</h2>
+      <h2 class="shine-text" style="font-size: 38px; margin: 0; letter-spacing: -1.5px;"> لوحة تحكم المحتوى الذكي</h2>
       <div style="display:flex; align-items:center; gap:16px;">
         <span class="badge badge-accent" style="letter-spacing: 2px;">v2.0-ULTRA</span>
         <button id="main-settings-btn" class="btn" style="padding:10px 20px; font-size:14px;">
-          ⚙️ Backend Config
+          ⚙️ إعدادات النظام
         </button>
-        <a href="/"
-          style="color:var(--text); text-decoration:none; font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; transition: 0.3s;">
-          🏠 Back Home
-        </a>
       </div>
     </div>
     <div class="sub"
       style="opacity: 0.8; font-weight: 500; letter-spacing: 0.5px; margin-top: 10px; animation: slideInRight 0.8s ease-out both;">
-      Next-Gen Content Intelligence & Semantic SEO Architecture
+      الجيل القادم من ذكاء المحتوى وهندسة الـ SEO الدلالي
     </div>
 
     <div style="margin-top: 40px;">
       <div class="tabs">
-        <button class="tab active" data-tab="generate"> Generator</button>
-        <button class="tab" data-tab="optimize">⚡ Optimizer</button>
-        <button class="tab" data-tab="faqs"> FAQ Forge</button>
-        <button class="tab" data-tab="semantic"> Semantic Scan</button>
+        <button class="tab active" data-tab="generate"> المولد</button>
+        <button class="tab" data-tab="optimize">⚡ المحسن</button>
+        <button class="tab" data-tab="faqs"> مصنع الأسئلة</button>
+        <button class="tab" data-tab="semantic"> فحص دلالي</button>
       </div>
 
       <!-- Main Dashboard Area -->
@@ -46,16 +158,16 @@
 
           <!-- Research Connection Bar -->
           <div class="panel stagger-item"
-            style="margin-bottom: 24px; padding: 25px; display:flex; justify-content:space-between; align-items:center; background: linear-gradient(90deg, var(--surface) 0%, rgba(0, 242, 255, 0.1) 100%); border-left: 4px solid var(--accent);">
+            style="margin-bottom: 24px; padding: 25px; display:flex; justify-content:space-between; align-items:center; background: linear-gradient(90deg, var(--surface) 0%, rgba(0, 242, 255, 0.1) 100%); border-right: 4px solid var(--accent); border-left:none;">
             <div>
-              <div style="font-weight: 800; font-size: 18px; color: var(--accent); letter-spacing: -0.5px;">Connected
-                Intelligence</div>
-              <div id="active-research-status" style="font-size: 13px; color: var(--muted); margin-top: 4px;">Inject crawled research directly into
-                your SEO workflow</div>
+              <div style="font-weight: 800; font-size: 18px; color: var(--accent); letter-spacing: -0.5px;">ذكاء متصل
+              </div>
+              <div id="active-research-status" style="font-size: 13px; color: var(--muted); margin-top: 4px;">دمج نتائج
+                الزحف مباشرة في سير عمل الـ SEO الخاص بك</div>
             </div>
             <button class="btn btn-primary" id="connect-research-btn"
               style="padding: 12px 24px; font-size: 15px; box-shadow: 0 10px 30px rgba(0, 242, 255, 0.2);">
-              🔍 RESEARCH HISTORY
+              🔍 سجل الأبحاث
             </button>
           </div>
 
@@ -63,39 +175,46 @@
             <div class="panel stagger-item">
               <div class="row" style="align-items: flex-end;">
                 <div style="flex:3">
-                  <label>Primary Keyword / الكلمة المفتاحية</label>
+                  <label>الكلمة المفتاحية الرئيسية</label>
                   <div style="display:flex; gap:10px;">
-                    <input id="gen-keyword" placeholder="e.g. Best organic skincare for anti-aging" />
+                    <input id="gen-keyword" placeholder="مثلاً: أفضل العبايات الخليجية لعام 2024" />
                     <button class="btn" id="gen-example"
                       style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
-                      Example</button>
+                      نموذج تجريبي</button>
                   </div>
                 </div>
               </div>
               <div class="row"
                 style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="flex:1"><label>Language</label>
+                <div style="flex:1"><label>اللغة</label>
                   <select id="gen-lang">
-                    <option value="en">English</option>
                     <option value="ar">العربية</option>
+                    <option value="en">English</option>
                   </select>
                 </div>
-                <div style="flex:1"><label>Target Backend</label>
+                <div style="flex:1"><label>محرك المعالجة</label>
                   <select id="gen-backend">
-                    <option value="demo">Smart Demo (Data-Aware)</option>
-                    <option value="ollama">Ollama (Local AI)</option>
-                    <option value="groq">Groq (Ultra-Fast)</option>
-                    <option value="openai">OpenAI (Advanced)</option>
+                    <option value="demo">عرض ذكي (بيانات متصلة)</option>
+                    <option value="ollama">Ollama (محلي)</option>
+                    <option value="groq">Groq (فائق السرعة)</option>
+                    <option value="openai">OpenAI (متقدم)</option>
                   </select>
                 </div>
               </div>
-              <div style="margin:20px 0"><label>Competitors' Content (Optional context)</label>
-                <textarea id="gen-competitors" placeholder="Paste competitor content snippets here..."
+              <div style="margin:20px 0"><label>محتوى المنافسين (اختياري - لتعزيز السياق)</label>
+                <textarea id="gen-competitors" placeholder="انسخ فقرات من محتوى المنافسين هنا..."
                   style="min-height: 80px;"></textarea>
               </div>
               <button class="btn btn-primary btn-main-action" id="gen-btn"
                 style="width:100%; height:64px; font-size:20px; text-transform:uppercase; letter-spacing:2px; font-weight:800; margin-top:10px;">
-                CREATE INTELLIGENT CONTENT</button>
+                إنشاء محتوى ذكي</button>
+              <div id="gen-progress" class="progress-container">
+                <div class="progress-track">
+                  <div class="progress-fill" id="gen-progressBar"></div>
+                </div>
+                <div class="stage-label" id="gen-stageLabel">جارٍ إنتاج المحتوى الذكي...</div>
+                <div class="stage-detail" id="gen-stageDetail">نقوم بمعالجة الكلمات المفتاحية وتحليل المنافسين</div>
+              </div>
               <div id="gen-status"
                 style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
             </div>
@@ -106,39 +225,45 @@
             <div class="panel stagger-item">
               <div class="row" style="align-items: flex-end;">
                 <div style="flex:3">
-                  <label>Target Keyword</label>
+                  <label>الكلمة المفتاحية المستهدفة</label>
                   <div style="display:flex; gap:10px;">
-                    <input id="opt-keyword" placeholder="e.g. AI SEO optimization" />
+                    <input id="opt-keyword" placeholder="مثلاً: تحسين متجر الكتروني" />
                     <button class="btn" id="opt-example"
                       style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
-                      Try Example</button>
+                      نموذج تجريبي</button>
                   </div>
                 </div>
               </div>
               <div class="row"
                 style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="flex:1"><label>Language</label>
+                <div style="flex:1"><label>اللغة</label>
                   <select id="opt-lang">
-                    <option value="en">English</option>
                     <option value="ar">العربية</option>
+                    <option value="en">English</option>
                   </select>
                 </div>
-                <div style="flex:1"><label>LLM Backend</label>
+                <div style="flex:1"><label>محرك الذكاء الاصطناعي</label>
                   <select id="opt-backend">
-                    <option value="demo">Smart Demo (Data-Aware)</option>
-                    <option value="ollama">Ollama (Local AI)</option>
-                    <option value="groq">Groq (Ultra-Fast)</option>
-                    <option value="openai">OpenAI (Advanced)</option>
+                    <option value="demo">عرض ذكي (بيانات متصلة)</option>
+                    <option value="ollama">Ollama (محلي)</option>
+                    <option value="groq">Groq (فائق السرعة)</option>
+                    <option value="openai">OpenAI (متقدم)</option>
                   </select>
                 </div>
               </div>
-              <div style="margin:20px 0"><label>Content to Optimize</label>
-                <textarea id="opt-content" placeholder="Paste your existing content here..."
+              <div style="margin:20px 0"><label>المحتوى المراد تحسينه</label>
+                <textarea id="opt-content" placeholder="انسخ محتواك الحالي هنا..."
                   style="min-height: 120px;"></textarea>
               </div>
               <button class="btn btn-primary btn-main-action" id="opt-btn"
-                style="width:100%; height:54px; font-size:18px;">Optimize
-                Content</button>
+                style="width:100%; height:54px; font-size:18px;">بدء التحسين الذكي</button>
+              <div id="opt-progress" class="progress-container">
+                <div class="progress-track">
+                  <div class="progress-fill" id="opt-progressBar"></div>
+                </div>
+                <div class="stage-label" id="opt-stageLabel">جارٍ تحسين المحتوى...</div>
+                <div class="stage-detail" id="opt-stageDetail">تحليل الكثافة الدلالية وتوزيع الكيانات</div>
+              </div>
               <div id="opt-status"
                 style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
             </div>
@@ -149,268 +274,278 @@
             <div class="panel stagger-item">
               <div class="row" style="align-items: flex-end;">
                 <div style="flex:3">
-                  <label>Topic / الموضوع</label>
+                  <label>الموضوع</label>
                   <div style="display:flex; gap:10px;">
-                    <input id="faq-topic" placeholder="e.g. GEO optimization for Arabic websites" />
+                    <input id="faq-topic" placeholder="مثلاً: تحسين متجر العبايات للذكاء الاصطناعي" />
                     <button class="btn" id="faq-example"
                       style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
-                      Try Example</button>
+                      نموذج تجريبي</button>
                   </div>
                 </div>
               </div>
               <div class="row"
                 style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="flex:1"><label>Language</label>
+                <div style="flex:1"><label>اللغة</label>
                   <select id="faq-lang">
-                    <option value="en">English</option>
                     <option value="ar">العربية</option>
+                    <option value="en">English</option>
                   </select>
                 </div>
-                <div style="flex:0.5"><label>Count</label>
+                <div style="flex:0.5"><label>العدد</label>
                   <input id="faq-count" type="number" value="5" min="1" max="15" />
                 </div>
-                <div style="flex:1"><label>LLM Backend</label>
+                <div style="flex:1"><label>محرك الذكاء الاصطناعي</label>
                   <select id="faq-backend">
-                    <option value="demo">Smart Demo (Data-Aware)</option>
-                    <option value="ollama">Ollama (Local AI)</option>
-                    <option value="groq">Groq (Ultra-Fast)</option>
-                    <option value="openai">OpenAI (Advanced)</option>
+                    <option value="demo">عرض ذكي (بيانات متصلة)</option>
+                    <option value="ollama">Ollama (محلي)</option>
+                    <option value="groq">Groq (فائق السرعة)</option>
+                    <option value="openai">OpenAI (متقدم)</option>
                   </select>
                 </div>
               </div>
-              <div style="margin:20px 0"><label>Page context (optional)</label>
-                <textarea id="faq-context" placeholder="Paste page content to ground the FAQs..."
+              <div style="margin:20px 0"><label>سياق الصفحة (اختياري)</label>
+                <textarea id="faq-context" placeholder="انسخ محتوى الصفحة هنا لربط الأسئلة بالسياق..."
                   style="min-height:80px"></textarea>
               </div>
               <button class="btn btn-primary btn-main-action" id="faq-btn"
-                style="width:100%; height:54px; font-size:18px;">Generate
-                FAQs</button>
+                style="width:100%; height:54px; font-size:18px;">توليد الأسئلة الشائعة</button>
               <div id="faq-status"
                 style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
             </div>
           </div>
 
-          </div>
+        </div>
 
-          <!-- Semantic Analysis -->
-          <div id="tab-semantic" class="tab-content hidden">
-            <div class="panel stagger-item">
-              <div class="row" style="align-items: flex-end;">
-                <div style="flex:3">
-                  <label>Sample Content</label>
-                  <div style="display:flex; gap:10px;">
-                    <div style="flex:1; color: var(--muted); font-size: 13px; font-style: italic; margin-bottom: 5px;">
-                      Paste below or try an example</div>
-                    <button class="btn" id="sem-example"
-                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
-                      Try Example</button>
-                  </div>
-                </div>
-              </div>
-              <div class="row"
-                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-                <div style="flex:1"><label>Language</label>
-                  <select id="sem-lang">
-                    <option value="en">English</option>
-                    <option value="ar">العربية</option>
-                  </select>
-                </div>
-                <div style="flex:1"><label>LLM Backend</label>
-                  <select id="sem-backend">
-                    <option value="demo">Smart Demo (Data-Aware)</option>
-                    <option value="ollama">Ollama (Local AI)</option>
-                    <option value="groq">Groq (Ultra-Fast)</option>
-                    <option value="openai">OpenAI (Advanced)</option>
-                  </select>
-                </div>
-              </div>
-              <div style="margin:20px 0"><label>Content to Analyze</label>
-                <textarea id="sem-content" placeholder="Paste content for semantic analysis..."
-                  style="min-height: 120px;"></textarea>
-              </div>
-              <button class="btn btn-primary btn-main-action" id="sem-btn"
-                style="width:100%; height:54px; font-size:18px;"> Analyze Semantics</button>
-              <div id="sem-status"
-                style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
-              <!-- Semantic Results Container -->
-              <div id="sem-results" class="hidden" style="margin-top:20px;">
-                <div style="font-weight:700; font-size:14px; color:var(--accent); margin-bottom:12px;"> Semantic Analysis Results</div>
-                <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
-                <div id="sem-topics" style="display:flex; flex-direction:column; gap:8px;"></div>
-              </div>
-            </div>
-          </div>
-
-          <div id="competitor-matrix-section" class="hidden" style="margin-top: 24px;">
-            <div class="panel stagger-item" style="border-left: 4px solid var(--yellow); background: linear-gradient(135deg, var(--surface) 0%, rgba(255, 184, 0, 0.05) 100%);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-weight: 800; font-size: 18px; color: var(--yellow); letter-spacing: -0.5px;">Strategic Competitor Matrix</div>
-                  <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Market positioning & success factor analysis</div>
-                </div>
-                <div id="market-grade-badge" class="badge" style="background:var(--yellow); color:var(--surface); font-weight:800; font-size:16px; padding:8px 15px;">B</div>
-              </div>
-
-              <!-- Positioning Map (Visual Representation) -->
-              <div id="positioning-map-container" style="margin-top:20px; height:200px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; position:relative; overflow:hidden;">
-                <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.1);"></div>
-                <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.1);"></div>
-                <div style="position:absolute; top:5px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">High Authority</div>
-                <div style="position:absolute; bottom:5px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">Low Authority</div>
-                <div style="position:absolute; top:50%; right:5px; transform:translateY(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">Niche Focus</div>
-                <div style="position:absolute; top:50%; left:5px; transform:translateY(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">Broad Reach</div>
-                <div id="map-points"></div>
-              </div>
-
-              <div class="row" style="margin-top:20px; gap:20px;">
-                <div style="flex:1">
-                  <div style="font-weight:700; font-size:12px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;"> Success Factors</div>
-                  <div id="success-factors-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-                </div>
-                <div style="flex:1">
-                  <div style="font-weight:700; font-size:12px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;"> Competitive Gaps</div>
-                  <div id="competitive-gaps-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <!-- Semantic Analysis -->
+        <div id="tab-semantic" class="tab-content hidden">
+          <div class="panel stagger-item">
+            <div class="row" style="align-items: flex-end;">
+              <div style="flex:3">
+                <label>عينة المحتوى</label>
+                <div style="display:flex; gap:10px;">
+                  <div style="flex:1; color: var(--muted); font-size: 13px; font-style: italic; margin-bottom: 5px;">
+                    انسخ المحتوى أدناه أو جرب النموذج</div>
+                  <button class="btn" id="sem-example"
+                    style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                    نموذج تجريبي</button>
                 </div>
               </div>
             </div>
-          </div>
-        </div> <!-- End workspace-main -->
-
-        <!-- Right Column: Results & Analytics -->
-        <div class="results-sidebar stagger-item">
-
-          <!-- Generator Result Display -->
-          <div id="gen-result" class="hidden">
-            <div class="panel" style="border-color: var(--accent);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="gen-title" style="margin:0; font-size:24px; color:white;"></h3>
-                <span id="gen-backend-tag" class="badge-accent"
-                  style="padding:4px 10px; border-radius:6px; font-size:10px;"></span>
+            <div class="row"
+              style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+              <div style="flex:1"><label>اللغة</label>
+                <select id="sem-lang">
+                  <option value="ar">العربية</option>
+                  <option value="en">English</option>
+                </select>
               </div>
-              <p id="gen-meta" style="color:var(--muted); font-size:14px; font-style:italic; margin:10px 0;"></p>
-              <div class="result-box" id="gen-content" style="height: 400px;"></div>
-              <div style="margin-top:20px;">
-                <button class="btn" id="gen-copy"
-                  style="background:rgba(255,255,255,0.05); border:1px solid var(--border); width:100%;"> Copy Article
-                  Content</button>
+              <div style="flex:1"><label>محرك الذكاء الاصطناعي</label>
+                <select id="sem-backend">
+                  <option value="demo">عرض ذكي (بيانات متصلة)</option>
+                  <option value="ollama">Ollama (محلي)</option>
+                  <option value="groq">Groq (فائق السرعة)</option>
+                  <option value="openai">OpenAI (متقدم)</option>
+                </select>
               </div>
-              <div style="margin-top:24px; font-weight:700; color:var(--accent);">Suggested Add-ons</div>
-              <div id="gen-faqs"></div>
             </div>
-          </div>
-
-          <!-- Optimizer Result Display -->
-          <div id="opt-result" class="hidden">
-            <div class="panel">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div class="score-ring" id="opt-score" style="font-size: 32px; padding: 15px;"></div>
-                <span id="opt-backend-tag" class="badge badge-accent"></span>
-              </div>
-              <div
-                style="margin-top:20px; color:var(--red); font-weight:700; font-size:12px; text-transform:uppercase;">
-                Critical Issues</div>
-              <div id="opt-issues"></div>
-              <div
-                style="margin-top:20px; color:var(--green); font-weight:700; font-size:12px; text-transform:uppercase;">
-                Optimization Suggestions</div>
-              <div id="opt-suggestions"></div>
-              <div
-                style="margin-top:20px; color:var(--blue); font-weight:700; font-size:12px; text-transform:uppercase;">
-                Optimized Version</div>
-              <div class="result-box" id="opt-content-out" style="height: 300px;"></div>
+            <div style="margin:20px 0"><label>المحتوى المراد تحليله</label>
+              <textarea id="sem-content" placeholder="انسخ المحتوى هنا للفحص الدلالي..."
+                style="min-height: 120px;"></textarea>
             </div>
-          </div>
-
-          <!-- FAQ Result Display -->
-          <div id="faq-result" class="hidden">
-            <div class="panel">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; font-size:20px;">Forged FAQs</h3>
-                <span id="faq-backend-tag" class="badge badge-accent"></span>
-              </div>
-              <div id="faq-list" style="margin-top:20px;"></div>
-              <div style="margin-top:24px; font-weight:700; font-size:12px; color:var(--accent);">JSON-LD SCHEMA</div>
-              <div class="result-box" id="faq-schema" style="height:150px; font-family:monospace; font-size:11px;">
-              </div>
-              <button class="btn" id="faq-copy-schema" style="margin-top:10px; width:100%; padding:8px;"> Copy
-                Schema</button>
+            <button class="btn btn-primary btn-main-action" id="sem-btn"
+              style="width:100%; height:54px; font-size:18px;">تحليل البيانات الدلالية</button>
+            <div id="sem-status"
+              style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
+            <!-- Semantic Results Container -->
+            <div id="sem-results" class="hidden" style="margin-top:20px;">
+              <div style="font-weight:700; font-size:14px; color:var(--accent); margin-bottom:12px;"> نتائج التحليل الدلالي</div>
+              <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
+              <div id="sem-topics" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
-          </div>
-
-          <!-- Semantic Result Display -->
-          <div id="sem-result" class="hidden">
-            <div class="panel">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div class="score-ring" id="sem-score" style="font-size: 32px; padding: 15px;"></div>
-                <span id="sem-backend-tag" class="badge badge-accent"></span>
-              </div>
-              <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--blue);">IDENTIFIED ENTITIES
-              </div>
-              <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;"></div>
-              <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--accent);">TOPICS & LSI</div>
-              <div id="sem-topics" style="margin-top:8px;"></div>
-              <div id="sem-lsi" style="margin-top:4px;"></div>
-              <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--yellow);">MISSING OPPORTUNITIES
-              </div>
-              <div id="sem-missing" style="margin-top:8px;"></div>
-            </div>
-          </div>
-
-          <!-- Placeholder if no result -->
-          <div id="empty-state" class="panel"
-            style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; opacity: 0.5;">
-            <div style="font-size: 48px; margin-bottom: 20px;">🧠</div>
-            <div style="font-weight:700; font-size:18px;">Ready for Intelligence</div>
-            <div style="font-size:14px; color:var(--muted); margin-top:10px;">Configure inputs and run a task to see
-              results here.</div>
-          </div>
-
-        </div> <!-- End sidebar -->
-      </div> <!-- End dashboard-grid -->
-    </div> <!-- End container offset -->
-
-    <!-- Research Modal -->
-    <div id="research-modal" class="modal-overlay hidden">
-      <div class="modal-content" style="width: 550px; max-height: 80vh; overflow: auto;">
-        <h3 style="margin-top:0; font-family:'Outfit'; font-size:24px; color:var(--accent);"> Research Repository</h3>
-        <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Connect previously crawled data to your AI
-          workflow.</p>
-        <div id="research-list" style="margin: 20px 0; min-height: 100px;">
-          <div style="text-align:center; padding: 20px;">
-            <div class="spinner" style="margin: 0 auto 10px;"></div>
-            <div style="color:var(--muted); font-size:12px;">Initializing connection...</div>
           </div>
         </div>
-        <div style="display:flex; gap:12px; border-top: 1px solid var(--border); padding-top: 20px;">
-          <button class="btn" id="modal-close-btn" style="flex:1; background:transparent;">Cancel</button>
-          <button class="btn btn-primary" id="modal-fetch-btn" style="flex:1.5;"> Refresh History</button>
+
+        <div id="competitor-matrix-section" class="hidden" style="margin-top: 24px;">
+          <div class="panel stagger-item"
+            style="border-left: 4px solid var(--yellow); background: linear-gradient(135deg, var(--surface) 0%, rgba(255, 184, 0, 0.05) 100%);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight: 800; font-size: 18px; color: var(--yellow); letter-spacing: -0.5px;">مصفوفة المنافسين الاستراتيجية</div>
+                <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">تحليل التموضع في السوق وعوامل النجاح</div>
+              </div>
+              <div id="market-grade-badge" class="badge"
+                style="background:var(--yellow); color:var(--surface); font-weight:800; font-size:16px; padding:8px 15px;">
+                B</div>
+            </div>
+
+            <!-- Positioning Map (Visual Representation) -->
+            <div id="positioning-map-container"
+              style="margin-top:20px; height:200px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; position:relative; overflow:hidden;">
+              <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.1);">
+              </div>
+              <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.1);">
+              </div>
+              <div
+                style="position:absolute; top:5px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">
+                سلطة عالية</div>
+              <div
+                style="position:absolute; bottom:5px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">
+                سلطة منخفضة</div>
+              <div
+                style="position:absolute; top:50%; right:5px; transform:translateY(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">
+                تركيز متخصص</div>
+              <div
+                style="position:absolute; top:50%; left:5px; transform:translateY(-50%); font-size:9px; color:var(--muted); text-transform:uppercase;">
+                انتشار واسع</div>
+              <div id="map-points"></div>
+            </div>
+
+            <div class="row" style="margin-top:20px; gap:20px;">
+              <div style="flex:1">
+                <div
+                  style="font-weight:700; font-size:12px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;">
+                  عوامل النجاح</div>
+                <div id="success-factors-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+              </div>
+              <div style="flex:1">
+                <div
+                  style="font-weight:700; font-size:12px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;">
+                  الفجوات التنافسية</div>
+                <div id="competitive-gaps-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- End workspace-main -->
+
+      <!-- Right Column: Results & Analytics -->
+      <div class="results-sidebar stagger-item">
+
+        <!-- Generator Result Display -->
+        <div id="gen-result" class="hidden">
+          <div class="panel" style="border-color: var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="gen-title" style="margin:0; font-size:24px; color:white;"></h3>
+              <span id="gen-backend-tag" class="badge-accent"
+                style="padding:4px 10px; border-radius:6px; font-size:10px;"></span>
+            </div>
+            <p id="gen-meta" style="color:var(--muted); font-size:14px; font-style:italic; margin:10px 0;"></p>
+            <div class="result-box" id="gen-content" style="height: 400px;"></div>
+            <div style="margin-top:20px;">
+              <button class="btn" id="gen-copy"
+                style="background:rgba(255,255,255,0.05); border:1px solid var(--border); width:100%;"> نسخ محتوى المقال</button>
+            </div>
+            <div style="margin-top:24px; font-weight:700; color:var(--accent);">إضافات مقترحة</div>
+            <div id="gen-faqs"></div>
+          </div>
+        </div>
+
+        <!-- Optimizer Result Display -->
+        <div id="opt-result" class="hidden">
+          <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="score-ring" id="opt-score" style="font-size: 32px; padding: 15px;"></div>
+              <span id="opt-backend-tag" class="badge badge-accent"></span>
+            </div>
+            <div style="margin-top:20px; color:var(--red); font-weight:700; font-size:12px; text-transform:uppercase;">
+              مشاكل حرجة</div>
+            <div id="opt-issues"></div>
+            <div
+              style="margin-top:20px; color:var(--green); font-weight:700; font-size:12px; text-transform:uppercase;">
+              مقترحات التحسين</div>
+            <div id="opt-suggestions"></div>
+            <div style="margin-top:20px; color:var(--blue); font-weight:700; font-size:12px; text-transform:uppercase;">
+              النسخة المحسنة</div>
+            <div class="result-box" id="opt-content-out" style="height: 300px;"></div>
+          </div>
+        </div>
+
+        <!-- FAQ Result Display -->
+        <div id="faq-result" class="hidden">
+          <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0; font-size:20px;">الأسئلة الشائعة المولدة</h3>
+              <span id="faq-backend-tag" class="badge badge-accent"></span>
+            </div>
+            <div id="faq-list" style="margin-top:20px;"></div>
+            <div style="margin-top:24px; font-weight:700; font-size:12px; color:var(--accent);">مخطط البيانات المنظمة (JSON-LD)</div>
+            <div class="result-box" id="faq-schema" style="height:150px; font-family:monospace; font-size:11px;">
+            </div>
+            <button class="btn" id="faq-copy-schema" style="margin-top:10px; width:100%; padding:8px;"> نسخ المخطط</button>
+          </div>
+        </div>
+
+        <!-- Semantic Result Display -->
+        <div id="sem-result" class="hidden">
+          <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="score-ring" id="sem-score" style="font-size: 32px; padding: 15px;"></div>
+              <span id="sem-backend-tag" class="badge badge-accent"></span>
+            </div>
+            <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--blue);">الكيانات المكتشفة
+            </div>
+            <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;"></div>
+            <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--accent);">المواضيع والكلمات المرتبطة</div>
+            <div id="sem-topics" style="margin-top:8px;"></div>
+            <div id="sem-lsi" style="margin-top:4px;"></div>
+            <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--yellow);">الفرص الضائعة
+            </div>
+            <div id="sem-missing" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <!-- Placeholder if no result -->
+        <div id="empty-state" class="panel"
+          style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; opacity: 0.5;">
+          <div style="font-size: 48px; margin-bottom: 20px;">🧠</div>
+          <div style="font-weight:700; font-size:18px;">جاهز للتوليد الذكي</div>
+          <div style="font-size:14px; color:var(--muted); margin-top:10px;">قم بتهيئة المدخلات وتشغيل المهمة لرؤية النتائج هنا.</div>
+        </div>
+
+      </div> <!-- End sidebar -->
+    </div> <!-- End dashboard-grid -->
+  </div> <!-- End container offset -->
+
+  <!-- Research Modal -->
+  <div id="research-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="width: 550px; max-height: 80vh; overflow: auto;">
+      <h3 style="margin-top:0; font-family:'Outfit'; font-size:24px; color:var(--accent);"> مستودع الأبحاث</h3>
+      <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">اربط البيانات التي تم زحفها مسبقاً بسير عمل الذكاء الاصطناعي الخاص بك.</p>
+      <div id="research-list" style="margin: 20px 0; min-height: 100px;">
+        <div style="text-align:center; padding: 20px;">
+          <div class="spinner" style="margin: 0 auto 10px;"></div>
+          <div style="color:var(--muted); font-size:12px;">جارٍ تهيئة الاتصال...</div>
         </div>
       </div>
-    </div>
-
-    <!-- Backend Settings Modal -->
-    <div id="settings-modal" class="modal-overlay hidden">
-      <div class="modal-content" style="max-width:400px;">
-        <h2 style="margin-top:0; font-family:'Outfit'; font-size:20px;"> Backend Settings</h2>
-        <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Enter your API keys to enable real AI
-          generation. Keys are saved locally in your browser.</p>
-
-        <div style="margin-bottom:15px;">
-          <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">Groq API Key</label>
-          <input type="password" id="groq-key" class="input" placeholder="gsk_..." style="width:100%;">
-        </div>
-
-        <div style="margin-bottom:20px;">
-          <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">OpenAI API Key</label>
-          <input type="password" id="openai-key" class="input" placeholder="sk-..." style="width:100%;">
-        </div>
-
-        <div style="display:flex; gap:10px;">
-          <button class="btn btn-primary" id="save-settings-btn" style="flex:1">Save Changes</button>
-          <button class="btn" id="close-settings-btn" style="flex:1">Cancel</button>
-        </div>
+      <div style="display:flex; gap:12px; border-top: 1px solid var(--border); padding-top: 20px;">
+        <button class="btn" id="modal-close-btn" style="flex:1; background:transparent;">إلغاء</button>
+        <button class="btn btn-primary" id="modal-fetch-btn" style="flex:1.5;"> تحديث السجل</button>
       </div>
     </div>
+  </div>
+
+  <!-- Backend Settings Modal -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width:400px;">
+      <h2 style="margin-top:0; font-family:'Outfit'; font-size:20px;"> إعدادات النظام</h2>
+      <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">أدخل مفاتيح API الخاصة بك لتمكين التوليد الذكي. يتم حفظ المفاتيح محلياً في متصفحك.</p>
+
+      <div style="margin-bottom:15px;">
+        <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">مفتاح Groq API</label>
+        <input type="password" id="groq-key" class="input" placeholder="gsk_..." style="width:100%;">
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">مفتاح OpenAI API</label>
+        <input type="password" id="openai-key" class="input" placeholder="sk-..." style="width:100%;">
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary" id="save-settings-btn" style="flex:1">حفظ التغييرات</button>
+        <button class="btn" id="close-settings-btn" style="flex:1">إلغاء</button>
+      </div>
+    </div>
+  </div>
   </div>
 
   <script>
@@ -420,14 +555,6 @@
     const saveSettingsBtn = document.getElementById('save-settings-btn');
     const groqInput = document.getElementById('groq-key');
     const openaiInput = document.getElementById('openai-key');
-
-    // Pre-fill keys from conversation if localstorage is empty
-    if (!localStorage.getItem('geo_groq_key')) {
-      localStorage.setItem('geo_groq_key', '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');
-    }
-    if (!localStorage.getItem('geo_openai_key')) {
-      localStorage.setItem('geo_openai_key', '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');
-    }
 
     function loadSettings() {
       groqInput.value = localStorage.getItem('geo_groq_key') || '';
@@ -453,7 +580,7 @@
       saveSettingsBtn.addEventListener('click', () => {
         localStorage.setItem('geo_groq_key', groqInput.value.trim());
         localStorage.setItem('geo_openai_key', openaiInput.value.trim());
-        alert('Settings Saved Successfully!');
+        alert('تم حفظ الإعدادات بنجاح!');
         settingsModal.classList.add('hidden');
       });
     }
@@ -468,9 +595,37 @@
       });
     });
 
-    function setLoading(statusEl, btnEl, loading, msg = '') {
-      statusEl.innerHTML = loading ? `<span class="spinner"></span>${msg}` : msg;
-      btnEl.disabled = loading;
+    function set3DLoading(prefix, loading, msg = '', detail = '') {
+      const container = document.getElementById(prefix + '-progress');
+      const bar = document.getElementById(prefix + '-progressBar');
+      const label = document.getElementById(prefix + '-stageLabel');
+      const detailEl = document.getElementById(prefix + '-stageDetail');
+      const btn = document.getElementById(prefix + '-btn');
+      const statusEl = document.getElementById(prefix + '-status');
+
+      if (loading) {
+        container.style.display = 'block';
+        bar.style.width = '10%';
+        label.textContent = msg;
+        detailEl.textContent = detail;
+        btn.disabled = true;
+        statusEl.textContent = '';
+      } else {
+        bar.style.width = '100%';
+        setTimeout(() => {
+          container.style.display = 'none';
+          btn.disabled = false;
+        }, 500);
+      }
+    }
+
+    function update3DProgress(prefix, progress, msg, detail) {
+      const bar = document.getElementById(prefix + '-progressBar');
+      const label = document.getElementById(prefix + '-stageLabel');
+      const detailEl = document.getElementById(prefix + '-stageDetail');
+      if (bar) bar.style.width = progress + '%';
+      if (label && msg) label.textContent = msg;
+      if (detailEl && detail) detailEl.textContent = detail;
     }
 
     function scoreColor(s) {
@@ -515,37 +670,39 @@
       });
     });
 
-    // ── Example Data Triggers ────────────────────────────────────────────────
+    // ── Example Data Triggers (Arabic) ───────────────────────────────────────
     document.getElementById('gen-example').addEventListener('click', () => {
-      document.getElementById('gen-keyword').value = 'Top 10 Abaya Trends for 2024';
-      document.getElementById('gen-competitors').value = 'Abaya style guide\nModern modest fashion\nLatest abaya collections';
+      document.getElementById('gen-keyword').value = 'أفضل وجهات السياحة في الخليج لعام 2024';
+      document.getElementById('gen-competitors').value = 'دليل السياحة العربية\nأجمل مدن الخليج\nفعاليات الصيف في السعودية';
     });
 
     document.getElementById('opt-example').addEventListener('click', () => {
-      document.getElementById('opt-keyword').value = 'Luxury Abayas Dubai';
-      document.getElementById('opt-content').value = 'We offer the best abayas in Dubai. Our collection features premium fabrics and unique designs for every occasion. Visit our shop to see more.';
+      document.getElementById('opt-keyword').value = 'عبايات خليجية فاخرة';
+      document.getElementById('opt-content').value = 'نحن نقدم أفضل العبايات في دبي. تشكيلتنا تتميز بالأقمشة الراقية والتصاميم الفريدة لكل المناسبات. تفضل بزيارة متجرنا لرؤية المزيد.';
     });
 
     document.getElementById('faq-example').addEventListener('click', () => {
-      document.getElementById('faq-topic').value = 'How to care for silk abayas';
-      document.getElementById('faq-context').value = 'Silk is a delicate natural fiber. Hand wash in cold water with mild detergent. Do not wring or twist. Air dry in shade.';
+      document.getElementById('faq-topic').value = 'كيفية العناية بالعبايات الحريرية';
+      document.getElementById('faq-context').value = 'الحرير ألياف طبيعية رقيقة. اغسليها يدوياً بالماء البارد مع منظف لطيف. لا تعصريها. جففيها في الظل.';
     });
 
     document.getElementById('sem-example').addEventListener('click', () => {
-      document.getElementById('sem-content').value = 'AI-driven SEO optimization is revolutionizing how search engines understand semantic relevance. By leveraging LSI keywords and entity extraction, content engines can now produce articles that rank higher for complex queries and user intent.';
+      document.getElementById('sem-content').value = 'يحدث تحسين محركات البحث المعتمد على الذكاء الاصطناعي ثورة في كيفية فهم محركات البحث للأهمية الدلالية. من خلال الاستفادة من الكلمات المفتاحية LSI واستخراج الكيانات، يمكن لمحركات المحتوى الآن إنتاج مقالات تحتل مرتبة أعلى للاستفسارات المعقدة ونية المستخدم.';
     });
 
     // ── Generate Article ──────────────────────────────────────────────────────
     document.getElementById('gen-btn').addEventListener('click', async () => {
       const keyword = document.getElementById('gen-keyword').value.trim();
       if (!keyword) return;
-      const statusEl = document.getElementById('gen-status');
-      const btn = document.getElementById('gen-btn');
-      setLoading(statusEl, btn, true, 'Generating article...');
+      const prefix = 'gen';
+      set3DLoading(prefix, true, 'جارٍ إنتاج المحتوى الذكي...', 'نقوم بمعالجة الكلمات المفتاحية وتحليل المنافسين');
       document.getElementById('gen-result').classList.add('hidden');
       try {
+        update3DProgress(prefix, 30, 'جارٍ البحث عن السياق...', 'استخراج البيانات الدلالية من سجل الأبحاث');
         const competitors = document.getElementById('gen-competitors').value
           .split('\n').map(s => s.trim()).filter(Boolean);
+        
+        update3DProgress(prefix, 60, 'جارٍ صياغة المقال...', 'توليد محتوى متوافق مع معايير GEO و SEO');
         const resp = await fetch('/api/content/generate', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -573,8 +730,11 @@
         });
         applyStaggeredEntry(faqsEl);
         showSidebarResult('gen-result');
-        setLoading(statusEl, btn, false, '');
-      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+        set3DLoading(prefix, false);
+      } catch (e) { 
+        set3DLoading(prefix, false);
+        document.getElementById('gen-status').textContent = 'Request failed: ' + e.message; 
+      }
     });
 
     document.getElementById('gen-copy').addEventListener('click', () => {
@@ -590,12 +750,12 @@
     modalCloseBtn.addEventListener('click', hideModal);
 
     function renderStrategicIntel(intel) {
-      if(!intel) return;
+      if (!intel) return;
       document.getElementById('competitor-matrix-section').classList.remove('hidden');
-      
+
       const gradeBadge = document.getElementById('market-grade-badge');
       gradeBadge.textContent = intel.market_grade || 'B';
-      
+
       // Render Positioning Map
       const mapPoints = document.getElementById('map-points');
       mapPoints.innerHTML = '';
@@ -605,11 +765,11 @@
         const dot = document.createElement('div');
         dot.style.cssText = `position:absolute; left:${x}%; top:${y}%; width:10px; height:10px; background:var(--accent); border-radius:50%; box-shadow:0 0 10px var(--accent); cursor:pointer;`;
         dot.title = `${p.name} (${p.role})`;
-        
+
         const label = document.createElement('div');
-        label.style.cssText = `position:absolute; left:${x}%; top:${y+2}%; font-size:9px; color:white; font-weight:700; white-space:nowrap; transform:translateX(-50%);`;
+        label.style.cssText = `position:absolute; left:${x}%; top:${y + 2}%; font-size:9px; color:white; font-weight:700; white-space:nowrap; transform:translateX(-50%);`;
         label.textContent = p.name;
-        
+
         mapPoints.appendChild(dot);
         mapPoints.appendChild(label);
       });
@@ -732,10 +892,10 @@
       const activeName = localStorage.getItem('active_research_name');
       const statusEl = document.getElementById('active-research-status');
       if (activeName) {
-        statusEl.innerHTML = `<span style="color:var(--accent); font-weight:700;">ACTIVE: ${activeName}</span> • Intelligence synchronized globally`;
+        statusEl.innerHTML = `<span style="color:var(--accent); font-weight:700;">مفعل: ${activeName}</span> • تم مزامنة البيانات الذكية`;
         statusEl.style.opacity = '1';
       } else {
-        statusEl.textContent = 'Inject crawled research directly into your SEO workflow';
+        statusEl.textContent = 'اربط الأبحاث التي تم زحفها مباشرة بسير عمل SEO الخاص بك';
         statusEl.style.opacity = '0.8';
       }
     }
@@ -757,11 +917,11 @@
       const content = document.getElementById('opt-content').value.trim();
       const keyword = document.getElementById('opt-keyword').value.trim();
       if (!content || !keyword) return;
-      const statusEl = document.getElementById('opt-status');
-      const btn = document.getElementById('opt-btn');
-      setLoading(statusEl, btn, true, 'Optimizing...');
+      const prefix = 'opt';
+      set3DLoading(prefix, true, 'جارٍ تحسين المحتوى...', 'تحليل الكثافة الدلالية وتوزيع الكيانات');
       document.getElementById('opt-result').classList.add('hidden');
       try {
+        update3DProgress(prefix, 50, 'جارٍ معالجة التوجيهات...', 'إعادة صياغة الجمل لزيادة احتمالية الاقتباس');
         const resp = await fetch('/api/content/optimize', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content, keyword, lang: document.getElementById('opt-lang').value, prefer_backend: document.getElementById('opt-backend').value, api_keys: getApiKeys() })
@@ -778,19 +938,22 @@
         applyStaggeredEntry(document.getElementById('opt-suggestions'));
         document.getElementById('opt-content-out').textContent = r.optimized_content || '';
         showSidebarResult('opt-result');
-        setLoading(statusEl, btn, false, '');
-      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+        set3DLoading(prefix, false);
+      } catch (e) { 
+        set3DLoading(prefix, false);
+        document.getElementById('opt-status').textContent = 'Request failed: ' + e.message;
+      }
     });
 
     // ── FAQ Generator ─────────────────────────────────────────────────────────
     document.getElementById('faq-btn').addEventListener('click', async () => {
       const topic = document.getElementById('faq-topic').value.trim();
       if (!topic) return;
-      const statusEl = document.getElementById('faq-status');
-      const btn = document.getElementById('faq-btn');
-      setLoading(statusEl, btn, true, 'Generating FAQs...');
+      const prefix = 'faq';
+      set3DLoading(prefix, true, 'جارٍ المخطط والبناء...', 'تحليل سياق الصفحة لتوليد أسئلة ذات صلة');
       document.getElementById('faq-result').classList.add('hidden');
       try {
+        update3DProgress(prefix, 50, 'جارٍ صياغة الأسئلة...', 'استخراج الكيانات المرتبطة والمفاهيم الأساسية');
         const resp = await fetch('/api/content/faqs', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -827,8 +990,11 @@
         };
         document.getElementById('faq-schema').textContent = JSON.stringify(schema, null, 2);
         showSidebarResult('faq-result');
-        setLoading(statusEl, btn, false, '');
-      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+        set3DLoading(prefix, false);
+      } catch (e) { 
+        set3DLoading(prefix, false);
+        document.getElementById('faq-status').textContent = 'Request failed: ' + e.message; 
+      }
     });
 
     document.getElementById('faq-copy-schema').addEventListener('click', () => {
@@ -839,11 +1005,11 @@
     document.getElementById('sem-btn').addEventListener('click', async () => {
       const content = document.getElementById('sem-content').value.trim();
       if (!content) return;
-      const statusEl = document.getElementById('sem-status');
-      const btn = document.getElementById('sem-btn');
-      setLoading(statusEl, btn, true, 'Analyzing semantics...');
+      const prefix = 'sem';
+      set3DLoading(prefix, true, 'جارٍ المسح الدلالي...', 'استخراج الكيانات والمواضيع من المحتوى');
       document.getElementById('sem-result').classList.add('hidden');
       try {
+        update3DProgress(prefix, 50, 'جارٍ بناء الخريطة الدلالية...', 'تحليل العلاقات بين الكيانات والكلمات المفتاحية');
         const resp = await fetch('/api/content/semantic', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content, lang: document.getElementById('sem-lang').value, prefer_backend: document.getElementById('sem-backend').value, api_keys: getApiKeys() })
@@ -863,14 +1029,15 @@
         document.getElementById('sem-missing').innerHTML = (r.missing_concepts || []).map(c =>
           `<span class="badge badge-yellow" style="margin:2px">${c}</span>`).join('');
 
-        applyStaggeredEntry(document.getElementById('sem-entities'));
-        applyStaggeredEntry(document.getElementById('sem-topics'));
         applyStaggeredEntry(document.getElementById('sem-lsi'));
         applyStaggeredEntry(document.getElementById('sem-missing'));
 
         showSidebarResult('sem-result');
-        setLoading(statusEl, btn, false, '');
-      } catch (e) { setLoading(statusEl, btn, false, 'Request failed: ' + e.message); }
+        set3DLoading(prefix, false);
+      } catch (e) { 
+        set3DLoading(prefix, false);
+        document.getElementById('sem-status').textContent = 'Request failed: ' + e.message; 
+      }
     });
   </script>
 </body>

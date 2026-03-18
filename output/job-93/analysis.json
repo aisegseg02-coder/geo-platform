@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-8312451b-e6c7-4fe6-8600-792ce7cabd98')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n[\\n  {\\n    \"TITLE\": \"محرك - Mohrek\",\\n    \"URL\": \"https://mohrek.com/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  },\\n  {\\n    \"TITLE\": \"إعلانات جوجل - محرك\",\\n    \"URL\": \"https://mohrek.com/seo-%d8%a7%d9%84%d8%b0%d9%83%d8%a7%d8%a1-%d8%a7%d9%84%d8%a7%d8%b5%d8%b7%d9%86%d8%a7%d8%b9%d9%8a/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  },\\n  {\\n    \"TITLE\": \"تحسين SEO اليوتيوب | محرك\",\\n    \"URL\": \"https://mohrek.com/%d8%aa%d8%ad%d8%b3%d9%8a%d9%86-seo-%d8%a7%d9%84%d9%8a%d9%88%d8%aa%d9%8a%d9%88%d8%a8/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  }\\n]\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1773834931)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_03e8423237')('usage', CompletionUsage(completion_tokens=271, prompt_tokens=268, total_tokens=539, completion_time=0.23398778, completion_tokens_details=None, prompt_time=0.015032041, prompt_tokens_details=None, queue_time=0.018314166, total_time=0.249019821))('usage_breakdown', None)('x_groq', XGroq(id='req_01km0ct2jbeena4ncfeqcprefq', debug=None, seed=1769259666, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 72,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 20,
+      "density": 12,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 0,
+      "warnings": 3,
+      "passed": 0
+    }
+  }
+}

@@ -15,23 +15,24 @@
     .score-hero { display:flex;align-items:center;gap:30px;margin-bottom:30px; }
     .score-large { font-size:64px;font-weight:800;font-family:'Cairo';background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
     .grade-badge { font-size:24px;font-weight:700;color:var(--green);letter-spacing:2px; }
-    table { width:100%;border-collapse:separate;border-spacing:0 8px; }
-    th { text-align:right;padding:12px;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:1px; }
-    td { padding:16px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05); }
-    td:first-child { border-right:1px solid rgba(255,255,255,0.05);border-radius:0 12px 12px 0; }
-    td:last-child { border-left:1px solid rgba(255,255,255,0.05);border-radius:12px 0 0 12px; }
     .rec-item { padding:15px;border-right:4px solid var(--accent);background:var(--surface-hover);border-radius:12px 0 0 12px;margin-bottom:12px; }
     .config-panel { display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:40px; }
   </style>
 </head>
 <body>
-<div class="wrap" style="max-width:1200px">
-  <div class="stagger-item" style="animation-delay:0.1s">
-    <a href="/" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      العودة للوحة التحكم
-    </a>
+<nav>
+  <div class="nav-logo">GEO<span>.</span>AI</div>
+  <div class="nav-links">
+    <a href="/jobs.html">المهام</a>
+    <a href="/recommendations.html">التوصيات</a>
+    <a href="/search.html">تحليل البحث</a>
+    <a href="/content_v2.html">المحتوى</a>
+    <a href="/ads.html">الإعلانات</a>
+    <a href="/geo-toolkit.html">خدمات GEO</a>
   </div>
+  <a href="/" class="nav-cta" id="navCta">الرئيسية</a>
+</nav>
+<div class="wrap" style="max-width:1200px; padding-top: 100px;">
 
   <div class="stagger-item" style="animation-delay:0.2s">
     <h1 class="shine-text" style="font-size:48px;margin-bottom:12px;">🔍 محرك تحليل البحث</h1>
@@ -104,7 +105,7 @@
       <div id="serpCard" class="card stagger-item">
         <h3 style="margin-top:0;">3️⃣ تحليل نتائج البحث</h3>
         <div style="overflow-x:auto">
-          <table>
+          <table class="table-glow">
             <thead><tr><th>الترتيب</th><th>النطاق</th><th>DR</th><th>الروابط</th><th>الطول</th></tr></thead>
             <tbody id="serpBody"></tbody>
           </table>

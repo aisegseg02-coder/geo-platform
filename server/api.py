@@ -8,6 +8,9 @@ from pathlib import Path
 import datetime
 import sqlite3
 from typing import Optional, List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # lazily import heavy pipeline to avoid startup failures when optional deps
 # (like spaCy) are not installed. import inside handlers that need it.
@@ -1139,7 +1142,117 @@ async def api_ads_weekly_report(req: AdsAIRequest):
         return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# GEO SERVICES — 6 AI Visibility Services
+# ══════════════════════════════════════════════════════════════════════════════
+from server import geo_services
+
+class GeoServiceRequest(BaseModel):
+    brand: str
+    url: Optional[str] = None
+    queries: Optional[List[str]] = None
+    competitors: Optional[List[str]] = None
+    brand_variants: Optional[List[str]] = None
+    api_keys: Optional[dict] = None
+
+class SimulatorRequest(BaseModel):
+    brand: str
+    original_content: str
+    improved_content: str
+    test_queries: List[str]
+    api_keys: Optional[dict] = None
+
+@app.post('/api/geo/visibility')
+async def api_geo_visibility(req: GeoServiceRequest):
+    try:
+        queries = req.queries or geo_services.DEFAULT_QUERIES
+        result = geo_services.visibility_score(req.brand, queries, req.api_keys or {})
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.post('/api/geo/recognition')
+async def api_geo_recognition(req: GeoServiceRequest):
+    try:
+        queries = req.queries or geo_services.DEFAULT_QUERIES
+        variants = req.brand_variants or [req.brand]
+        result = geo_services.brand_recognition(req.brand, variants, queries, req.api_keys or {})
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.post('/api/geo/sentiment')
+async def api_geo_sentiment(req: GeoServiceRequest):
+    try:
+        queries = req.queries or geo_services.DEFAULT_QUERIES
+        result = geo_services.sentiment_analysis(req.brand, queries, req.api_keys or {})
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.post('/api/geo/competitors')
+async def api_geo_competitors(req: GeoServiceRequest):
+    try:
+        queries = req.queries or geo_services.DEFAULT_QUERIES
+        competitors = req.competitors or ['SEMrush', 'Ahrefs', 'Moz']
+        result = geo_services.competitor_ranking(req.brand, competitors, queries, req.api_keys or {})
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.post('/api/geo/regional')
+async def api_geo_regional(req: GeoServiceRequest):
+    try:
+        result = geo_services.geo_regional_analysis(req.brand, req.api_keys or {})
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.post('/api/geo/fix')
+async def api_geo_fix(req: GeoServiceRequest):
+    try:
+        if not req.url:
+            return JSONResponse({'ok': False, 'error': 'url required'}, status_code=400)
+        result = geo_services.fix_recommendations(req.url, req.brand, {}, req.api_keys or {})
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.post('/api/geo/simulate')
+async def api_geo_simulate(req: SimulatorRequest):
+    try:
+        result = geo_services.visibility_simulator(
+            req.original_content, req.improved_content,
+            req.test_queries, req.brand, req.api_keys or {}
+        )
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.post('/api/geo/suite')
+async def api_geo_suite(req: GeoServiceRequest, background_tasks: BackgroundTasks):
+    """Run all 6 GEO services at once for a brand."""
+    try:
+        result = geo_services.run_full_suite(
+            req.brand, req.url, req.competitors, req.api_keys or {}
+        )
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+@app.get('/geo')
+@app.get('/geo_services.html')
+@app.get('/geo-toolkit.html')
+async def serve_geo_services():
+    return FileResponse(str(frontend_dir / 'geo-toolkit.html'))
+
+@app.get('/regional.html')
+async def serve_regional_dashboard():
+    """Serve the Regional AI Visibility dashboard."""
+    return FileResponse(str(frontend_dir / 'regional.html'))
+
 @app.get('/ads')
+@app.get('/ads.html')
 async def serve_ads_dashboard():
     """Serve the Paid Ads Management dashboard."""
     return FileResponse(str(frontend_dir / 'ads.html'))

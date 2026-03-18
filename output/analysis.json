@@ -6,23 +6,23 @@
     },
     "groq": {
       "enabled": true,
-      "raw": "('id', 'chatcmpl-07f9d508-021d-4955-b197-84ece23ea9fb')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"data\": [\\n    {\\n      \"title\": \"الرئيسية-2 - ELBATT GROUP\",\\n      \"url\": \"https://elbatt.com/\",\\n      \"text\": \"ELBATT GROUP\"\\n    },\\n    {\\n      \"title\": \"الأكاديمية - ELBATT GROUP\",\\n      \"url\": \"https://elbatt.com/%d8%a7%d9%84%d8%a3%d9%83%d8%a7%d8%af%d9%8a%d9%85%d9%8a%d8%a9/\",\\n      \"text\": \"ELBATT GROUP\"\\n    },\\n    {\\n      \"title\": \"تطبيقات الموبايل - ELBATT GROUP\",\\n      \"url\": \"https://elbatt.com/%d8%aa%d8%b7%d8%a8%d9%8a%d9%82%d8%a7%d8%aa-%d8%a7%d9%84%d9%85%d9%88%d8%a8%d8%a7%d9%8a%d9%84/\",\\n      \"text\": \"ELBATT GROUP\"\\n    }\\n  ]\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1773750181)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_e09ee421cf')('usage', CompletionUsage(completion_tokens=259, prompt_tokens=250, total_tokens=509, completion_time=0.248709278, completion_tokens_details=None, prompt_time=0.015704158, prompt_tokens_details=None, queue_time=0.044338144, total_time=0.264413436))('usage_breakdown', None)('x_groq', XGroq(id='req_01kkxvzq0efqmtrw6z0z6e1gtk', debug=None, seed=2060139755, usage=None))",
+      "raw": "('id', 'chatcmpl-5b86aec1-cdcd-48ea-82ca-57e19dc67108')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='{\\n  \"title\": \"Snov.io\",\\n  \"url\": \"https://app.snov.io/\"\\n}', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1773837687)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_6a1eabf260')('usage', CompletionUsage(completion_tokens=24, prompt_tokens=63, total_tokens=87, completion_time=0.028011928, completion_tokens_details=None, prompt_time=0.003459748, prompt_tokens_details=None, queue_time=0.017602796, total_time=0.031471676))('usage_breakdown', None)('x_groq', XGroq(id='req_01km0fe6skfbev7yge0wkvatxv', debug=None, seed=2007848679, usage=None))",
       "parse_error": "No JSON found in LLM response"
     }
   },
   "geo_score": {
-    "score": 58,
-    "status": "Needs Work",
+    "score": 0,
+    "status": "Critical",
     "breakdown": {
-      "headings": 13,
-      "density": 5,
-      "entities": 20,
-      "faq": 20,
+      "headings": 0,
+      "density": 0,
+      "entities": 0,
+      "faq": 0,
       "ai_visibility": 0
     },
     "counts": {
-      "critical": 2,
-      "warnings": 1,
+      "critical": 1,
+      "warnings": 0,
       "passed": 0
     }
   }

@@ -292,3 +292,52 @@ input:focus, textarea:focus {
   from { opacity: 0; transform: translateY(40px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ── GLOBAL NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 60px;
+  background: rgba(5,8,16,0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,242,255,0.08);
+}
+.nav-logo { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; color: #fff; font-family: 'Outfit', sans-serif; text-decoration: none;}
+.nav-logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  color: rgba(255,255,255,0.6); text-decoration: none; font-size: 15px; font-weight: 600;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--accent); }
+.nav-cta {
+  background: var(--accent-grad);
+  color: #000; font-weight: 800; font-size: 14px;
+  padding: 10px 24px; border-radius: 50px; text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2);
+}
+.nav-cta:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 242, 255, 0.3); }
+
+/* Unified Table styling for inner pages */
+.table-glow {
+  width: 100%; border-collapse: separate; border-spacing: 0 8px;
+}
+.table-glow th {
+  text-align: right; padding: 12px; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+}
+.table-glow td {
+  padding: 16px; background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+}
+.table-glow tr:hover td { background: rgba(255,255,255,0.04); border-color: rgba(0,242,255,0.1); }
+.table-glow td:first-child { border-right: 1px solid rgba(255,255,255,0.05); border-radius: 0 12px 12px 0; }
+.table-glow tr:hover td:first-child { border-right-color: rgba(0,242,255,0.3); }
+.table-glow td:last-child { border-left: 1px solid rgba(255,255,255,0.05); border-radius: 12px 0 0 12px; }
+
+@media(max-width:768px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+}
