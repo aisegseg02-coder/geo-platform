@@ -112,12 +112,22 @@
     .dashboard-grid>div {
       animation: floatIn 0.8s ease-out both;
     }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
   </style>
 </head>
 
 <body>
   <nav>
     <div class="nav-logo">GEO<span>.</span>AI</div>
+    <div id="geo-pulse" style="display:flex; align-items:center; gap:8px; margin-left:20px; font-size:10px; color:var(--muted); border-left:1px solid rgba(255,255,255,0.1); padding-left:15px;">
+      <div style="width:8px; height:8px; background:var(--green); border-radius:50%; box-shadow:0 0 10px var(--green); animation: pulse 2s infinite;"></div>
+      <span>LIVE GEO PULSE: <span id="pulse-status" style="color:#fff">SYNCED</span></span>
+      <span id="pulse-entity-count" style="color:var(--accent); font-weight:700;">-- Entities</span>
+    </div>
     <div class="nav-links">
       <a href="/jobs.html">المهام</a>
       <a href="/recommendations.html">التوصيات</a>
@@ -186,7 +196,7 @@
                 <div style="flex:3">
                   <label>الكلمة المفتاحية الرئيسية</label>
                   <div style="display:flex; gap:10px;">
-                    <input id="gen-keyword" placeholder="مثلاً: أفضل العبايات الخليجية لعام 2024" />
+                    <input id="gen-keyword" placeholder="مثلاً: أفضل العبايات الخليجية لعام 2026" />
                     <button class="btn" id="gen-example"
                       style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
                       نموذج تجريبي</button>
@@ -452,7 +462,9 @@
               <button class="btn" id="gen-copy"
                 style="background:rgba(255,255,255,0.05); border:1px solid var(--border);"> نسخ المقال</button>
               <button class="btn btn-accent" id="gen-deploy"
-                style="border:1px solid var(--accent);">📦 حزمة التوزيع</button>
+                style="border:1px solid var(--accent);">📦 نسخ الحزمة</button>
+              <button class="btn" id="gen-download"
+                style="background:rgba(255,255,255,0.02); border:1px solid var(--border);">📥 تحميل الحزمة (.md)</button>
             </div>
             <div style="margin-top:24px; font-weight:700; color:var(--accent);">إضافات مقترحة</div>
             <div id="gen-faqs"></div>
@@ -469,10 +481,10 @@
             <div style="margin-top:20px; color:var(--red); font-weight:700; font-size:12px; text-transform:uppercase;">
               مشاكل حرجة</div>
             <div id="opt-issues"></div>
-            <div
-              style="margin-top:20px; color:var(--green); font-weight:700; font-size:12px; text-transform:uppercase;">
-              مقترحات التحسين</div>
-            <div id="opt-suggestions"></div>
+            <div style="margin-top:20px; color:var(--yellow); font-weight:700; font-size:12px; text-transform:uppercase;">
+              الإصلاحات المنفذة (GEO Proof)</div>
+            <div id="opt-implemented-fixes" style="padding:10px; background:rgba(255,184,0,0.05); border-radius:8px; margin-top:5px;"></div>
+
             <div style="margin-top:20px; color:var(--blue); font-weight:700; font-size:12px; text-transform:uppercase;">
               النسخة المحسنة</div>
             <div class="result-box" id="opt-content-out" style="height: 300px;"></div>
@@ -510,6 +522,24 @@
             <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--yellow);">الفرص الضائعة
             </div>
             <div id="sem-missing" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <!-- Strategic Analysis Reference -->
+        <div id="smart-analysis-ref" class="hidden" style="margin-top:24px;">
+          <div class="panel" style="border: 1px solid var(--accent); background: rgba(0, 212, 255, 0.03);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div style="font-weight:800; color:var(--accent); font-size:14px; text-transform:uppercase; letter-spacing:1px;">
+                💡 توصيات استراتيجية (GEO)
+              </div>
+              <div id="market-grade-badge" class="badge-accent" style="padding:2px 8px; border-radius:4px; font-size:10px;">B</div>
+            </div>
+            <div id="smart-analysis-body" style="font-size:13px; color:var(--text); line-height:1.6;">
+              <!-- Dynamic recs show here -->
+            </div>
+            <div id="strategic-tasks" style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
+              <!-- Task buttons show here -->
+            </div>
           </div>
         </div>
 
@@ -705,7 +735,7 @@
 
     // ── Example Data Triggers (Arabic) ───────────────────────────────────────
     document.getElementById('gen-example').addEventListener('click', () => {
-      document.getElementById('gen-keyword').value = 'أفضل وجهات السياحة في الخليج لعام 2024';
+      document.getElementById('gen-keyword').value = 'أفضل وجهات السياحة في الخليج لعام 2026';
       document.getElementById('gen-competitors').value = 'دليل السياحة العربية\nأجمل مدن الخليج\nفعاليات الصيف في السعودية';
     });
 
@@ -791,6 +821,26 @@
     });
 
     document.getElementById('gen-deploy').addEventListener('click', () => {
+      const pkg = buildDeployPackage();
+      navigator.clipboard.writeText(pkg);
+      alert('تم نسخ حزمة التوزيع بالكامل! / Deployment Package Copied!');
+    });
+
+    document.getElementById('gen-download').addEventListener('click', () => {
+      const pkg = buildDeployPackage();
+      const title = document.getElementById('gen-title').textContent || 'content';
+      const blob = new Blob([pkg], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `geo_package_${title.replace(/\s+/g, '_')}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    function buildDeployPackage() {
       const title = document.getElementById('gen-title').textContent;
       const meta = document.getElementById('gen-meta').textContent;
       const content = document.getElementById('gen-content').innerText;
@@ -798,10 +848,8 @@
       const schemaPre = document.querySelector('.code-implementation pre');
       const schema = schemaPre ? schemaPre.textContent : '';
 
-      const pkg = `--- GEO DEPLOYMENT PACKAGE ---\nTITLE: ${title}\nMETA: ${meta}\n\nCONTENT:\n${content}\n\nSCHEMA.ORG:\n${schema}\n\nIMPLEMENTED FIXES:\n${fixes}\n----------------------------`;
-      navigator.clipboard.writeText(pkg);
-      alert('تم نسخ حزمة التوزيع بالكامل! / Deployment Package Copied!');
-    });
+      return `--- GEO DEPLOYMENT PACKAGE ---\n\n# TITLE: ${title}\n\n## META DESCRIPTION:\n${meta}\n\n## CONTENT:\n${content}\n\n## SCHEMA.ORG (JSON-LD):\n${schema}\n\n## IMPLEMENTED GEO FIXES:\n${fixes}\n\n----------------------------\nGenerated by GEO Platform Analytics`;
+    }
 
     // ── Research Integration ──────────────────────────────────────────────────
     const researchModal = document.getElementById('research-modal');
@@ -891,78 +939,108 @@
     }
 
     async function injectJob(job) {
-      researchList.innerHTML = `<div class="spinner"></div> Loading "${job.org_name}"...`;
+      researchList.innerHTML = `<div class="spinner"></div> ⚡ جارٍ تحميل بيانات "${job.org_name}"...`;
       localStorage.setItem('active_geo_job', JSON.stringify(job));
       try {
+        // ── Step 1: Get job details ────────────────────────────────────────
         const resp = await fetch(`/api/jobs/${job.id}`);
         const data = await resp.json();
         const j = data.job;
-        const resultPath = j.result_path;
-        if (!resultPath) throw new Error('Job has no results yet');
+        if (!j.result_path) throw new Error('المهمة لم تكتمل بعد، انتظر قليلاً');
 
-        // Load audit from job-specific endpoint
+        // ── Step 2: Load Keywords (fast) ──────────────────────────────────
         const auditResp = await fetch(`/api/jobs/${job.id}/keywords?enrich=false`);
         const auditData = await auditResp.json();
         const keywords = auditData.keywords || [];
 
-        // Fill keyword fields
-        const orgName = job.org_name || job.url;
-        const topKw = keywords.length > 0 ? keywords[0].kw || keywords[0] : orgName;
+        const orgName = j.org_name || job.org_name || job.url;
+        const topKw = keywords.length > 0 ? (keywords[0].kw || keywords[0]) : orgName;
+        const allKws = keywords.slice(0, 10).map(k => k.kw || k).join(', ');
 
+        // ── Step 3: Load Audit pages (fast) ───────────────────────────────
+        let pageContent = '', headingsList = '', entityList = '';
+        try {
+          const fullResp = await fetch(`/api/jobs/${job.id}/results`);
+          const fullData = await fullResp.json();
+          if (fullData.audit?.pages?.length > 0) {
+            const pages = fullData.audit.pages;
+            const homePage = pages.find(p => p.url.endsWith('/') || p.url === (j.url || job.url)) || pages[0];
+            pageContent = (homePage.paragraphs || []).filter(p => typeof p === 'string' && p.split(' ').length > 5).join('\n\n').substring(0, 3000);
+            headingsList = (homePage.headings || []).filter(h => h.text && h.text.length > 5).map(h => `${h.tag}: ${h.text}`).join('\n');
+            const allEntities = pages.flatMap(p => p.entities || []).filter((v, i, a) => a.indexOf(v) === i).slice(0, 20);
+            entityList = allEntities.join(', ');
+            if (pageContent) {
+              if (document.getElementById('opt-content')) document.getElementById('opt-content').value = pageContent;
+              if (document.getElementById('faq-context')) document.getElementById('faq-context').value = pageContent;
+              if (document.getElementById('sem-content')) document.getElementById('sem-content').value = pageContent;
+            }
+          }
+        } catch(e) { console.warn('Could not load audit pages', e); }
+
+        // ── Step 4: Fill UI fields immediately ────────────────────────────
+        const pulseStatus = document.getElementById('pulse-status');
+        const pulseCount = document.getElementById('pulse-entity-count');
+        if (pulseStatus) pulseStatus.textContent = 'CONNECTED';
+        if (pulseCount) pulseCount.textContent = `${keywords.length * 3} Semantic Nodes`;
         document.getElementById('gen-keyword').value = topKw;
         document.getElementById('opt-keyword').value = topKw;
-        document.getElementById('faq-topic').value = topKw;
+        if (document.getElementById('faq-topic')) document.getElementById('faq-topic').value = topKw;
 
-        // Try to fetch deeper analysis (competitors, intent) and actual page content
-        try {
-          const analyzeResp = await fetch('/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ job_id: job.id })
-          });
-          const analyzeData = await analyzeResp.json();
-          let competitorText = "";
-          if (analyzeData.competitor_insight && analyzeData.competitor_insight.top_competitors) {
-            const comps = analyzeData.competitor_insight.top_competitors.map(c => c.domain || (typeof c === 'string' ? c : JSON.stringify(c))).slice(0, 3).join(', ');
-            competitorText = `\n[Context] Top Regional Competitors: ${comps}`;
-            document.getElementById('gen-competitors').value = (document.getElementById('gen-competitors').value || '') + competitorText;
-          }
+        // ── Step 5: Build context & store ─────────────────────────────────
+        const masterContext = [
+          `[BRAND] ${orgName}`,
+          `[KEYWORDS] ${allKws}`,
+          headingsList ? `[SITE STRUCTURE]\n${headingsList}` : '',
+          entityList ? `[KEY ENTITIES] ${entityList}` : '',
+          pageContent ? `[PAGE CONTENT SAMPLE]\n${pageContent.substring(0, 1500)}` : '',
+        ].filter(Boolean).join('\n\n');
 
-          // Fetch actual page content for optimization
-          const auditRespRaw = await fetch(`/api/jobs/${job.id}/results`);
-          const auditDataFull = await auditRespRaw.json();
-          if (auditDataFull.audit?.pages?.length > 0) {
-              const homePage = auditDataFull.audit.pages.find(p => p.url.endsWith('/') || p.url === job.url) || auditDataFull.audit.pages[0];
-              const pageText = (homePage.paragraphs || []).join('\n\n');
-              const truncatedContent = pageText.substring(0, 2000);
-              document.getElementById('opt-content').value = truncatedContent;
-              document.getElementById('faq-context').value = truncatedContent + (competitorText ? "\n" + competitorText : "");
-              document.getElementById('sem-content').value = pageText;
-          }
-
-          // Fetch Recommendations for "Research Insights"
-          const recsResp = await fetch('/api/recommendations', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ job_id: job.id })
-          });
-          const recsData = await recsResp.json();
-          if (recsData.ok) {
-            const insights = (recsData.recs.actions || []).concat(recsData.recs.per_page.flatMap(p => p.suggestions).map(s => s.rewrite || s));
-            localStorage.setItem('active_geo_insights', JSON.stringify(insights.slice(0, 5)));
-          }
-
-        } catch (err) {
-            console.warn("Could not fetch enhanced analysis for auto-fill", err);
-        }
-
+        localStorage.setItem('active_geo_insights', JSON.stringify([]));
+        localStorage.setItem('active_geo_context', masterContext);
+        localStorage.setItem('active_geo_site', orgName);
         localStorage.setItem('active_research_name', orgName);
+
+        // ── Step 6: Show success immediately, run heavy calls in background ─
+        researchList.innerHTML = `
+          <div style="padding:15px; background:rgba(0,242,255,0.05); border:1px solid var(--accent); border-radius:12px; text-align:center;">
+            <div style="color:var(--accent); font-weight:700; font-size:14px; margin-bottom:8px;">✅ تم ربط البيانات بنجاح</div>
+            <div style="font-size:12px; opacity:0.8; margin-bottom:5px;">${orgName}</div>
+            <div style="font-size:11px; color:var(--green);">${keywords.length} كلمة مفتاحية • ${entityList.split(',').length} كيان • جارٍ تحميل التوصيات...</div>
+          </div>`;
+
         updateConnectionStatus();
         hideModal();
+
+        // ── Background: load analysis + recommendations without blocking ───
+        (async () => {
+          try {
+            const recResp = await fetch('/api/recommendations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ job_id: job.id, api_keys: getApiKeys(), extra_context: { keyword: topKw, target_site: orgName } })
+            });
+            const recData = await recResp.json();
+            if (recData.ok) {
+              const actionInsights = (recData.recommendations?.actions || []).map(a => typeof a === 'object' ? (a.text || JSON.stringify(a)) : a);
+              const pageInsights = (recData.recommendations?.per_page || []).flatMap(p => p.suggestions || []).map(s => typeof s === 'object' ? (s.rewrite || JSON.stringify(s)) : s);
+              const richInsights = [...actionInsights, ...pageInsights].slice(0, 20);
+              localStorage.setItem('active_geo_insights', JSON.stringify(richInsights));
+              // update competitors field
+              const comps = (recData.recommendations?.actions || []).filter(a => a.competitor).map(a => a.competitor).slice(0,5).join(', ');
+              if (comps && document.getElementById('gen-competitors')) document.getElementById('gen-competitors').value = comps;
+              renderStrategicRecs(recData.recommendations, recData.geo_score);
+              // update banner
+              const banner = researchList.querySelector('div');
+              if (banner) banner.querySelector('div:last-child').textContent = `${keywords.length} كلمة مفتاحية • ${actionInsights.length} توصية GEO • ${richInsights.length} رؤية ذكية`;
+            }
+          } catch(e) { console.warn('Background recommendations failed', e); }
+        })();
+
       } catch (e) {
-        researchList.innerHTML = `<div style="color:var(--red)">[Error] ${e.message}</div>
-          <button class="btn" style="margin-top:10px; width:100%;" onclick="performResearchFetch()">Back</button>`;
+        researchList.innerHTML = `<div style="color:var(--red); padding:10px;">❌ خطأ في التحميل: ${e.message}</div>`;
       }
     }
+
 
     async function autoLoadLastJob() {
       try {
@@ -1010,6 +1088,64 @@
       autoLoadLastJob();
     });
 
+    function renderStrategicRecs(recs, geo) {
+      const ref = document.getElementById('smart-analysis-ref');
+      const bodyEl = document.getElementById('smart-analysis-body');
+      const taskEl = document.getElementById('strategic-tasks');
+      const badge = document.getElementById('market-grade-badge');
+
+      ref.classList.remove('hidden');
+      
+      const score = geo ? (geo.score || 0) : 0;
+      let grade = 'F';
+      if(score > 90) grade = 'A+';
+      else if(score > 80) grade = 'A';
+      else if(score > 70) grade = 'B';
+      else if(score > 60) grade = 'C';
+      badge.textContent = `GEO Score: ${grade} (${score}%)`;
+
+      // Main Recommendation
+      const critical = recs.critical_issue;
+      const topAdd = recs.top_additions;
+      
+      if (critical && critical.title) {
+        bodyEl.innerHTML = `<div style="color:var(--red); font-weight:700; margin-bottom:5px;">⚠️ ${critical.title}</div>
+                            <div style="opacity:0.8; font-size:12px;">${critical.why || ''}</div>`;
+        
+        if (critical.tasks) {
+          taskEl.innerHTML = critical.tasks.map(t => `
+            <button class="btn btn-accent" style="width:100%; justify-content:center; font-size:11px; padding:6px; background:rgba(0,212,255,0.1);" 
+                    onclick="triggerAutonomousFix('${t.type}', '${t.id}', '${t.label}')">
+              ⚡ ${t.label}
+            </button>
+          `).join('');
+        }
+      } else if (topAdd && topAdd.items) {
+        bodyEl.innerHTML = `<div style="font-weight:700; margin-bottom:5px;">🚀 ${topAdd.title || 'Top Opportunities'}</div>
+                            <ul style="margin:0; padding-left:15px; opacity:0.8; font-size:11px;">
+                              ${topAdd.items.slice(0,3).map(i => `<li>${i}</li>`).join('')}
+                            </ul>`;
+        taskEl.innerHTML = `<button class="btn" style="width:100%; font-size:11px;" onclick="document.getElementById('gen-tab').click()">🛠️ Start Optimization</button>`;
+      }
+    }
+
+    window.triggerAutonomousFix = function(type, id, label) {
+      const tabMap = { 'faq': 'faq-tab', 'generate': 'gen-tab', 'optimize': 'opt-tab' };
+      const tabId = tabMap[type] || 'gen-tab';
+      const tabBtn = document.getElementById(tabId);
+      if (tabBtn) tabBtn.click();
+
+      setTimeout(() => {
+        if (type === 'faq') {
+          document.getElementById('faq-topic').value = label;
+          document.getElementById('faq-btn').click();
+        } else if (type === 'generate') {
+          document.getElementById('gen-kw').value = label;
+          document.getElementById('gen-btn').click();
+        }
+      }, 300);
+    };
+
     // ── Optimize Content ──────────────────────────────────────────────────────
     document.getElementById('opt-btn').addEventListener('click', async () => {
       const content = document.getElementById('opt-content').value.trim();
@@ -1040,6 +1176,15 @@
         document.getElementById('opt-backend-tag').textContent = r.backend || '';
         document.getElementById('opt-issues').innerHTML = (r.issues || []).map(i => `<div class="issue-item">⚠ ${i}</div>`).join('');
         document.getElementById('opt-suggestions').innerHTML = (r.suggestions || []).map(s => `<div class="suggestion-item">✓ ${s}</div>`).join('');
+        
+        // Populate Implemented Fixes
+        const fixesEl = document.getElementById('opt-implemented-fixes');
+        if (fixesEl) {
+            fixesEl.innerHTML = (r.implemented_fixes || []).map(f => 
+                `<div style="margin-bottom:4px; color:var(--green)">⚡ ${f}</div>`
+            ).join('') || '<div style="color:var(--muted)">[جاري تعزيز المعايير الدلالية...]</div>';
+        }
+
         applyStaggeredEntry(document.getElementById('opt-issues'));
         applyStaggeredEntry(document.getElementById('opt-suggestions'));
         document.getElementById('opt-content-out').innerHTML = mdToHtml(r.optimized_content || '');

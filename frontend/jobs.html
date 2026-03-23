@@ -123,10 +123,9 @@
         try {
           const rr = await fetch('/api/jobs/' + jobId);
           const jj = await rr.json();
-          if (jj.ok && jj.job && jj.job.result_path) {
-            const ap = jj.job.result_path + '/analysis.json';
-            const ares = await fetch(ap.replace(location.origin, ''));
-            if (ares.ok) { const aj = await ares.json(); const score = (aj.geo_score && aj.geo_score.score) || (aj.analysis && aj.analysis.geo_score && aj.analysis.geo_score.score) || null; chart.data.datasets[0].data[idx] = score; chart.update(); }
+          if (jj.ok && jj.job) {
+            const ares = await fetch(`/api/jobs/${jobId}/results`);
+            if (ares.ok) { const aj = await ares.json(); const score = aj.geo_score?.score || aj.analysis?.geo_score?.score || null; chart.data.datasets[0].data[idx] = score; chart.update(); }
           }
         } catch (e) { }
       });
