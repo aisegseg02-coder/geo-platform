@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-3cae56d5-5b08-424f-851f-ba7a4840da29')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"data\": [\\n    {\\n      \"title\": \"محرك - Mohrek\",\\n      \"url\": \"https://mohrek.com/\"\\n    },\\n    {\\n      \"title\": \"سابقة أعمال محرك\",\\n      \"url\": \"https://mohrek.com/%d8%b3%d8%a7%d8%a8%d9%82%d8%a9-%d8%a3%d8%b9%d9%85%d8%a7%d9%84-%d9%85%d8%ad%d8%b1%d9%83/\"\\n    },\\n    {\\n      \"title\": \"خدمات محرك\",\\n      \"url\": \"https://mohrek.com/%d8%ae%d8%af%d9%85%d8%a7%d8%aa-%d9%85%d8%ad%d8%b1%d9%83/\"\\n    }\\n  ]\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774258635)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_03e8423237')('usage', CompletionUsage(completion_tokens=203, prompt_tokens=229, total_tokens=432, completion_time=0.18368071, completion_tokens_details=None, prompt_time=0.01580567, prompt_tokens_details=None, queue_time=0.019594003, total_time=0.19948638))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmd0wgd1exnb0adadc3gmxdr', debug=None, seed=993714002, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 70,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 20,
+      "density": 10,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 2,
+      "warnings": 1,
+      "passed": 0
+    }
+  }
+}

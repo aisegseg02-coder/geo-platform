@@ -531,13 +531,49 @@ async def api_analyze(req: AnalysisRequest = None):
         with open(audit_path, 'w', encoding='utf-8') as f:
             json.dump(audit, f, ensure_ascii=False, indent=2)
 
+    from server import geo_services
+    
+    # ── Enhanced Visibility Score v2 (API Based) ────────────────────────────────
+    org_name = audit.get('org_name') or ai_analysis.infer_brand_name(pages)
+    
+    # Fetch real search results
+    searches = []
+    serp_key = api_keys.get("SERPAPI_KEY") if api_keys else None
+    zen_key = api_keys.get("ZENSERP_KEY") if api_keys else None
+    
+    core_queries = [f"{org_name}", f"تحميل {org_name}", f"{org_name} review"]
+    for cq in core_queries[:2]:
+        s_res = geo_services._serp_api_search(cq, api_key=serp_key)
+        if not s_res:
+            s_res = geo_services._zenserp_search(cq, api_key=zen_key)
+        if s_res:
+            searches.append(s_res)
+
+    # ── Competitor Insight Enrichment ──────────────────────────────────────────
+    comp_insight = {}
+    try:
+        comp_insight = geo_services.get_competitor_insights(org_name, audit.get('url'), api_keys=api_keys)
+    except Exception:
+        pass
+
+    # Hybrid Score Calculation (v2)
+    ai_mentions = ai_vis.get("mentions", 0) if ai_vis else 0
+    total_queries = ai_vis.get("total_queries", 1) if ai_vis else 1
+    traffic_est = comp_insight.get("monthly_visits", "unknown")
+    
+    geo_v2 = geo_services.calculate_visibility_score_v2(
+        org_name, searches, ai_mentions, total_queries, traffic_est
+    )
+    
     geo = ai_analysis.compute_geo_score(pages, audit=audit, ai_visibility=ai_vis)
-    analysis_out = { 'analysis': analysis, 'geo_score': geo }
+    geo["v2"] = geo_v2 # Combined 40/40/20 score
+
+    analysis_out = { 'analysis': analysis, 'geo_score': geo, 'competitor_insight': comp_insight }
     
     with open(analysis_out_path, 'w', encoding='utf-8') as fa:
         json.dump(analysis_out, fa, ensure_ascii=False, indent=2)
 
-    return { 'ok': True, 'analysis': analysis, 'geo_score': geo }
+    return { 'ok': True, 'analysis': analysis, 'geo_score': geo, 'competitor_insight': comp_insight }
 
 
 @app.get('/api/history')
@@ -907,6 +943,8 @@ async def api_search_gsc(site: str, start: str, end: str):
 class ArticleRequest(BaseModel):
     keyword: str
     lang: str = 'en'
+    target_site: str = ""
+    research_insights: list = []
     competitors_content: list = []
     prefer_backend: str = 'ollama'
     api_keys: dict = {}
@@ -916,6 +954,8 @@ class OptimizeRequest(BaseModel):
     content: str
     keyword: str
     lang: str = 'en'
+    target_site: str = ""
+    research_insights: list = []
     prefer_backend: str = 'ollama'
     api_keys: dict = {}
 
@@ -924,6 +964,8 @@ class FaqRequest(BaseModel):
     topic: str
     page_content: str = ''
     lang: str = 'en'
+    target_site: str = ""
+    research_insights: list = []
     count: int = 5
     prefer_backend: str = 'ollama'
     api_keys: dict = {}
@@ -942,6 +984,8 @@ async def api_content_generate(req: ArticleRequest):
         from server import content_engine
         result = content_engine.generate_article(
             req.keyword, lang=req.lang,
+            target_site=req.target_site,
+            research_insights=req.research_insights,
             competitors_content=req.competitors_content,
             prefer_backend=req.prefer_backend,
             api_keys=req.api_keys
@@ -957,6 +1001,8 @@ async def api_content_optimize(req: OptimizeRequest):
         from server import content_engine
         result = content_engine.optimize_content(
             req.content, req.keyword, lang=req.lang,
+            target_site=req.target_site,
+            research_insights=req.research_insights,
             prefer_backend=req.prefer_backend,
             api_keys=req.api_keys
         )
@@ -972,6 +1018,8 @@ async def api_content_faqs(req: FaqRequest):
         result = content_engine.generate_faqs(
             req.topic, page_content=req.page_content,
             lang=req.lang, count=req.count,
+            target_site=req.target_site,
+            research_insights=req.research_insights,
             prefer_backend=req.prefer_backend,
             api_keys=req.api_keys
         )

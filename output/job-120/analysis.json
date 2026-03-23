@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-9c262f4c-53ca-4df4-b0e2-1d9df7086bd8')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"data\": [\\n    {\\n      \"title\": \"Abaya Noir – Your Basics & More – abayanoir1\",\\n      \"url\": \"https://abayanoir.com/\",\\n      \"text\": \"LOGIN\"\\n    },\\n    {\\n      \"title\": \"Search – abayanoir1\",\\n      \"url\": \"https://abayanoir.com/search\",\\n      \"text\": \"LOGIN\"\\n    },\\n    {\\n      \"title\": \"Best Sellers – abayanoir1\",\\n      \"url\": \"https://abayanoir.com/collections/best-sellers\",\\n      \"text\": \"LOGIN\"\\n    }\\n  ]\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774262836)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_8639719ff2')('usage', CompletionUsage(completion_tokens=137, prompt_tokens=131, total_tokens=268, completion_time=0.124313296, completion_tokens_details=None, prompt_time=0.008386869, prompt_tokens_details=None, queue_time=0.019903898, total_time=0.132700165))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmd4wprje0mteb6gefanj30n', debug=None, seed=960775089, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 62,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 20,
+      "density": 2,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 3,
+      "warnings": 0,
+      "passed": 0
+    }
+  }
+}

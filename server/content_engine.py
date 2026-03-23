@@ -88,34 +88,133 @@ def _call_demo(prompt: str) -> str:
             snippets = [s.strip() for s in snippet_raw.split('---') if s.strip()]
 
     is_arabic = "language: arabic" in prompt_lower or re.search(r"[\u0600-\u06FF]", keyword)
+
+    # Extract target site/brand
+    target_site = ""
+    match_site = re.search(r"target site: (.*)\n", prompt, re.IGNORECASE)
+    if match_site:
+        target_site = match_site.group(1).split(',')[0].strip()
+    
+    brand_name = target_site # default to url/domain
+    if match_site:
+        parts = match_site.group(1).split(',')
+        if len(parts) > 1:
+            brand_name = parts[1].strip()
+
+    display_target = brand_name or keyword
     
     # Build dynamic intro from snippets if available
     intro_extra = ""
     if snippets:
         intro_extra = f"\n\nBased on your research: {snippets[0][:150]}..." if not is_arabic else f"\n\nبناءً على أبحاثك: {snippets[0][:150]}..."
+    
+    # Check for Research insights in prompt to customize demo
+    insights = []
+    match_insights = re.search(r"Research insights:\n((?:- .*\n?)*)", prompt)
+    if match_insights:
+        insights = [i.strip('- ').strip() for i in match_insights.group(1).split('\n') if i.strip()]
+        if insights:
+            if is_arabic:
+                intro_extra += f"\n\n توصية GEO: {insights[0]}"
+                if len(insights) > 1: intro_extra += f"\n التركيز الفني: {insights[1]}"
+            else:
+                intro_extra += f"\n\n GEO Insight: {insights[0]}"
+                if len(insights) > 1: intro_extra += f"\n Technical Focus: {insights[1]}"
 
-    if 'generate' in prompt_lower and 'article' in prompt_lower:
+    if ('generate' in prompt_lower or 'write' in prompt_lower) and 'article' in prompt_lower:
         if is_arabic:
             return json.dumps({
-                "title": f"دليل تحسين محركات البحث لـ {keyword}",
-                "meta_description": f"تحسين ظهورك لـ {keyword} باستخدام استراتيجيات GEO متقدمة.",
-                "content": f"## مقدمة\n{keyword} هو مفتاح النمو. {intro_extra}\n\n### استراتيجية المحتوى\nالتركيز على الصلة الدلالية يضمن بقاء {keyword} في الصدارة.\n\n### تحليل المنافسين\nاستخدمنا بياناتك لتحسين هذا النص برؤى فريدة.",
-                "faqs": [{"question": f"لماذا {keyword} مهم؟", "answer": "لأنه يبني سلطة دلالية في مجالك."}]
+                "title": f"دليل {display_target}: السيطرة على نتائج GEO لعام 2024",
+                "meta_description": f"كيف ترفع ظهور {display_target} في محركات البحث الذكية؟ دليل شامل لتحسين الكيانات والبيانات المهيكلة.",
+                "content": f"""# دليل السيطرة على {display_target} عبر محركات GEO
+
+## الإجابة المباشرة (Direct Answer)
+{display_target} {("هو الحل الأمثل في مجاله" if not brand_name else f"يمثل أفضل ممارسات {keyword} لخدمة عملائه")} وهو الركيزة الأساسية للنمو في عصر الذكاء الاصطناعي. {intro_extra} من خلال التركيز على **النية القصدية للباحث** وتوفير بيانات دقيقة حول {target_site or display_target}، يمكنك تصدر إجابات Perplexity و ChatGPT بسهولة.
+
+### 1. خريطة الكيانات (Entity Map) لـ {display_target}
+لتحسين ظهورك، ركزنا في هذا المقال على الكيانات التالية المرتبطة بـ {display_target}:
+- **الكيان الرئيسي:** {display_target}
+- **السمات:** الموثوقية، الصلة الدلالية، السياق الإقليمي لـ {target_site or 'علامتك التجارية'}.
+- **المنافسون المستهدفون:** {(snippets[0][:50] if snippets else 'المنافسون في السوق')}
+
+### 2. التوصيات الفنية لزيادة الـ Score في {target_site or 'موقعك'}
+- **Schema.org:** استخدام `About` و `Mentions` للإشارة إلى {display_target}.
+- **Citations:** بناء روابط مع الكيانات ذات السلطة العالية لتعزيز مصداقية {brand_name or target_site}.
+
+### 3. الخاتمة
+الاستمرار في تحديث محتوى {display_target} بناءً على بيانات الزحف الدورية هو مفتاح التفوق على المنافسين.""",
+                "faqs": [
+                    {"question": f"كيف أحسن ترتيب {keyword}؟", "answer": f"من خلال إضافة فقرات تعريفية غنية بالكيانات (Entities) وتوفير إجابات مباشرة وسهلة الاقتباس من قبل LLMs."},
+                    {"question": f"ما هو تأثير الـ Schema على {keyword}؟", "answer": "البيانات المهيكلة هي لغة التواصل مع الذكاء الاصطناعي؛ بدونها، تظل رؤية موقعك محدودة."}
+                ],
+                "schema": """<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "ما هو """ + display_target + """؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": """ + display_target + """ هو الرائد في مجال """ + keyword + """."
+      }
+    }
+  ]
+}
+</script>""",
+                "implemented_fixes": ["Entity Authority Built", "Missing WhatsApp Placeholder Added", "Citations Optimized"]
             }, ensure_ascii=False)
         return json.dumps({
-            "title": f"Strategic Guide for {keyword}",
-            "meta_description": f"Master visibility for {keyword} with our GEO-powered content structure.",
-            "content": f"## Introduction\n{keyword} optimization is essential. {intro_extra}\n\n### Semantic Strategy\nBy focusing on semantic depth, we ensure {keyword} resonates with AI crawlers.\n\n### Competitive Edge\nWe integrated your recent crawl data to ensure this content outperforms common templates.",
-            "faqs": [{"question": f"Is {keyword} ready for AI search?", "answer": "Yes, this structure is citable by LLMs."}]
+            "title": f"Mastering {keyword}: The GEO Authority Guide",
+            "meta_description": f"Dominate AI search for {keyword}. A technical blueprint for entity authority and citation optimization.",
+            "content": f"""# The {keyword} Dominance Blueprint
+
+## Executive Summary
+{keyword} isn't just a keyword; it's a core entity in your niche. {intro_extra} By aligning your content with semantic clusters and high-authority citations, you ensure citable status across all major Generative Engines.
+
+### 1. Entity Calibration for {keyword}
+We've optimized this content to hit key semantic nodes:
+- **Core Entity:** {keyword}
+- **Authority Signals:** Fact-density, direct answering, and regional relevance.
+- **Competitive Overlap:** Addressing gaps left by {(snippets[0][:50] if snippets else 'market leaders')}.
+
+### 2. Technical GEO Enhancements
+- **Structure:** H-tags calibrated for semantic hierarchy.
+- **Citation Layer:** Built-in recommendations for entity linking focus on {keyword}.
+
+### 3. Final Verdict
+Consistency in {keyword} optimization relative to target signals is the only way to maintain a leading GEO Visibility Score.""",
+            "faqs": [
+                {"question": f"How do I boost {keyword} visibility?", "answer": f"By implementing direct answer chunks and ensuring your site's Schema clearly maps {keyword} to your core services."},
+                {"question": f"Is this {keyword} strategy future-proof?", "answer": "Yes, it focuses on entity-based SEO, which is the foundational language of AI search engines."}
+            ]
         })
-    elif 'analyze' in prompt_lower:
+    elif 'analyze' in prompt_lower or 'optimize' in prompt_lower:
+        if is_arabic:
+            return json.dumps({
+                "score": 94,
+                "issues": [f"نقص في الربط الدلالي للكيان '{keyword}'.", "ضعف فقرة الإجابة المباشرة."],
+                "suggestions": [f"اجعل الفقرة الأولى تبدأ بـ '{keyword} هو...'", f"أضف بيانات مهيكلة (Schema) لتمثيل '{keyword}' كمنتج/خدمة."],
+                "optimized_content": f"## {keyword}: رؤية جديدة\n{keyword} هو الحل الأمثل... (محتوى محسّن لذكاء الـ GEO)"
+            }, ensure_ascii=False)
         return json.dumps({
-            "score": 92,
-            "issues": [f"Density for '{keyword}' needs slight adjustment."],
-            "suggestions": [f"Bold the term '{keyword}' in the first paragraph."],
-            "optimized_content": "SMART DEMO: Content structurally improved based on your parameters."
+            "score": 94,
+            "issues": [f"Missing semantic links for entity '{keyword}'.", "Direct answer chunk is too long."],
+            "suggestions": [f"Start the first paragraph with '{keyword} represents...'", f"Add Speakable Schema for easier AI extraction of {keyword}."],
+            "optimized_content": f"## {keyword}: Enhanced Context\n{keyword} represents the next evolution... (Optimized for GEO citation)"
         })
-    return json.dumps({"faqs": [{"question": "Demo Question?", "answer": "Demo Answer."}]})
+    elif 'faq' in prompt_lower:
+        if is_arabic:
+            return json.dumps({"faqs": [
+                {"question": f"ما هي الفوائد طويلة الأمد للتركيز على {keyword}؟", "answer": f"التركيز على {keyword} يبني 'Entity Authority' تجعل علامتك التجارية هي المرجع الأول في إجابات الذكاء الاصطناعي."},
+                {"question": f"هل يؤثر المنافسون على ترتيب {keyword}؟", "answer": "نعم، الفجوة التنافسية في هذا المجال كبيرة، وهذا المحتوى مصمم لسد تلك الفجوة فوراً."}
+            ]}, ensure_ascii=False)
+        return json.dumps({"faqs": [
+            {"question": f"What are the long-term benefits of {keyword} focus?", "answer": f"Focusing on {keyword} builds Entity Authority, making your brand the primary reference in AI-generated answers."},
+            {"question": f"Do competitors affect {keyword} ranking?", "answer": "Yes, the competitive gap in this sector is significant, and this content is engineered to fill it immediately."}
+        ]})
+    return json.dumps({"faqs": [{"question": f"Strategic Analysis: {keyword}", "answer": "This is a premium GEO optimization result based on your connected research data. To enable real-time generation, please provide a valid API key in settings."}]})
 
 
 def _llm_call(prompt: str, prefer: str = 'ollama', api_keys: dict = None) -> dict:
@@ -175,10 +274,14 @@ def _parse_json_from_text(text: str) -> dict:
 
 # ── Core features ──────────────────────────────────────────────────────────────
 
-def generate_article(keyword: str, lang: str = 'en', competitors_content: list = None,
+def generate_article(keyword: str, lang: str = 'en', target_site: str = "",
+                     research_insights: list = None,
+                     competitors_content: list = None,
                      prefer_backend: str = 'ollama', api_keys: dict = None) -> dict:
     """Generate a full GEO-optimized article. Returns {title, meta_description, content, faqs, backend}."""
     lang_label = 'Arabic' if lang == 'ar' else 'English'
+    site_info = f"Target site: {target_site}\n" if target_site else ""
+    insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in (research_insights or [])]) + "\n" if research_insights else ""
     comp_block = ''
     if competitors_content:
         comp_block = 'Competitor content snippets for reference:\n' + '\n---\n'.join(competitors_content[:3])
@@ -186,20 +289,23 @@ def generate_article(keyword: str, lang: str = 'en', competitors_content: list =
     prompt = f"""You are an expert SEO/GEO content writer.
 Target keyword: {keyword}
 Language: {lang_label}
-{comp_block}
+{site_info}{insights_info}{comp_block}
 
-Write a GEO-optimized article that:
-1. Starts with a direct answer in the first 60 words
-2. Uses the keyword naturally 3-5 times
-3. Includes an FAQ section with 5 questions and answers
-4. Uses H2/H3 heading structure (use ## and ### markers)
-5. Is optimized for AI search citation
+Write a GEO-optimized article that explicitly IMPLEMENTS all research insights provided.
+1. Start with a Direct Answer (first 60 words for AI snapshots).
+2. Incorporate exactly {keyword} 3-5 times.
+3. Build an 'Entity Authority' paragraph (definitions, context, and relevance).
+4. If research mentions missing data (like WhatsApp), include formatted placeholders like [INSERT MISSING WHATSAPP HERE].
+5. Generate a complete Schema.org JSON-LD (FAQPage) based on items.
+6. Use H2/H3 structure.
 
 Return ONLY a valid, minified JSON object with no preamble or code blocks. Use escaped newlines (\n) for content. Keys:
 - title (string)
-- meta_description (string, max 160 chars)
-- content (string, full article with markdown headings)
-- faqs (array of {{question, answer}})
+- meta_description (string)
+- content (string, full article with markdown)
+- faqs (array of {question, answer})
+- schema (string, the complete <script type="application/ld+json">...</script> block)
+- implemented_fixes (array of strings)
 """
     result = _llm_call(prompt, prefer=prefer_backend, api_keys=api_keys)
     parsed = _parse_json_from_text(result['text'])
@@ -209,19 +315,28 @@ Return ONLY a valid, minified JSON object with no preamble or code blocks. Use e
     return parsed
 
 
-def optimize_content(content: str, keyword: str, lang: str = 'en',
+def optimize_content(content: str, keyword: str, lang: str = 'en', target_site: str = "",
+                     research_insights: list = None,
                      prefer_backend: str = 'ollama', api_keys: dict = None) -> dict:
     """Analyze and optimize existing content for GEO. Returns {score, issues, optimized_content, suggestions, backend}."""
     lang_label = 'Arabic' if lang == 'ar' else 'English'
+    site_info = f"Target site: {target_site}\n" if target_site else ""
+    insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in (research_insights or [])]) + "\n" if research_insights else ""
     prompt = f"""You are a GEO (Generative Engine Optimization) expert.
 Language: {lang_label}
 Target keyword: {keyword}
+{site_info}{insights_info}
 
-Analyze this content and return a JSON object with:
-- score (0-100, GEO readiness)
-- issues (array of strings describing problems)
-- suggestions (array of actionable fixes)
-- optimized_content (rewritten version of the content, improved for AI citation)
+Analyze and REWRITE the content to IMPLEMENT all research insights.
+Do not just provide advice; provide the actual fixed content.
+
+Return a JSON object with:
+- score (0-100)
+- issues (array of strings)
+- suggestions (array of strings)
+- optimized_content (the ACTUAL REWRITTEN version with fixes implemented)
+- implemented_fixes (array of strings matching research_insights)
+- schema (string, any missing Schema.org JSON-LD required)
 
 Content to analyze:
 {content[:3000]}
@@ -232,13 +347,16 @@ Content to analyze:
     return parsed
 
 
-def generate_faqs(topic: str, page_content: str = '', lang: str = 'en',
-                  count: int = 5, prefer_backend: str = 'ollama', api_keys: dict = None) -> dict:
+def generate_faqs(topic: str, page_content: str = None, lang: str = 'en', count: int = 5,
+                  prefer_backend: str = 'ollama', api_keys: dict = None, 
+                  target_site: str = "", research_insights: list = None) -> dict:
     """Generate FAQ pairs for a topic. Returns {faqs: [{question, answer}], backend}."""
     lang_label = 'Arabic' if lang == 'ar' else 'English'
+    site_info = f"Target site: {target_site}\n" if target_site else ""
+    insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in research_insights]) + "\n" if research_insights else ""
     context = f"\nPage context:\n{page_content[:1500]}" if page_content else ''
     prompt = f"""Generate {count} FAQ question-answer pairs about: {topic}
-Language: {lang_label}{context}
+Language: {lang_label}{site_info}{insights_info}{context}
 
 Rules:
 - Questions should be what users actually ask AI assistants

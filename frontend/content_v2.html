@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI Content Engine</title>
+  <title>محرك المحتوى بذكاء الـ GEO</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&display=swap"
     rel="stylesheet">
@@ -155,6 +155,15 @@
       <div class="dashboard-grid">
         <!-- Left Column: Inputs -->
         <div class="workspace-main">
+
+          <!-- Smart Task Banner -->
+          <div id="smart-task-banner" class="hidden" style="background:rgba(0,242,255,0.05); border:1px solid rgba(0,242,255,0.2); border-right: 4px solid var(--accent); padding:15px; border-radius:12px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; animation: slideInDown 0.5s ease-out;">
+              <div>
+                  <div style="font-weight:800; color:var(--accent); font-size:14px;">⚡ Smart Fix Active / إصلاح ذكي نشط</div>
+                  <div id="smart-task-desc" style="font-size:12px; color:var(--muted); margin-top:4px;">Preparing content based on your GEO analysis...</div>
+              </div>
+              <button class="btn" style="padding:5px 12px; font-size:11px;" onclick="clearSmartTask()">إلغاء / Cancel</button>
+          </div>
 
           <!-- Research Connection Bar -->
           <div class="panel stagger-item"
@@ -421,6 +430,14 @@
       <!-- Right Column: Results & Analytics -->
       <div class="results-sidebar stagger-item">
 
+        <!-- Analysis Reference Card (Visible in Smart Mode) -->
+        <div id="smart-analysis-ref" class="hidden" style="margin-bottom:20px;">
+          <div class="panel" style="border-color:var(--yellow); background:rgba(255,184,0,0.05);">
+            <div style="font-weight:800; color:var(--yellow); font-size:14px; margin-bottom:8px;">📊 مرجع التحليل الذكي</div>
+            <div id="smart-analysis-body" style="font-size:12px; color:var(--text); line-height:1.6;"></div>
+          </div>
+        </div>
+
         <!-- Generator Result Display -->
         <div id="gen-result" class="hidden">
           <div class="panel" style="border-color: var(--accent);">
@@ -431,9 +448,11 @@
             </div>
             <p id="gen-meta" style="color:var(--muted); font-size:14px; font-style:italic; margin:10px 0;"></p>
             <div class="result-box" id="gen-content" style="height: 400px;"></div>
-            <div style="margin-top:20px;">
+            <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
               <button class="btn" id="gen-copy"
-                style="background:rgba(255,255,255,0.05); border:1px solid var(--border); width:100%;"> نسخ محتوى المقال</button>
+                style="background:rgba(255,255,255,0.05); border:1px solid var(--border);"> نسخ المقال</button>
+              <button class="btn btn-accent" id="gen-deploy"
+                style="border:1px solid var(--accent);">📦 حزمة التوزيع</button>
             </div>
             <div style="margin-top:24px; font-weight:700; color:var(--accent);">إضافات مقترحة</div>
             <div id="gen-faqs"></div>
@@ -586,13 +605,17 @@
     }
 
     // Tab switching
-    document.querySelectorAll('.tab').forEach(t => {
-      t.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
-        t.classList.add('active');
-        document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab').forEach(x => {
+        x.classList.toggle('active', x.dataset.tab === tabId);
       });
+      document.querySelectorAll('.tab-content').forEach(x => {
+        x.classList.toggle('hidden', x.id !== 'tab-' + tabId);
+      });
+    }
+
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => switchTab(t.dataset.tab));
     });
 
     function set3DLoading(prefix, loading, msg = '', detail = '') {
@@ -638,6 +661,16 @@
         items[i].classList.add('stagger-item');
         items[i].style.animationDelay = (i * 0.1) + 's';
       }
+    }
+
+    function mdToHtml(md) {
+      if (!md) return '';
+      return md
+        .replace(/^# (.*$)/gim, '<h1 style="color:var(--accent); margin:20px 0 10px;">$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2 style="color:white; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px; margin:25px 0 10px;">$1</h2>')
+        .replace(/^### (.*$)/gim, '<h3 style="color:var(--accent); margin:15px 0 8px;">$1</h3>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent);">$1</strong>')
+        .replace(/\n/g, '<br>');
     }
 
     function showSuccessEffect(el) {
@@ -686,9 +719,15 @@
       document.getElementById('faq-context').value = 'الحرير ألياف طبيعية رقيقة. اغسليها يدوياً بالماء البارد مع منظف لطيف. لا تعصريها. جففيها في الظل.';
     });
 
-    document.getElementById('sem-example').addEventListener('click', () => {
-      document.getElementById('sem-content').value = 'يحدث تحسين محركات البحث المعتمد على الذكاء الاصطناعي ثورة في كيفية فهم محركات البحث للأهمية الدلالية. من خلال الاستفادة من الكلمات المفتاحية LSI واستخراج الكيانات، يمكن لمحركات المحتوى الآن إنتاج مقالات تحتل مرتبة أعلى للاستفسارات المعقدة ونية المستخدم.';
-    });
+    function getActiveSite() {
+      const job = JSON.parse(localStorage.getItem('active_geo_job') || 'null');
+      if (!job) return "";
+      return `${job.url}, ${job.org_name || 'Brand'}`;
+    }
+
+    function getActiveInsights() {
+      return JSON.parse(localStorage.getItem('active_geo_insights') || '[]');
+    }
 
     // ── Generate Article ──────────────────────────────────────────────────────
     document.getElementById('gen-btn').addEventListener('click', async () => {
@@ -708,20 +747,29 @@
           body: JSON.stringify({
             keyword,
             lang: document.getElementById('gen-lang').value,
+            target_site: getActiveSite(),
+            research_insights: getActiveInsights(),
             competitors_content: competitors,
             prefer_backend: document.getElementById('gen-backend').value,
             api_keys: getApiKeys()
           })
         });
         const data = await resp.json();
-        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
         document.getElementById('gen-title').textContent = r.title || '';
         document.getElementById('gen-meta').textContent = r.meta_description || '';
         document.getElementById('gen-backend-tag').textContent = r.backend || '';
-        document.getElementById('gen-content').textContent = r.content || '';
+        document.getElementById('gen-content').innerHTML = mdToHtml(r.content || '') + (r.schema ? `<div class="code-implementation" style="margin-top:20px;"><h4>Schema.org (Auto-Generated)</h4><pre style="background:#1a1a1a; padding:10px; border-radius:8px; overflow:auto; color:#0f0;">${r.schema.replace(/</g, '&lt;')}</pre></div>` : '');
+        
         const faqsEl = document.getElementById('gen-faqs');
         faqsEl.innerHTML = '';
+        if (r.implemented_fixes && r.implemented_fixes.length > 0) {
+            faqsEl.innerHTML = `<div class="fixes-log" style="background:var(--card-bg); padding:15px; border-radius:12px; border:1px solid var(--accent); margin-bottom:20px;">
+                <h4 style="margin:0 0 10px 0; color:var(--accent);">⚡ إصلاحات GEO الذكية (مفعلة)</h4>
+                ${r.implemented_fixes.map(f => `<div style="font-size:13px; margin:2px 0;">✅ ${f}</div>`).join('')}
+            </div>`;
+        }
         (r.faqs || []).forEach(f => {
           const div = document.createElement('div');
           div.className = 'faq-item';
@@ -738,7 +786,21 @@
     });
 
     document.getElementById('gen-copy').addEventListener('click', () => {
-      navigator.clipboard.writeText(document.getElementById('gen-content').textContent);
+      navigator.clipboard.writeText(document.getElementById('gen-content').innerText);
+      alert('تم النسخ! / Copied!');
+    });
+
+    document.getElementById('gen-deploy').addEventListener('click', () => {
+      const title = document.getElementById('gen-title').textContent;
+      const meta = document.getElementById('gen-meta').textContent;
+      const content = document.getElementById('gen-content').innerText;
+      const fixes = Array.from(document.querySelectorAll('.fixes-log div')).map(d => d.textContent).join('\n');
+      const schemaPre = document.querySelector('.code-implementation pre');
+      const schema = schemaPre ? schemaPre.textContent : '';
+
+      const pkg = `--- GEO DEPLOYMENT PACKAGE ---\nTITLE: ${title}\nMETA: ${meta}\n\nCONTENT:\n${content}\n\nSCHEMA.ORG:\n${schema}\n\nIMPLEMENTED FIXES:\n${fixes}\n----------------------------`;
+      navigator.clipboard.writeText(pkg);
+      alert('تم نسخ حزمة التوزيع بالكامل! / Deployment Package Copied!');
     });
 
     // ── Research Integration ──────────────────────────────────────────────────
@@ -830,6 +892,7 @@
 
     async function injectJob(job) {
       researchList.innerHTML = `<div class="spinner"></div> Loading "${job.org_name}"...`;
+      localStorage.setItem('active_geo_job', JSON.stringify(job));
       try {
         const resp = await fetch(`/api/jobs/${job.id}`);
         const data = await resp.json();
@@ -850,12 +913,47 @@
         document.getElementById('opt-keyword').value = topKw;
         document.getElementById('faq-topic').value = topKw;
 
-        // Fill competitor snippets with top keywords as context
-        const snippets = keywords.slice(0, 5).map(k => k.kw || k).join('\n');
-        document.getElementById('gen-competitors').value = snippets;
-        document.getElementById('faq-context').value = snippets;
-        document.getElementById('opt-content').value = snippets;
-        document.getElementById('sem-content').value = snippets;
+        // Try to fetch deeper analysis (competitors, intent) and actual page content
+        try {
+          const analyzeResp = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ job_id: job.id })
+          });
+          const analyzeData = await analyzeResp.json();
+          let competitorText = "";
+          if (analyzeData.competitor_insight && analyzeData.competitor_insight.top_competitors) {
+            const comps = analyzeData.competitor_insight.top_competitors.map(c => c.domain || (typeof c === 'string' ? c : JSON.stringify(c))).slice(0, 3).join(', ');
+            competitorText = `\n[Context] Top Regional Competitors: ${comps}`;
+            document.getElementById('gen-competitors').value = (document.getElementById('gen-competitors').value || '') + competitorText;
+          }
+
+          // Fetch actual page content for optimization
+          const auditRespRaw = await fetch(`/api/jobs/${job.id}/results`);
+          const auditDataFull = await auditRespRaw.json();
+          if (auditDataFull.audit?.pages?.length > 0) {
+              const homePage = auditDataFull.audit.pages.find(p => p.url.endsWith('/') || p.url === job.url) || auditDataFull.audit.pages[0];
+              const pageText = (homePage.paragraphs || []).join('\n\n');
+              const truncatedContent = pageText.substring(0, 2000);
+              document.getElementById('opt-content').value = truncatedContent;
+              document.getElementById('faq-context').value = truncatedContent + (competitorText ? "\n" + competitorText : "");
+              document.getElementById('sem-content').value = pageText;
+          }
+
+          // Fetch Recommendations for "Research Insights"
+          const recsResp = await fetch('/api/recommendations', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ job_id: job.id })
+          });
+          const recsData = await recsResp.json();
+          if (recsData.ok) {
+            const insights = (recsData.recs.actions || []).concat(recsData.recs.per_page.flatMap(p => p.suggestions).map(s => s.rewrite || s));
+            localStorage.setItem('active_geo_insights', JSON.stringify(insights.slice(0, 5)));
+          }
+
+        } catch (err) {
+            console.warn("Could not fetch enhanced analysis for auto-fill", err);
+        }
 
         localStorage.setItem('active_research_name', orgName);
         updateConnectionStatus();
@@ -924,10 +1022,18 @@
         update3DProgress(prefix, 50, 'جارٍ معالجة التوجيهات...', 'إعادة صياغة الجمل لزيادة احتمالية الاقتباس');
         const resp = await fetch('/api/content/optimize', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content, keyword, lang: document.getElementById('opt-lang').value, prefer_backend: document.getElementById('opt-backend').value, api_keys: getApiKeys() })
+          body: JSON.stringify({ 
+            content, 
+            keyword, 
+            lang: document.getElementById('opt-lang').value, 
+            target_site: getActiveSite(),
+            research_insights: getActiveInsights(),
+            prefer_backend: document.getElementById('opt-backend').value, 
+            api_keys: getApiKeys() 
+          })
         });
         const data = await resp.json();
-        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
         const scoreEl = document.getElementById('opt-score');
         scoreEl.innerHTML = `<span style="color:${scoreColor(r.score)}">${r.score}</span><div style="font-size:13px;color:var(--muted)">GEO Score</div>`;
@@ -936,7 +1042,7 @@
         document.getElementById('opt-suggestions').innerHTML = (r.suggestions || []).map(s => `<div class="suggestion-item">✓ ${s}</div>`).join('');
         applyStaggeredEntry(document.getElementById('opt-issues'));
         applyStaggeredEntry(document.getElementById('opt-suggestions'));
-        document.getElementById('opt-content-out').textContent = r.optimized_content || '';
+        document.getElementById('opt-content-out').innerHTML = mdToHtml(r.optimized_content || '');
         showSidebarResult('opt-result');
         set3DLoading(prefix, false);
       } catch (e) { 
@@ -960,13 +1066,15 @@
             topic,
             page_content: document.getElementById('faq-context').value,
             lang: document.getElementById('faq-lang').value,
+            target_site: getActiveSite(),
+            research_insights: getActiveInsights(),
             count: parseInt(document.getElementById('faq-count').value) || 5,
             prefer_backend: document.getElementById('faq-backend').value,
             api_keys: getApiKeys()
           })
         });
         const data = await resp.json();
-        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
         document.getElementById('faq-backend-tag').textContent = r.backend || '';
         const listEl = document.getElementById('faq-list');
@@ -1015,7 +1123,7 @@
           body: JSON.stringify({ content, lang: document.getElementById('sem-lang').value, prefer_backend: document.getElementById('sem-backend').value, api_keys: getApiKeys() })
         });
         const data = await resp.json();
-        if (!data.ok) { setLoading(statusEl, btn, false, 'Error: ' + data.error); return; }
+        if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
         const scoreEl = document.getElementById('sem-score');
         scoreEl.innerHTML = `<span style="color:${scoreColor(r.semantic_score)}">${r.semantic_score}</span><div style="font-size:13px;color:var(--muted)">Semantic Score</div>`;
@@ -1039,6 +1147,98 @@
         document.getElementById('sem-status').textContent = 'Request failed: ' + e.message; 
       }
     });
+    // ── Smart Task Integration ───────────────────────────────────────────────
+    let activeTask = null;
+
+    function clearSmartTask() {
+      localStorage.removeItem('geo_ai_task');
+      document.getElementById('smart-task-banner').classList.add('hidden');
+      activeTask = null;
+    }
+
+    async function checkIncomingTask() {
+      const taskStr = localStorage.getItem('geo_ai_task');
+      if (!taskStr) return;
+
+      try {
+        const task = JSON.parse(taskStr);
+        // Expire task if older than 30 mins
+        if (Date.now() - task.timestamp > 30 * 60 * 1000) {
+          localStorage.removeItem('geo_ai_task');
+          return;
+        }
+
+        activeTask = task;
+        const banner = document.getElementById('smart-task-banner');
+        const desc = document.getElementById('smart-task-desc');
+        banner.classList.remove('hidden');
+
+        // Auto-switch tab
+        let targetTab = 'generate';
+        if (task.type === 'faq') targetTab = 'faqs';
+        else if (task.type === 'optimize') targetTab = 'optimize';
+        else if (task.type === 'semantic') targetTab = 'semantic';
+        
+        switchTab(targetTab);
+
+        // Pre-fill context
+        desc.textContent = `Fixing: ${task.type.toUpperCase()} task for ${task.url}`;
+
+        if (task.jobId) {
+          desc.textContent += ` (Using Research Job #${task.jobId})`;
+          // Auto-inject job data
+          try {
+            const resp = await fetch(`/api/jobs/${task.jobId}`);
+            const data = await resp.json();
+            if (data.ok) {
+              await injectJob(data.job);
+              
+              // Customization based on taskId
+              if (task.taskId === 'fix_faq') {
+                document.getElementById('faq-topic').value = "FAQs for " + document.getElementById('gen-keyword').value;
+              } else if (task.taskId === 'fix_def') {
+                document.getElementById('gen-keyword').value = (document.getElementById('gen-keyword').value || '') + " (الموثوقية والتعريف)";
+              } else if (task.taskId === 'fix_comp') {
+                document.getElementById('gen-keyword').value = (document.getElementById('gen-keyword').value || '') + " vs Competitors";
+              }
+              
+              // Show Analysis Reference in Sidebar
+              const refBody = document.getElementById('smart-analysis-body');
+              const analysisResp = await fetch('/api/analyze', {
+                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ job_id: task.jobId })
+              });
+              const analysisData = await analysisResp.json();
+              if (analysisData.ok || analysisData.competitor_insight) {
+                  const ci = analysisData.competitor_insight || {};
+                  refBody.innerHTML = `
+                    <div style="margin-bottom:8px;"><strong style="color:var(--accent);">Industry:</strong> ${ci.industry || 'Unknown'}</div>
+                    <div style="margin-bottom:8px;"><strong style="color:var(--accent);">Top Competitors:</strong> ${(ci.top_competitors || []).map(c=>c.domain||c).join(', ')}</div>
+                    <div><strong style="color:var(--accent);">Opportunity:</strong> ${analysisData.geo_score?.status || 'GEO Optimization Required'}</div>
+                  `;
+                  document.getElementById('smart-analysis-ref').classList.remove('hidden');
+              }
+
+              // AUTO-TRIGGER GENERATION
+              setTimeout(() => {
+                  desc.textContent = "⚡ Auto-Generation Started / بدأ الإنتاج التلقائي...";
+                  const activeTab = document.querySelector('.tab.active').dataset.tab;
+                  document.getElementById(activeTab.substring(0,3) + '-btn').click();
+              }, 1200);
+            }
+          } catch (e) {
+            console.error("Failed to auto-inject job", e);
+          }
+        }
+      } catch (err) {
+        console.error("Invalid task data", err);
+      }
+    }
+
+    // Call on load
+    checkIncomingTask();
+
+    window.clearSmartTask = clearSmartTask;
   </script>
 </body>
 

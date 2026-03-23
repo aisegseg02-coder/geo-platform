@@ -1,0 +1,98 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-faae69ec-0268-422f-8fe4-630c40265057')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n[\\n  {\\n    \"TITLE\": \"محرك - Mohrek\",\\n    \"URL\": \"https://mohrek.com/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  },\\n  {\\n    \"TITLE\": \"Contact - محرك - Mohrek\",\\n    \"URL\": \"https://mohrek.com/contact/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  },\\n  {\\n    \"TITLE\": \"https://mohrek.com/wp-content/uploads/2025/08/Certificate-12.pdf\",\\n    \"URL\": \"https://mohrek.com/wp-content/uploads/2025/08/Certificate-12.pdf\",\\n    \"TEXT\": \"\"\\n  }\\n]\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774267928)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_03e8423237')('usage', CompletionUsage(completion_tokens=148, prompt_tokens=147, total_tokens=295, completion_time=0.139620629, completion_tokens_details=None, prompt_time=0.009547258, prompt_tokens_details=None, queue_time=0.021058631, total_time=0.149167887))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmd9r3dvfpj8mcskjc04vrjv', debug=None, seed=1032700568, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 59,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 13,
+      "density": 6,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 2,
+      "warnings": 1,
+      "passed": 0
+    },
+    "v2": {
+      "score": 60.0,
+      "breakdown": {
+        "seo_rank": 100.0,
+        "ai_visibility": 0.0,
+        "traffic": 100
+      },
+      "avg_rank": 1.0
+    }
+  },
+  "competitor_insight": {
+    "monthly_visits": "150K",
+    "traffic_sources": {
+      "search": 55,
+      "direct": 20,
+      "social": 15,
+      "referral": 10
+    },
+    "top_competitors": [
+      {
+        "name": "منصة محرك الأفضل",
+        "domain": "mohrek.com",
+        "overlap_score": 92,
+        "region": "SA"
+      },
+      {
+        "name": "شركة محرك",
+        "domain": "mohrekcompany.com",
+        "overlap_score": 85,
+        "region": "Global"
+      },
+      {
+        "name": "شكون",
+        "domain": "shkon.com",
+        "overlap_score": 78,
+        "region": "SA"
+      }
+    ],
+    "regional_split": [
+      {
+        "country": "Saudi Arabia",
+        "share": 65
+      },
+      {
+        "country": "UAE",
+        "share": 20
+      },
+      {
+        "country": "Egypt",
+        "share": 10
+      },
+      {
+        "country": "Other MENA",
+        "share": 5
+      }
+    ],
+    "industry": "Search Engine Optimization (SEO)",
+    "seo_rankings": [
+      {
+        "query": "best seo company in saudi arabia",
+        "rank": 2,
+        "link": "https://mohrek.com"
+      },
+      {
+        "query": "top seo companies in egypt",
+        "rank": 5,
+        "link": "https://mohrekcompany.com"
+      }
+    ]
+  }
+}

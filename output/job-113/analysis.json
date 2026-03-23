@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-b1255925-b220-46f7-8223-a2ff4c508a58')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"data\": [\\n    {\\n      \"title\": \"محرك - Mohrek\",\\n      \"url\": \"https://mohrek.com/\",\\n      \"text\": \"محرك – Mohrek\"\\n    },\\n    {\\n      \"title\": \"من نحن | محرك\",\\n      \"url\": \"https://mohrek.com/%d9%85%d9%86-%d9%86%d8%ad%d9%86-%d9%85%d8%ad%d8%b1%d9%83/\",\\n      \"text\": \"محرك – Mohrek\"\\n    },\\n    {\\n      \"title\": \"خدمات محرك\",\\n      \"url\": \"https://mohrek.com/%d8%ae%d8%af%d9%85%d8%a7%d8%aa-%d9%85%d8%ad%d8%b1%d9%83/\",\\n      \"text\": \"محرك – Mohrek\"\\n    }\\n  ]\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774258379)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_6a1eabf260')('usage', CompletionUsage(completion_tokens=212, prompt_tokens=201, total_tokens=413, completion_time=0.185490255, completion_tokens_details=None, prompt_time=0.012480986, prompt_tokens_details=None, queue_time=0.018713158, total_time=0.197971241))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmd0mpf8ebybsa7z8ag83t47', debug=None, seed=1582941370, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 71,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 20,
+      "density": 11,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 1,
+      "warnings": 2,
+      "passed": 0
+    }
+  }
+}

@@ -1,0 +1,49 @@
+python -m uvicorn server.api:app --reload --host 0.0.0.0 --port 8000
+
+
+
+
+
+################
+
+
+
+Sitemap & robots.txt parser — smarter crawling, respect crawl rules
+
+Page speed / Core Web Vitals — fetch Lighthouse scores via PageSpeed API
+
+Backlink analysis — domain authority signals for GEO ranking
+
+Content gap analysis — compare your content vs competitors topic by topic
+
+AI answer monitoring — scheduled checks: track if brand mentions improve over time
+
+Schema validator — validate generated JSON-LD against schema.org rules
+
+AI / LLM Features
+Auto content rewriter — rewrite thin pages to be AI-friendly (OpenAI/Groq)
+
+FAQ auto-generator — extract Q&A pairs from any page automatically
+
+Entity linking — link detected entities to Wikidata/Wikipedia URIs
+
+Multilingual support — Arabic GEO audit (camel-tools already in requirements)
+
+Analytics & Reporting
+Score trend charts — visualize GEO score over time (history already stored)
+
+Scheduled crawls — cron-based automatic re-crawling
+
+Email/Slack alerts — notify when score drops below threshold
+
+Competitor score comparison — side-by-side GEO score vs competitors
+
+Platform
+Multi-site support — manage multiple domains per company account
+
+API key management — let users plug in their own OpenAI/DataForSEO keys
+
+Webhook support — push job results to external systems
+
+White-label reports — branded PDF reports per company
+

@@ -1,0 +1,13 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "app.snov",
+      "url": "https://app.snov.io/",
+      "inLanguage": "en",
+      "sameAs": [],
+      "alternateName": []
+    }
+  ]
+}

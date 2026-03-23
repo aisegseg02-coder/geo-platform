@@ -1,0 +1,98 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-988c0548-89ab-4e71-a05e-6d61aefcbca0')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"title\": \"Rabhanagency - أفضل شركة تسويق في السعودية\",\\n  \"url\": \"https://rabhanagency.com/\",\\n  \"text\": \"Rabhanagency\",\\n  \"url_with_anchor\": \"https://rabhanagency.com/#content\",\\n  \"text_duplicate\": \"Rabhanagency\"\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774269188)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_6a1eabf260')('usage', CompletionUsage(completion_tokens=74, prompt_tokens=106, total_tokens=180, completion_time=0.08283466, completion_tokens_details=None, prompt_time=0.005927158, prompt_tokens_details=None, queue_time=0.017948606, total_time=0.088761818))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmdayhvhegvr3qtr2pr8cw45', debug=None, seed=1738281301, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 21,
+    "status": "Critical",
+    "breakdown": {
+      "headings": 0,
+      "density": 1,
+      "entities": 20,
+      "faq": 0,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 2,
+      "warnings": 0,
+      "passed": 0
+    },
+    "v2": {
+      "score": 55.0,
+      "breakdown": {
+        "seo_rank": 100.0,
+        "ai_visibility": 0.0,
+        "traffic": 75.0
+      },
+      "avg_rank": 1.0
+    }
+  },
+  "competitor_insight": {
+    "monthly_visits": "75K",
+    "traffic_sources": {
+      "search": 45,
+      "direct": 25,
+      "social": 20,
+      "referral": 10
+    },
+    "top_competitors": [
+      {
+        "name": "Rabhan",
+        "domain": "rabhanagency.com",
+        "overlap_score": 95,
+        "region": "SA"
+      },
+      {
+        "name": "Bayt.com",
+        "domain": "bayt.com",
+        "overlap_score": 88,
+        "region": "Global"
+      },
+      {
+        "name": "Souq.com",
+        "domain": "souq.com",
+        "overlap_score": 85,
+        "region": "Global"
+      }
+    ],
+    "regional_split": [
+      {
+        "country": "Saudi Arabia",
+        "share": 60
+      },
+      {
+        "country": "UAE",
+        "share": 20
+      },
+      {
+        "country": "Egypt",
+        "share": 10
+      },
+      {
+        "country": "Other MENA countries",
+        "share": 10
+      }
+    ],
+    "industry": "E-commerce and Digital Marketing",
+    "seo_rankings": [
+      {
+        "query": "best e-commerce platforms in saudi arabia",
+        "rank": 1,
+        "link": "https://rabhanagency.com/best-e-commerce-platforms-in-saudi-arabia"
+      },
+      {
+        "query": "top digital marketing agencies in saudi arabia",
+        "rank": 2,
+        "link": "https://rabhanagency.com/top-digital-marketing-agencies-in-saudi-arabia"
+      }
+    ]
+  }
+}

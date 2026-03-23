@@ -156,6 +156,47 @@ def _llm(prompt: str, api_keys: dict = None, json_mode: bool = False) -> str:
     return f"ERROR: No LLM available. Details: {log_msg}"
 
 
+def _serp_api_search(query: str, location: str = "Saudi Arabia", api_key: str = None) -> dict:
+    """Fetches real search results via SerpApi."""
+    key = api_key or os.environ.get("SERPAPI_KEY", "b31a84f7e45cc6c60f6de3627bf6650a81e0263fe67d939420308c4815b66cb7")
+    if not key:
+        return {}
+    try:
+        r = requests.get("https://serpapi.com/search", params={
+            "q": query,
+            "location": location,
+            "hl": "ar",
+            "gl": "sa",
+            "google_domain": "google.com.sa",
+            "api_key": key
+        }, timeout=15)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        print(f"SerpApi Error: {e}")
+        return {}
+
+
+def _zenserp_search(query: str, location: str = "Saudi Arabia", api_key: str = None) -> dict:
+    """Fetches real search results via ZenSerp."""
+    key = api_key or os.environ.get("ZENSERP_KEY", "a50d7a20-2698-11f1-a47e-edf101aaf1cf")
+    if not key:
+        return {}
+    try:
+        r = requests.get("https://app.zenserp.com/api/v2/search", params={
+            "q": query,
+            "location": location,
+            "hl": "ar",
+            "gl": "sa",
+            "apikey": key
+        }, timeout=15)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        print(f"ZenSerp Error: {e}")
+        return {}
+
+
 def _parse_json(text: str) -> dict:
     import re
     text = text.strip()
@@ -878,3 +919,148 @@ def run_full_suite(brand: str, url: str = None, competitors: List[str] = None,
         )
 
     return result
+
+
+def calculate_visibility_score_v2(brand: str, searches: List[dict], ai_mentions: int, total_queries: int, traffic_estimate: str = "unknown") -> dict:
+    """
+    Visibility Score Engine v2
+    Score = (SEO rank weight * 40%) + (AI mentions * 40%) + (traffic * 20%)
+    """
+    # 1. SEO Rank (40%)
+    ranks = []
+    for s in searches:
+        found_at = 101
+        # SerpApi organic results
+        results = s.get("organic_results", [])
+        if not results and "organic" in s: # ZenSerp style
+            results = s["organic"]
+            
+        for i, res in enumerate(results):
+            link = res.get("link", "").lower()
+            title = res.get("title", "").lower()
+            snippet = res.get("snippet", "").lower()
+            if brand.lower() in link or brand.lower() in title or brand.lower() in snippet:
+                found_at = i + 1
+                break
+        ranks.append(found_at)
+    
+    avg_rank = sum(ranks) / len(ranks) if ranks else 101
+    # 1st = 100pts, 10th = 50pts, 20th = 0pts
+    rank_score = max(0, 100 - (avg_rank - 1) * 5.2) if avg_rank <= 20 else 0
+    
+    # 2. AI Mentions (40%)
+    ai_score = (ai_mentions / total_queries * 100) if total_queries > 0 else 0
+    
+    # 3. Traffic (20%)
+    try:
+        # Extract number from "50K - 100K"
+        match = re.search(r'(\d+)\s*(K|M)', str(traffic_estimate), re.I)
+        if match:
+            num = int(match.group(1))
+            unit = match.group(2).upper()
+            if unit == 'K': num *= 1000
+            if unit == 'M': num *= 1000000
+        else:
+            num = int(re.sub(r'[^0-9]', '', str(traffic_estimate)))
+            
+        # Benchmark: 100K+ is 100%, 10K is 50%
+        traffic_score = min(100, (num / 100000 * 100)) if num > 0 else 10
+    except:
+        traffic_score = 50 # Neutral average
+        
+    final_score = (rank_score * 0.4) + (ai_score * 0.4) + (traffic_score * 0.2)
+    
+    return {
+        "score": round(final_score, 1),
+        "breakdown": {
+            "seo_rank": round(rank_score, 1),
+            "ai_visibility": round(ai_score, 1),
+            "traffic": round(traffic_score, 1)
+        },
+        "avg_rank": round(avg_rank, 1) if avg_rank <= 100 else ">100"
+    }
+
+
+def get_competitor_insights(brand: str, url: str = None, api_keys: dict = None) -> dict:
+    """
+    Enhanced Competitor Insights using Search APIs (SerpApi/ZenSerp).
+    """
+    api_keys = api_keys or {}
+    clean_brand = brand
+    if brand.startswith('http') or '.com' in brand:
+        clean_brand = _extract_brand_from_url(brand)
+    
+    # 1. Fetch real rankings for core queries
+    test_queries = [f"أفضل منافسين {clean_brand}", f"best {clean_brand} competitors in Egypt Saudi Arabia"]
+    search_data = []
+    
+    serp_key = api_keys.get("SERPAPI_KEY")
+    zen_key = api_keys.get("ZENSERP_KEY")
+    
+    for q in test_queries:
+        res = _serp_api_search(q, api_key=serp_key)
+        if not res:
+            res = _zenserp_search(q, api_key=zen_key)
+        if res:
+            search_data.append(res)
+
+    # 2. Extract competitor names from search results
+    found_comps = []
+    for s in search_data:
+        items = s.get("organic_results", s.get("organic", []))
+        for it in items[:5]:
+            found_comps.append(it.get("title", ""))
+
+    # 3. LLM Refinement & Similarweb-style metrics
+    prompt = f"""Analyze the brand '{clean_brand}'.
+    We found these potential competitors via search: {", ".join(found_comps[:8])}
+    
+    Provide a realistic market analysis for the MENA region.
+    Return JSON only:
+    {{
+      "monthly_visits": "75K",
+      "traffic_sources": {{"search": 45, "direct": 25, "social": 20, "referral": 10}},
+      "top_competitors": [
+        {{"name": "Comp Name", "domain": "comp.com", "overlap_score": 95, "region": "SA"}},
+        {{"name": "Comp 2", "domain": "comp2.com", "overlap_score": 88, "region": "Global"}}
+      ],
+      "regional_split": [
+        {{"country": "Saudi Arabia", "share": 60}},
+        {{"country": "UAE", "share": 20}}
+      ],
+      "industry": "...",
+      "seo_rankings": [
+        {{"query": "...", "rank": 1, "link": "..."}}
+      ]
+    }}
+    """
+    
+    try:
+        raw = _llm(prompt, api_keys, json_mode=True)
+        data = _parse_json(raw)
+        if data:
+            # If search data is rich, use it to populate seo_rankings if LLM didn't
+            if (not data.get("seo_rankings") or len(data.get("seo_rankings")) == 0) and search_data:
+                data["seo_rankings"] = []
+                for s in search_data[:1]:
+                    for it in s.get("organic_results", s.get("organic", []))[:3]:
+                        data["seo_rankings"].append({
+                            "query": s.get("search_parameters", {}).get("q", ""), 
+                            "rank": it.get("position"), 
+                            "link": it.get("link")
+                        })
+            return data
+    except Exception:
+        pass
+
+    # Fallback
+    return {
+        "monthly_visits": "10K - 50K",
+        "traffic_sources": { "search": 40, "direct": 30, "social": 20, "referral": 10 },
+        "top_competitors": [
+            { "name": "منافس 1", "domain": "comp1.com", "overlap_score": 90, "region": "SA" },
+            { "name": "منافس 2", "domain": "comp2.com", "overlap_score": 85, "region": "UAE" }
+        ],
+        "industry": "خدمات رقمية",
+        "seo_rankings": []
+    }

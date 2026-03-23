@@ -1,864 +1,542 @@
-<!doctype html>
 <html lang="ar" dir="rtl">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>منصة GEO — تحسين الظهور بالذكاء الاصطناعي</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>منصة GEO — محرك رؤية الذكاء الاصطناعي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/theme.css" />
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Cairo', sans-serif;
-      background: #050810;
-      color: #f0f6fc;
-      overflow-x: hidden;
-    }
-
     /* ── NAV ── */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 18px 60px;
-      background: rgba(5, 8, 16, 0.7);
+      background: rgba(2,4,8,0.8);
       backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 242, 255, 0.08);
+      border-bottom: 1px solid rgba(0,242,255,0.08);
     }
-
-    .nav-logo {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      color: #fff;
-    }
-
-    .nav-logo span {
-      color: #00f2ff;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 32px;
-    }
-
-    .nav-links a {
-      color: rgba(255, 255, 255, 0.6);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 600;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover {
-      color: #00f2ff;
-    }
-
+    .nav-logo { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 900; color: #fff; text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 15px; font-weight: 600; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
     .nav-cta {
-      background: linear-gradient(135deg, #00f2ff, #ff00ea);
-      color: #000;
-      font-weight: 800;
-      font-size: 14px;
-      padding: 10px 24px;
-      border-radius: 50px;
-      text-decoration: none;
-      transition: opacity 0.2s, transform 0.2s;
+      background: var(--accent-grad); color: #000 !important; font-weight: 800 !important;
+      padding: 10px 24px; border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,242,255,0.2);
+      transition: all 0.2s !important;
     }
-
-    .nav-cta:hover {
-      opacity: 0.85;
-      transform: translateY(-1px);
-    }
+    .nav-cta:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,242,255,0.3) !important; }
 
     /* ── HERO ── */
-    .hero {
+    .hero-section {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center;
-      padding: 120px 24px 80px;
+      padding: 120px 20px 80px;
       position: relative;
     }
-
-    /* Orb glows */
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 700px;
-      height: 700px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%);
-      pointer-events: none;
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,242,255,0.08); border: 1px solid rgba(0,242,255,0.2);
+      color: var(--accent); font-size: 13px; font-weight: 600;
+      padding: 6px 16px; border-radius: 50px; margin-bottom: 32px;
+      letter-spacing: 0.05em; text-transform: uppercase;
     }
-
-    /* 3D Progress Bar */
-    .progress-container {
-      width: 100%;
-      margin: 24px 0 10px;
-      perspective: 1000px;
-      display: none;
+    .hero-badge::before { content: '●'; font-size: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .hero-title {
+      font-family: 'Outfit', sans-serif; font-size: clamp(48px, 7vw, 96px);
+      font-weight: 900; line-height: 1.0; letter-spacing: -0.04em;
+      margin: 0 0 24px;
     }
-    .progress-track {
-      width: 100%;
-      height: 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      position: relative;
-      transform-style: preserve-3d;
-      transform: rotateX(15deg);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px); color: var(--muted);
+      max-width: 600px; margin: 0 auto 48px; line-height: 1.7;
     }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #00f2ff, #ff00ea);
-      border-radius: 8px;
-      position: relative;
-      transition: width 0.5s ease;
-      box-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
-    }
-    .progress-label {
-      font-size: 13px;
-      font-weight: 700;
-      margin-top: 10px;
-      color: #fff;
-      text-align: center;
-    }
-    .progress-detail {
-        font-size: 11px;
-        color: rgba(255,255,255,0.4);
-        text-align: center;
-        margin-top: 4px;
-    }
-
-    .hero-badge::before {
-      content: '●';
-      font-size: 8px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1
-      }
-
-      50% {
-        opacity: 0.3
-      }
-    }
-
-    .hero h1 {
-      font-size: clamp(42px, 7vw, 88px);
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: -0.04em;
-      margin-bottom: 24px;
-    }
-
-    .hero h1 .grad {
-      background: linear-gradient(135deg, #00f2ff 0%, #ff00ea 50%, #00ff95 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p {
-      font-size: 18px;
-      color: rgba(255, 255, 255, 0.55);
-      max-width: 560px;
-      line-height: 1.8;
-      margin-bottom: 48px;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
     .btn-hero {
-      padding: 16px 40px;
-      border-radius: 50px;
-      font-size: 16px;
-      font-weight: 800;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.3s;
-      font-family: 'Cairo', sans-serif;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px;
+      padding: 16px 36px; border-radius: 50px; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
     }
-
     .btn-hero-primary {
-      background: linear-gradient(135deg, #00f2ff, #ff00ea);
-      color: #000;
-      border: none;
-      box-shadow: 0 8px 40px rgba(0, 242, 255, 0.3);
+      background: var(--accent-grad); color: #000; border: none;
+      box-shadow: 0 8px 30px rgba(0,242,255,0.3);
     }
-
-    .btn-hero-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 50px rgba(0, 242, 255, 0.45);
-    }
-
+    .btn-hero-primary:hover { transform: translateY(-4px); box-shadow: 0 16px 50px rgba(0,242,255,0.5); }
     .btn-hero-secondary {
-      background: transparent;
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent; color: var(--text);
+      border: 1px solid rgba(255,255,255,0.15);
     }
-
-    .btn-hero-secondary:hover {
-      border-color: rgba(0, 242, 255, 0.5);
-      color: #00f2ff;
-    }
-
-    /* ── ANALYZE FORM (slides in) ── */
-    #analyzeSection {
-      display: none;
-      width: 100%;
-      max-width: 680px;
-      margin: 40px auto 0;
-      animation: fadeUp 0.5s ease both;
-    }
-
-    #analyzeSection.open {
-      display: block;
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
-    .analyze-box {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(0, 242, 255, 0.15);
-      border-radius: 24px;
-      padding: 32px;
-      backdrop-filter: blur(20px);
-    }
-
-    .analyze-box input,
-    .analyze-box select {
-      width: 100%;
-      margin-bottom: 12px;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(0, 242, 255, 0.15);
-      color: #fff;
-      padding: 14px 20px;
-      border-radius: 14px;
-      font-size: 15px;
-      font-family: 'Cairo', sans-serif;
-    }
-
-    .analyze-box input:focus,
-    .analyze-box select:focus {
-      outline: none;
-      border-color: #00f2ff;
-      box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
-    }
-
-    .analyze-box button {
-      width: 100%;
-      padding: 15px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg, #00f2ff, #ff00ea);
-      color: #000;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-      font-family: 'Cairo', sans-serif;
-      transition: opacity 0.2s, transform 0.2s;
-    }
-
-    .analyze-box button:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-
-    #formStatus {
-      margin-top: 12px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.5);
-      text-align: center;
-    }
+    .btn-hero-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-4px); }
 
     /* ── STATS BAR ── */
     .stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 60px;
-      flex-wrap: wrap;
-      padding: 40px 24px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex; gap: 48px; justify-content: center; flex-wrap: wrap;
+      margin-top: 72px; padding-top: 48px;
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
+    .stat { text-align: center; }
+    .stat-num { font-family: 'Outfit', sans-serif; font-size: 36px; font-weight: 900; color: var(--accent); }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-    .stat {
-      text-align: center;
-    }
-
-    .stat-num {
-      font-size: 36px;
-      font-weight: 900;
-      color: #00f2ff;
-      letter-spacing: -0.03em;
-    }
-
-    .stat-label {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.4);
-      margin-top: 4px;
-    }
-
-    /* ── SERVICES SECTION ── */
-    .section {
-      padding: 100px 60px;
-      max-width: 1300px;
-      margin: 0 auto;
-    }
-
+    /* ── SECTIONS ── */
+    .section { padding: 100px 0; }
     .section-label {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #00f2ff;
-      margin-bottom: 16px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 16px;
     }
-
     .section-title {
-      font-size: clamp(28px, 4vw, 48px);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      margin-bottom: 16px;
+      font-family: 'Outfit', sans-serif; font-size: clamp(32px, 4vw, 52px);
+      font-weight: 900; letter-spacing: -0.03em; margin: 0 0 16px;
     }
+    .section-sub { color: var(--muted); font-size: 17px; max-width: 560px; line-height: 1.7; }
 
-    .section-sub {
-      font-size: 16px;
-      color: rgba(255, 255, 255, 0.45);
-      max-width: 500px;
-      line-height: 1.8;
-      margin-bottom: 60px;
-    }
-
-    .cards-grid {
+    /* ── SERVICE CARDS ── */
+    .services-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
+      gap: 24px; margin-top: 56px;
     }
-
     .service-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 24px;
       padding: 36px;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: pointer;
+      text-decoration: none;
+      display: block;
       position: relative;
       overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+      backdrop-filter: blur(20px);
     }
-
     .service-card::before {
       content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: radial-gradient(circle at 30% 30%, var(--card-glow, rgba(0, 242, 255, 0.06)), transparent 60%);
-      opacity: 0;
-      transition: opacity 0.4s;
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent-grad);
+      opacity: 0; transition: opacity 0.4s;
     }
-
     .service-card:hover {
-      border-color: rgba(0, 242, 255, 0.25);
+      border-color: rgba(0,242,255,0.3);
       transform: translateY(-8px);
-      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 40px rgba(0,242,255,0.08);
     }
-
-    .service-card:hover::before {
-      opacity: 1;
-    }
-
+    .service-card:hover::before { opacity: 1; }
     .card-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
+      width: 56px; height: 56px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 24px;
     }
-
     .card-title {
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 10px;
+      font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800;
+      margin: 0 0 10px; color: var(--text);
     }
-
-    .card-desc {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.45);
-      line-height: 1.8;
+    .card-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin: 0 0 24px; }
+    .card-arrow {
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      display: flex; align-items: center; gap: 6px;
+      transition: gap 0.3s;
     }
+    .service-card:hover .card-arrow { gap: 12px; }
 
-    .card-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #00f2ff;
-      text-decoration: none;
-      transition: gap 0.2s;
-      position: relative;
-      z-index: 2;
-    }
-
-    .card-link::after {
-      content: '';
-      position: absolute;
-      top: -300px;
-      bottom: -100px;
-      left: -300px;
-      right: -300px;
-      z-index: 10;
-    }
-
-    .card-link:hover {
-      gap: 10px;
-    }
-
-    /* ── HOW IT WORKS ── */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 32px;
-    }
-
-    .step {
-      text-align: center;
-    }
-
-    .step-num {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 900;
-      background: linear-gradient(135deg, rgba(0, 242, 255, 0.15), rgba(255, 0, 234, 0.15));
-      border: 1px solid rgba(0, 242, 255, 0.2);
-      color: #00f2ff;
-    }
-
-    .step h4 {
-      font-size: 17px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .step p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.4);
-      line-height: 1.7;
-    }
-
-    /* ── CTA BANNER ── */
-    .cta-banner {
-      margin: 0 60px 100px;
+    /* ── ANALYZE PANEL ── */
+    .analyze-section { padding: 100px 0; }
+    .analyze-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 32px;
-      padding: 80px 60px;
-      text-align: center;
-      background: linear-gradient(135deg, rgba(0, 242, 255, 0.08) 0%, rgba(255, 0, 234, 0.08) 100%);
-      border: 1px solid rgba(0, 242, 255, 0.15);
-      position: relative;
-      overflow: hidden;
+      padding: 56px;
+      backdrop-filter: blur(20px);
+      position: relative; overflow: hidden;
     }
-
-    .cta-banner::before {
+    .analyze-box::before {
       content: '';
-      position: absolute;
-      top: -50%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 242, 255, 0.06), transparent 70%);
-      pointer-events: none;
+      position: absolute; top: -1px; left: 10%; right: 10%; height: 2px;
+      background: var(--accent-grad);
     }
+    .analyze-form { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+    .analyze-form input {
+      flex: 1; min-width: 200px;
+      background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+      color: white; padding: 16px 22px; border-radius: 16px;
+      font-size: 15px; transition: all 0.3s;
+    }
+    .analyze-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 20px rgba(0,242,255,0.1); }
+    .btn-analyze {
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px;
+      padding: 16px 32px; border-radius: 16px; cursor: pointer; border: none;
+      background: var(--accent-grad); color: #000;
+      box-shadow: 0 8px 25px rgba(0,242,255,0.3);
+      transition: all 0.3s; white-space: nowrap;
+    }
+    .btn-analyze:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,242,255,0.5); }
+    #status { margin-top: 16px; color: var(--muted); font-size: 14px; }
+    #status a { color: var(--accent); }
 
-    .cta-banner h2 {
-      font-size: clamp(28px, 4vw, 48px);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      margin-bottom: 16px;
+    /* ── RESULTS ── */
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
+    .result-panel {
+      background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px;
     }
-
-    .cta-banner p {
-      font-size: 16px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-bottom: 40px;
-    }
+    .result-panel h4 { font-family: 'Outfit', sans-serif; margin: 0 0 16px; font-size: 16px; }
+    #geoScore { font-size: 15px; margin-bottom: 12px; }
+    #results { font-size: 14px; color: var(--muted); }
+    pre#raw { font-size: 12px; color: var(--muted); overflow: auto; max-height: 300px; margin: 0; }
 
     /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 40px 60px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
+    .footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 48px 0; text-align: center;
+      color: var(--muted); font-size: 14px;
     }
+    .footer a { color: var(--accent); text-decoration: none; }
 
-    footer .logo {
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    footer .logo span {
-      color: #00f2ff;
-    }
-
-    footer p {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    footer .footer-links {
-      display: flex;
-      gap: 24px;
-    }
-
-    footer .footer-links a {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.4);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer .footer-links a:hover {
-      color: #00f2ff;
-    }
-
-    @media(max-width:768px) {
-      nav {
-        padding: 16px 24px;
-      }
-
-      .nav-links {
-        display: none;
-      }
-
-      .section {
-        padding: 60px 24px;
-      }
-
-      .cta-banner {
-        margin: 0 24px 60px;
-        padding: 48px 24px;
-      }
-
-      footer {
-        padding: 32px 24px;
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .stats-bar {
-        gap: 32px;
-      }
+    @media(max-width: 768px) {
+      .top-nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      .analyze-box { padding: 32px 24px; }
+      .results-grid { grid-template-columns: 1fr; }
+      .stats-bar { gap: 32px; }
     }
   </style>
 </head>
-
 <body>
 
   <!-- NAV -->
-  <nav>
-    <div class="nav-logo">GEO<span>.</span>AI</div>
+  <nav class="top-nav">
+    <a href="#" class="nav-logo">GEO<span>.</span></a>
     <div class="nav-links">
+      <a href="#services">الخدمات</a>
+      <a href="#analyze">التحليل</a>
       <a href="/jobs.html">المهام</a>
-      <a href="/recommendations.html">التوصيات</a>
-      <a href="/search.html">تحليل البحث</a>
-      <a href="/content_v2.html">المحتوى</a>
+      <a href="/search.html">البحث</a>
       <a href="/ads.html">الإعلانات</a>
-      <a href="/geo-toolkit.html">خدمات GEO</a>
+      <a href="#analyze" class="nav-cta">ابدأ مجاناً</a>
     </div>
-    <a href="#" class="nav-cta" id="navCta">ابدأ الآن</a>
   </nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge">مدعوم بالذكاء الاصطناعي</div>
-    <h1>
-      اجعل موقعك<br>
-      <span class="grad">مرئياً للذكاء الاصطناعي</span>
-    </h1>
-    <p>منصة GEO تحلل موقعك، تقيّم ظهوره في محركات البحث الذكية، وتولّد توصيات فورية لتحسين تصنيفك.</p>
-    <div class="hero-actions">
-      <a href="#" class="btn-hero btn-hero-primary" id="heroAnalyzeBtn"> حلّل موقعك الآن</a>
-      <a href="/geo-toolkit.html" class="btn-hero btn-hero-secondary">استكشف الخدمات</a>
-    </div>
+  <div class="wrap">
 
-    <!-- Inline analyze form -->
-    <div id="analyzeSection">
-      <div class="analyze-box">
-        <form id="crawlForm">
+    <!-- HERO -->
+    <section class="hero-section">
+      <div class="hero-badge">منصة GEO المدعومة بالذكاء الاصطناعي</div>
+      <h1 class="hero-title">
+        <span class="shine-text">هيمن على</span><br>رؤية البحث الذكي
+      </h1>
+      <p class="hero-sub">
+        زحف المواقع، تدقيق المحتوى، قياس رؤية الذكاء الاصطناعي، وتوليد توصيات SEO - كل ذلك في منصة واحدة.
+      </p>
+      <div class="hero-actions">
+        <a href="#analyze" class="btn-hero btn-hero-primary">🚀 تحليل موقع</a>
+        <a href="#services" class="btn-hero btn-hero-secondary">استكشف الخدمات ←</a>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-num">10x</div><div class="stat-label">تعزيز رؤية الذكاء الاصطناعي</div></div>
+        <div class="stat"><div class="stat-num">50+</div><div class="stat-label">إشارة GEO مرصودة</div></div>
+        <div class="stat"><div class="stat-num">100%</div><div class="stat-label">تدقيقات مؤتمتة</div></div>
+        <div class="stat"><div class="stat-num">∞</div><div class="stat-label">توليد المحتوى</div></div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section" id="services">
+      <div class="section-label">ماذا نقدم</div>
+      <h2 class="section-title">كل ما تحتاجه لـ<br><span class="shine-text">سيادة البحث الذكي</span></h2>
+      <p class="section-sub">مجموعة أدوات GEO متكاملة - من الزحف إلى توليد المحتوى.</p>
+
+      <div class="services-grid">
+
+        <a href="#analyze" class="service-card stagger-item" style="animation-delay:0.05s">
+          <div class="card-title">زاحف المواقع</div>
+          <div class="card-desc">زحف عميق لأي موقع واستخراج المحتوى المنظم، العناوين، البيانات الوصفية، وإشارات الصفحات لتحليل الذكاء الاصطناعي.</div>
+          <div class="card-arrow">ابدأ الزحف ←</div>
+        </a>
+
+        <a href="#analyze" class="service-card stagger-item" style="animation-delay:0.1s">
+          <div class="card-title">نتائج GEO</div>
+          <div class="card-desc">احصل على درجة رؤية للذكاء الاصطناعي من 0 إلى 100 بناءً على أكثر من 50 إشارة تشمل المخططات وجودة المحتوى وتغطية الكيانات.</div>
+          <div class="card-arrow">قيم موقعي ←</div>
+        </a>
+
+        <a href="/search.html" class="service-card stagger-item" style="animation-delay:0.15s">
+          <div class="card-title">ذكاء البحث</div>
+          <div class="card-desc">استخرج الكلمات الرئيسية عالية القيمة، وحلل نية البحث، وأثرِها ببيانات الحجم والتكلفة لكل نقرة من DataForSEO.</div>
+          <div class="card-arrow">استكشف الكلمات ←</div>
+        </a>
+
+        <a href="/content" class="service-card stagger-item" style="animation-delay:0.2s">
+          <div class="card-title">توليد المحتوى بالذكاء الاصطناعي</div>
+          <div class="card-desc">ولد محتوى محسناً، وأوصافاً تعريفية، وبيانات منظمة باستخدام Groq أو OpenAI - مصمم لمحركات بحث الذكاء الاصطناعي.</div>
+          <div class="card-arrow">ولد المحتوى ←</div>
+        </a>
+
+        <a href="/recommendations.html" class="service-card stagger-item" style="animation-delay:0.25s">
+          <div class="card-title">توصيات GEO</div>
+          <div class="card-desc">توصيات عملية وذات أولوية لإصلاح المشكلات الحرجة وتحسين ترتيبك في بحث الذكاء الاصطناعي بسرعة.</div>
+          <div class="card-arrow">عرض التوصيات ←</div>
+        </a>
+
+        <a href="/ads.html" class="service-card stagger-item" style="animation-delay:0.3s">
+          <div class="card-title">مدير الإعلانات المدفوعة</div>
+          <div class="card-desc">إدارة وتحسين حملات الإعلانات المدفوعة جنباً إلى جنب مع استراتيجية GEO العضوية من لوحة تحكم موحدة.</div>
+          <div class="card-arrow">افتح لوحة التحكم ←</div>
+        </a>
+
+        <a href="#analyze" class="service-card stagger-item" style="animation-delay:0.35s">
+          <div class="card-title">مخطط JSON-LD</div>
+          <div class="card-desc">توليد تلقائي لبيانات المخطط المنظم (Organization, Article, FAQ) لتعظيم التعرف على الكيانات بواسطة نماذج الذكاء الاصطناعي.</div>
+          <div class="card-arrow">ولد المخطط ←</div>
+        </a>
+
+        <a href="/jobs.html" class="service-card stagger-item" style="animation-delay:0.4s">
+          <div class="card-title">المهام والسجل</div>
+          <div class="card-desc">تتبع جميع مهام الزحف، واعرض النتائج التاريخية، وقارن درجات GEO بمرور الوقت، وصدر التقارير كملفات PDF أو CSV.</div>
+          <div class="card-arrow">عرض المهام ←</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ANALYZE -->
+    <section class="analyze-section" id="analyze">
+      <div class="analyze-box stagger-item">
+        <div class="section-label">ابدأ الآن</div>
+        <h2 class="section-title" style="margin-bottom:8px">حلل موقعك الإلكتروني</h2>
+        <p style="color:var(--muted);font-size:15px;margin:0">أدخل رابطاً لزحفه وتدقيقه وقياس رؤية الذكاء الاصطناعي في دقائق.</p>
+
+        <form class="analyze-form" id="crawlForm">
           <input id="url" placeholder="https://example.com" required />
-          <input id="orgName" placeholder="اسم الشركة أو المؤسسة" required />
-          <input id="orgUrl" placeholder="رابط الموقع الرسمي (اختياري)" />
-          <select id="regionTarget">
-            <option value="global">المنطقة الجغرافية: عالمي (Global)</option>
-            <option value="gulf">الخليج العربي (Gulf Arabic)</option>
-            <option value="egypt">مصر (Egyptian Arabic)</option>
-            <option value="levant">بلاد الشام (Levantine Arabic)</option>
-          </select>
-          <button type="submit"> بدء التحليل</button>
+          <input id="orgName" placeholder="اسم الشركة" required />
+          <input id="orgUrl" placeholder="رابط الشركة (اختياري)" />
+          <input id="runs" placeholder="التكرار (1)" style="max-width:110px" />
+          <button type="submit" class="btn-analyze">🚀 ابدأ التحليل</button>
         </form>
-        <div id="index-progress" class="progress-container">
-          <div class="progress-track">
-            <div class="progress-fill" id="index-progressBar"></div>
-          </div>
-          <div class="progress-label" id="index-stageLabel">جارٍ بدء التحليل...</div>
-          <div class="progress-detail" id="index-stageDetail">تحضير محرك الزحف الذكي</div>
+        <div id="status"></div>
+
+        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+          <button id="keywordsBtn" class="btn" style="font-size:13px;padding:10px 20px">⚡ كلمات سريعة</button>
+          <button id="analyzeBtn" class="btn" style="font-size:13px;padding:10px 20px">🧠 تشغيل الذكاء</button>
+          <span id="analyzeStatus" style="color:var(--muted);font-size:13px;align-self:center"></span>
         </div>
-        <div id="formStatus"></div>
-      </div>
-    </div>
-  </section>
+        <div id="keywordsOut" style="margin-top:8px;color:var(--muted);font-size:13px"></div>
 
-  <!-- STATS -->
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-num">98%</div>
-      <div class="stat-label">دقة التحليل</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">6</div>
-      <div class="stat-label">خدمات ذكاء اصطناعي</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">∞</div>
-      <div class="stat-label">صفحات قابلة للزحف</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">3x</div>
-      <div class="stat-label">تحسين الظهور</div>
-    </div>
-  </div>
+        <div class="results-grid" id="resultsGrid" style="display:none">
+          <div class="result-panel">
+            <h4>📈 نتيجة GEO</h4>
+            <div id="geoScore">—</div>
+            <div id="results" style="margin-top:12px">لا توجد نتائج بعد.</div>
+          </div>
+          <div class="result-panel">
+            <h4>🌍 رؤى المنافسين</h4>
+            <div id="competitorInsight" style="margin-top:12px">
+              <div style="color:var(--muted); font-size:13px;">ابدأ التحليل لرؤية المنافسين وتوزيع الحركة.</div>
+            </div>
+          </div>
+          <div class="result-panel">
+            <h4>🗃️ التدقيق الخام</h4>
+            <pre id="raw">—</pre>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <!-- SERVICES -->
-  <div class="section">
-    <div class="section-label">الخدمات</div>
-    <div class="section-title">كل ما تحتاجه لتحسين ظهورك</div>
-    <div class="section-sub">من تحليل المحتوى إلى توليد التوصيات — كل شيء في مكان واحد.</div>
-
-    <div class="cards-grid">
-      <div class="service-card" style="--card-glow:rgba(0,242,255,0.08)">
-        <div class="card-icon" style="background:rgba(0,242,255,0.1);color:#00f2ff">🔍</div>
-        <div class="card-title">زاحف المواقع</div>
-        <div class="card-desc">يزحف على صفحات موقعك ويستخرج المحتوى والبيانات الوصفية تلقائياً.</div>
-        <a href="#" class="card-link" id="crawlCardBtn">ابدأ التحليل ←</a>
-      </div>
-      <div class="service-card" style="--card-glow:rgba(255,0,234,0.08)">
-        <div class="card-icon" style="background:rgba(255,0,234,0.1);color:#ff00ea">📊</div>
-        <div class="card-title">درجة GEO</div>
-        <div class="card-desc">تقييم شامل لمدى ظهور موقعك في نتائج محركات البحث الذكية.</div>
-        <a href="/recommendations.html" class="card-link">عرض التقرير ←</a>
-      </div>
-      <div class="service-card" style="--card-glow:rgba(0,255,149,0.08)">
-        <div class="card-icon" style="background:rgba(0,255,149,0.1);color:#00ff95">🔑</div>
-        <div class="card-title">تحليل الكلمات المفتاحية</div>
-        <div class="card-desc">استخراج وتحليل الكلمات المفتاحية الأكثر تأثيراً في مجالك.</div>
-        <a href="/search.html" class="card-link">تحليل الكلمات ←</a>
-      </div>
-      <div class="service-card" style="--card-glow:rgba(255,204,0,0.08)">
-        <div class="card-icon" style="background:rgba(255,204,0,0.1);color:#ffcc00">✍️</div>
-        <div class="card-title">توليد المحتوى</div>
-        <div class="card-desc">توليد محتوى محسّن للذكاء الاصطناعي باستخدام Groq وOpenAI.</div>
-        <a href="/content_v2.html" class="card-link">إنشاء محتوى ←</a>
-      </div>
-      <div class="service-card" style="--card-glow:rgba(0,153,255,0.08)">
-        <div class="card-icon" style="background:rgba(0,153,255,0.1);color:#0099ff">🌍</div>
-        <div class="card-title">التحليل الإقليمي</div>
-        <div class="card-desc">قياس الظهور الجغرافي وتحليل الأداء في مناطق مختلفة حول العالم.</div>
-        <a href="/regional.html" class="card-link">استكشف ←</a>
-      </div>
-      <div class="service-card" style="--card-glow:rgba(255,51,102,0.08)">
-        <div class="card-icon" style="background:rgba(255,51,102,0.1);color:#ff3366">📢</div>
-        <div class="card-title">إدارة الإعلانات</div>
-        <div class="card-desc">لوحة تحكم متكاملة لإدارة الحملات الإعلانية المدفوعة وتتبع الأداء.</div>
-        <a href="/ads.html" class="card-link">لوحة الإعلانات ←</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- HOW IT WORKS -->
-  <div class="section" style="padding-top:0">
-    <div class="section-label">كيف يعمل</div>
-    <div class="section-title">ثلاث خطوات فقط</div>
-    <div class="section-sub">من إدخال الرابط إلى الحصول على توصيات قابلة للتنفيذ.</div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">١</div>
-        <h4>أدخل رابط موقعك</h4>
-        <p>أدخل عنوان URL وسيبدأ الزاحف في تحليل صفحاتك فوراً.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">٢</div>
-        <h4>التحليل الذكي</h4>
-        <p>يحلل الذكاء الاصطناعي المحتوى ويحسب درجة الظهور ويستخرج الكلمات المفتاحية.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">٣</div>
-        <h4>احصل على التوصيات</h4>
-        <p>توصيات مخصصة وقابلة للتنفيذ لتحسين ظهورك في محركات البحث الذكية.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">٤</div>
-        <h4>تابع التحسن</h4>
-        <p>راقب تقدمك عبر لوحة التحكم وقارن النتائج مع المنافسين.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- CTA BANNER -->
-  <div class="cta-banner">
-    <h2>جاهز لتحسين ظهورك؟</h2>
-    <p>ابدأ تحليل موقعك مجاناً الآن واحصل على توصيات فورية.</p>
-    <a href="#" class="btn-hero btn-hero-primary" id="ctaBtn"> ابدأ مجاناً</a>
   </div>
 
   <!-- FOOTER -->
-  <footer>
-    <div class="logo">GEO<span>.</span>AI</div>
-    <p>© 2025 منصة GEO — جميع الحقوق محفوظة</p>
-    <div class="footer-links">
-      <a href="/jobs.html">المهام</a>
-      <a href="/recommendations.html">التوصيات</a>
-      <a href="/geo-toolkit.html">خدمات GEO</a>
-      <a href="/ads.html">الإعلانات</a>
+  <footer class="footer">
+    <div class="wrap" style="padding:0">
+      <p>© 2025 منصة GEO — محرك رؤية الذكاء الاصطناعي &nbsp;·&nbsp; <a href="/jobs.html">المهام</a> &nbsp;·&nbsp; <a href="/ads.html">الدعاية</a> &nbsp;·&nbsp; <a href="/content">المحتوى</a></p>
     </div>
   </footer>
 
   <script>
     let _lastJobId = null;
 
-    // Toggle analyze form
-    function openAnalyze() {
-      const s = document.getElementById('analyzeSection');
-      s.classList.toggle('open');
-      s.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    document.getElementById('heroAnalyzeBtn').addEventListener('click', e => { e.preventDefault(); openAnalyze(); });
-    document.getElementById('navCta').addEventListener('click', e => { e.preventDefault(); openAnalyze(); });
-    document.getElementById('ctaBtn').addEventListener('click', e => { e.preventDefault(); openAnalyze(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-    document.getElementById('crawlCardBtn').addEventListener('click', e => { e.preventDefault(); openAnalyze(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-
     document.getElementById('crawlForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const status = document.getElementById('formStatus');
+      const statusEl = document.getElementById('status');
       const url = document.getElementById('url').value;
       const orgName = document.getElementById('orgName').value;
       const orgUrl = document.getElementById('orgUrl').value || url;
-      const region = document.getElementById('regionTarget').value;
-      const progressContainer = document.getElementById('index-progress');
-      const progressBar = document.getElementById('index-progressBar');
-      const stageLabel = document.getElementById('index-stageLabel');
-      const stageDetail = document.getElementById('index-stageDetail');
-      const submitBtn = e.target.querySelector('button');
-
-      status.textContent = 'جارٍ إرسال الطلب...';
-      submitBtn.disabled = true;
-
+      const runs = parseInt(document.getElementById('runs').value || '1') || 1;
+      statusEl.innerHTML = '⏳ Starting crawl...';
       try {
         const resp = await fetch('/api/jobs', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, org_name: orgName, org_url: orgUrl, region: region, max_pages: 3, runs: 1 })
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ url, org_name: orgName, org_url: orgUrl, max_pages: 3, runs })
         });
         const data = await resp.json();
-        if (!data.ok) { 
-          status.textContent = 'خطأ: ' + (data.error || JSON.stringify(data)); 
-          submitBtn.disabled = false;
-          return; 
-        }
-        
+        if (!data.ok) { statusEl.textContent = 'Error: ' + (data.error || JSON.stringify(data)); return; }
         _lastJobId = data.job_id;
-        progressContainer.style.display = 'block';
-        status.innerHTML = ` تم إنشاء المهمة <strong>${data.job_id}</strong> — تابع التقدم أدناه`;
-
-        // Polling logic
-        const poll = setInterval(async () => {
-          try {
-            const pollResp = await fetch(`/api/jobs/${data.job_id}`);
-            const pollData = await pollResp.json();
-            const job = pollData.job;
-            
-            if (job.status === 'completed') {
-              clearInterval(poll);
-              progressBar.style.width = '100%';
-              stageLabel.textContent = 'اكتمل التحليل!';
-              stageDetail.textContent = 'جارٍ توجيهك إلى صفحة التوصيات...';
-              setTimeout(() => {
-                window.location.href = '/recommendations.html';
-              }, 1500);
-            } else if (job.status === 'failed') {
-              clearInterval(poll);
-              status.textContent = 'فشل التحليل: ' + (job.error || 'خطأ غير معروف');
-              submitBtn.disabled = false;
-            } else {
-              // Estimate progress based on found_links vs max_pages (roughly)
-              const prog = Math.min(95, (job.pages_found / 10) * 100); 
-              progressBar.style.width = (prog || 10) + '%';
-              stageLabel.textContent = 'جارٍ المسح والتحليل...';
-              stageDetail.textContent = `تم العثور على ${job.pages_found || 0} صفحة`;
-            }
-          } catch (err) {
-            console.error('Polling error:', err);
-          }
-        }, 2000);
-
+        statusEl.innerHTML = `✅ تم إرسال المهمة <strong>${data.job_id}</strong> — <a href='/jobs.html'>عرض التقدم ←</a>`;
       } catch (err) {
-        status.textContent = 'فشل الطلب: ' + err.message;
-        submitBtn.disabled = false;
+        statusEl.textContent = 'Request failed: ' + err.message;
       }
     });
+
+    async function loadResults() {
+      try {
+        const r = await fetch('/api/results');
+        const j = await r.json();
+        const resultsEl = document.getElementById('results');
+        const rawEl = document.getElementById('raw');
+        document.getElementById('resultsGrid').style.display = 'grid';
+        resultsEl.innerHTML = '';
+        if (j.audit && j.audit.audits) {
+          j.audit.audits.forEach(a => {
+            const d = document.createElement('div');
+            d.style.cssText = 'margin-bottom:10px;font-size:13px';
+            d.innerHTML = `<strong>${a.title||a.url}</strong><div style="color:var(--muted)">Headings OK: ${a.headings_ok} · Paras: ${a.density.paras} · Avg words: ${Math.round(a.density.avg_words)}</div>`;
+            resultsEl.appendChild(d);
+          });
+        }
+        rawEl.textContent = JSON.stringify(j, null, 2);
+      } catch(e) {}
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', async () => {
+      const s = document.getElementById('analyzeStatus');
+      s.textContent = '⏳ Running intelligence...';
+      try {
+        const r = await fetch('/api/analyze', { method: 'POST' });
+        const j = await r.json();
+        if (!j.ok) { s.textContent = 'Error: '+(j.error||JSON.stringify(j)); return; }
+        s.textContent = '✅ Done.';
+        document.getElementById('resultsGrid').style.display = 'grid';
+        if (j.geo_score) {
+          const g = j.geo_score;
+          const v2 = g.v2 || { score: g.score, breakdown: { seo_rank: 0, ai_visibility: g.score, traffic: 0 }};
+          const color = v2.score >= 75 ? '#10b981' : v2.score >= 40 ? '#f59e0b' : '#ef4444';
+          
+          let breakdownHtml = '';
+          if (g.v2) {
+            breakdownHtml = `
+              <div style="margin-top:15px; background:rgba(0,0,0,0.2); border-radius:8px; padding:10px;">
+                <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">تفاصيل نقاط الرؤية (40/40/20):</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center;">
+                  <div>
+                    <div style="font-size:14px; font-weight:800; color:#3b82f6;">${v2.breakdown.seo_rank}%</div>
+                    <div style="font-size:9px; color:var(--muted);">SEO Rank</div>
+                  </div>
+                  <div>
+                    <div style="font-size:14px; font-weight:800; color:#7c3aed;">${v2.breakdown.ai_visibility}%</div>
+                    <div style="font-size:9px; color:var(--muted);">AI Mentions</div>
+                  </div>
+                  <div>
+                    <div style="font-size:14px; font-weight:800; color:#10b981;">${v2.breakdown.traffic}%</div>
+                    <div style="font-size:9px; color:var(--muted);">Traffic</div>
+                  </div>
+                </div>
+                <div style="font-size:10px; color:var(--accent); margin-top:8px; text-align:center;">
+                  متوسط الترتيب: ${v2.avg_rank || 'N/A'}
+                </div>
+              </div>
+            `;
+          }
+
+          document.getElementById('geoScore').innerHTML =
+            `الدرجة الكلية: <strong style="color:${color};font-size:28px">${v2.score}%</strong>
+             <div style="color:var(--muted);font-size:13px;margin-top:6px">الحالة: ${g.status}</div>
+             ${breakdownHtml}`;
+        }
+
+        if (j.competitor_insight && (j.competitor_insight.industry || j.competitor_insight.monthly_visits || j.competitor_insight.top_competitors)) {
+          const ci = j.competitor_insight;
+          let html = `<div style="margin-bottom:15px;">
+            <div style="font-size:12px; color:var(--accent); font-weight:700;">الصناعة: ${ci.industry}</div>
+            <div style="font-size:18px; font-weight:800; color:#fff; margin-top:4px;">${ci.monthly_visits} زيارة شهرياً</div>
+            <div style="font-size:11px; color:var(--muted);">(تقديرات مبنية على بيانات حقيقية)</div>
+          </div>`;
+
+          // Traffic Sources
+          html += `<div style="margin-bottom:20px;">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">مصادر الزوار (Traffic Sources):</div>
+            <div style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--surface2);">
+              <div style="width:${ci.traffic_sources.search}%; background:#7c3aed;" title="Search"></div>
+              <div style="width:${ci.traffic_sources.direct}%; background:#3b82f6;" title="Direct"></div>
+              <div style="width:${ci.traffic_sources.social}%; background:#10b981;" title="Social"></div>
+              <div style="width:${ci.traffic_sources.referral}%; background:#f59e0b;" title="Referral"></div>
+            </div>
+          </div>`;
+
+          // Top Competitors
+          if (ci.top_competitors && ci.top_competitors.length > 0) {
+            html += `<div style="font-size:11px; color:var(--muted); margin-bottom:10px;">أهم المنافسين (Top Competitors):</div>`;
+            ci.top_competitors.forEach(c => {
+              const overlap = c.overlap_score || c.similarity || 0;
+              html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:6px; margin-bottom:6px; border:1px solid rgba(255,255,255,0.05);">
+                <div>
+                  <div style="font-size:13px; font-weight:600; color:#fff;">${c.name}</div>
+                  <div style="font-size:10px; color:var(--muted);">${c.domain}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:12px; font-weight:800; color:var(--accent);">${overlap}%</div>
+                  <div style="font-size:9px; color:var(--muted);">Overlap Score</div>
+                </div>
+              </div>`;
+            });
+          }
+
+          // Regional Split
+          if (ci.regional_split && ci.regional_split.length > 0) {
+            html += `<div style="margin-top:20px;">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:10px;">التوزيع الجغرافي (Regional Split):</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">`;
+            ci.regional_split.forEach(r => {
+              html += `<div style="font-size:11px; color:#ddd; display:flex; justify-content:space-between;">
+                <span>${r.country}</span>
+                <span style="color:var(--accent);">${r.share}%</span>
+              </div>`;
+            });
+            html += `</div></div>`;
+          }
+
+          // Real Rankings
+          if (ci.seo_rankings && ci.seo_rankings.length > 0) {
+            html += `<div style="margin-top:20px;">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:10px;">نتائج البحث الحقيقية (Real Ranking):</div>`;
+            ci.seo_rankings.forEach(r => {
+                html += `<div style="font-size:11px; margin-bottom:4px; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                  <span style="color:var(--accent); font-weight:bold;">#${r.rank}</span> · ${r.query}
+                </div>`;
+            });
+            html += `</div>`;
+          }
+
+          document.getElementById('competitorInsight').innerHTML = html;
+        }
+
+        document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+      } catch(e) { s.textContent = 'Request failed: ' + e.message; }
+    });
+
+    document.getElementById('keywordsBtn').addEventListener('click', async () => {
+      const out = document.getElementById('keywordsOut');
+      const url = document.getElementById('url').value;
+      if (!url) { out.textContent = 'Enter a URL first.'; return; }
+      out.textContent = '⏳ Fetching keywords...';
+      try {
+        const r = await fetch('/api/keywords', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ url, max_pages: 1 }) });
+        const j = await r.json();
+        if (!j.ok) { out.textContent = 'Error: ' + (j.error||JSON.stringify(j)); return; }
+        out.textContent = '✅ Keywords extracted — check Jobs for full results.';
+      } catch(e) { out.textContent = 'Request failed: ' + e.message; }
+    });
+
+    // smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+
+    setInterval(loadResults, 10000);
   </script>
 </body>
-
 </html>

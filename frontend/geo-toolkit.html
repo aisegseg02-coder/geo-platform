@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أدوات GEO المجانية — Zaher AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<style>
+  :root {
+    --bg: #050a12;
+    --surface: #0c1420;
+    --surface2: #111c2e;
+    --border: #1a2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --text: #e2eaf4;
+    --muted: #5a7a99;
+    --danger: #ef4444;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none; z-index:0;
+  }
+
+  .container { max-width:1100px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  /* NAV */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    gap: 20px;
+  }
+  .nav-links a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover {
+    color: var(--accent);
+  }
+
+  /* HEADER */
+  header {
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+    text-align: center;
+  }
+  .header-tag {
+    display:inline-flex; align-items:center; gap:8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--accent);
+    padding: 4px 14px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .header-tag::before { content:'◆'; font-size:8px; }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px,5vw,56px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 600px;
+    line-height: 1.8;
+    margin: 0 auto;
+  }
+  .stats-row {
+    display: flex; gap: 32px;
+    margin-top: 32px; flex-wrap: wrap;
+    justify-content: center;
+  }
+  .stat { display:flex; flex-direction:column; gap:4px; }
+  .stat-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:var(--accent); }
+  .stat-lbl { font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+
+  /* TABS */
+  .tabs {
+    display:flex; gap:4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px;
+    margin-bottom: 36px;
+    overflow-x: auto;
+  }
+  .tab {
+    flex:1; min-width:120px;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family:'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor:pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: #000;
+  }
+  .tab:hover:not(.active) { color: var(--accent); }
+
+  /* PANEL */
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family:'Syne',sans-serif;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:24px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* TOOL CARDS */
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; margin-bottom:40px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position:relative;
+    overflow:hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor:default;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-10px) rotateX(5deg) rotateY(-2deg);
+    box-shadow: 0 20px 40px rgba(0, 242, 255, 0.1);
+  }
+  .card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background: var(--card-accent, var(--accent));
+    transform: translateZ(20px);
+  }
+  .card h3 { 
+    font-family:'Cairo', sans-serif; 
+    font-size:18px; 
+    font-weight:800; 
+    margin-bottom:12px;
+    transform: translateZ(30px);
+  }
+  .card p { 
+    font-size:14px; 
+    color:var(--muted); 
+    line-height:1.6; 
+    margin-bottom:14px;
+    transform: translateZ(25px);
+  }
+  .badge {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transform: translateZ(40px);
+  }
+  .badge.free { background: var(--accent3); color: #000; }
+  .badge.python { background: var(--accent4); color: #000; }
+  .badge.api { background: var(--accent2); color: #fff; }
+  .badge.js { background: #f97316; color: #fff; }
+
+  .card-link {
+    font-size:12px; color:var(--accent); text-decoration:none;
+    border-bottom:1px solid rgba(0,212,255,0.3);
+    padding-bottom:1px;
+    display:inline-block;
+    font-weight: 700;
+    transform: translateZ(35px);
+  }
+  .card-link:hover { border-color:var(--accent); }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #060e18;
+    border: 1px solid var(--border);
+    border-right: 3px solid var(--accent);
+    border-left: none;
+    padding: 20px 24px;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    position:relative;
+    font-family: 'IBM Plex Mono', monospace;
+    direction: ltr; /* Code is always LTR */
+  }
+  .code-block .comment { color: #3a5a78; }
+  .code-block .keyword { color: var(--accent2); }
+  .code-block .string { color: var(--accent3); }
+  .code-block .fn { color: var(--accent); }
+  .code-block .num { color: var(--accent4); }
+  .copy-btn {
+    position:absolute; top:10px; left:10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family:'Cairo', sans-serif;
+    font-size:11px;
+    padding: 4px 12px;
+    cursor:pointer;
+  }
+  .copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+
+  /* PIPELINE */
+  .pipeline {
+    display:flex; align-items:stretch; gap:0;
+    margin-bottom:32px; overflow-x:auto;
+    border: 1px solid var(--border);
+  }
+  .pipe-step {
+    flex:1; min-width:160px;
+    padding: 24px 16px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    border-right: none;
+    text-align:center;
+    position:relative;
+    transition: background 0.3s;
+  }
+  .pipe-step:last-child { border-left:none; }
+  .pipe-step:hover { background:var(--surface2); }
+  .pipe-num {
+    font-size:10px; color:var(--muted);
+    letter-spacing:2px; margin-bottom:8px; display:block;
+  }
+  .pipe-label { font-family:'Cairo', sans-serif; font-size:15px; font-weight:800; margin-bottom:6px; }
+  .pipe-tool { font-size:12px; color:var(--accent); }
+  .pipe-arrow {
+    position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    color:var(--accent); font-size:16px; z-index:2;
+    background: var(--bg);
+    padding: 2px;
+  }
+  .pipe-step:last-child .pipe-arrow { display:none; }
+
+  /* CHECKLIST */
+  .checklist { display:flex; flex-direction:column; gap:12px; margin-bottom:32px; }
+  .check-item {
+    display:flex; align-items:flex-start; gap:16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    transition: all 0.3s;
+    cursor:pointer;
+  }
+  .check-item:hover { border-color:var(--accent3); background: rgba(16,185,129,0.05); }
+  .check-box {
+    width:22px; height:22px; border:2px solid var(--muted);
+    flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center;
+    transition: all 0.2s;
+    font-weight: 800;
+  }
+  .check-item.done .check-box { background:var(--accent3); border-color:var(--accent3); color:#000; }
+  .check-content h4 { font-family:'Cairo', sans-serif; font-size:16px; font-weight:800; margin-bottom:6px; }
+  .check-content p { font-size:13px; color:var(--muted); line-height:1.7; }
+
+  /* COMPARE TABLE */
+  .compare-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:32px; text-align: right; }
+  .compare-table th {
+    background:var(--surface2); padding:16px;
+    border:1px solid var(--border);
+    font-family:'Cairo', sans-serif; font-size:14px; font-weight: 800; color:var(--muted);
+  }
+  .compare-table td {
+    padding:16px; border:1px solid var(--border);
+    background: var(--surface);
+    line-height:1.6;
+  }
+  .compare-table tr:hover td { background:var(--surface2); }
+  .yes { color:var(--accent3); font-weight: 800; }
+  .no { color:var(--danger); }
+  .partial { color:var(--accent4); }
+
+  /* ALERT BOX */
+  .alert {
+    border-right:4px solid var(--accent4);
+    border-left: none;
+    background: rgba(245,158,11,0.06);
+    padding:20px;
+    font-size:14px;
+    line-height:1.8;
+    margin-bottom:32px;
+    color:#e5c07b;
+  }
+  .alert strong { color:var(--accent4); display:block; margin-bottom:8px; font-weight: 800; }
+
+  /* ARABIC TAG */
+  .arabic-badge {
+    display:inline-block;
+    font-family:'Cairo',sans-serif;
+    background:rgba(124,58,237,0.15);
+    border:1px solid rgba(124,58,237,0.4);
+    color:#a78bfa;
+    padding:6px 16px;
+    font-size:14px;
+    margin:6px;
+    font-weight: 600;
+    border-radius: 20px;
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top:60px; padding:40px 0;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:20px;
+    font-size:12px; color:var(--muted);
+  }
+  .footer-brand { font-family:'Syne',sans-serif; font-weight:800; color:var(--accent); }
+
+  @media (max-width:600px) {
+    .pipeline { flex-direction:column; }
+    .pipe-step { border-left:none; border-bottom:1px solid var(--border); }
+    .pipe-arrow { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav>
+    <div class="nav-logo">GEO<span>.</span>AI</div>
+    <div class="nav-links">
+      <a href="/jobs.html">المهام</a>
+      <a href="/recommendations.html">التوصيات</a>
+      <a href="/search.html">تحليل البحث</a>
+      <a href="/content_v2.html">المحتوى</a>
+      <a href="/ads.html">الإعلانات</a>
+      <a href="/geo-toolkit.html" style="color:var(--accent)">خدمات GEO</a>
+    </div>
+    <a href="/" class="nav-cta" style="color:var(--accent); text-decoration:none; font-weight:800;">الرئيسية</a>
+  </nav>
+
+  <header>
+    <div class="header-tag">مجموعة أدوات تكامل GEO</div>
+    <h1>أدوات مجانية لبناء<br>منصة الـ GEO الخاصة بك</h1>
+    <p class="subtitle">
+      خارطة طريق تقنية شاملة لدمج قدرات تحسين محركات البحث التوليدية (GEO) في مشروعك — أدوات مجانية ومفتوحة المصدر بنسبة 100%.
+    </p>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-val">9</span><span class="stat-lbl">أدوات مجانية</span></div>
+      <div class="stat"><span class="stat-val">5</span><span class="stat-lbl">محركات ذكاء</span></div>
+      <div class="stat"><span class="stat-val">3</span><span class="stat-lbl">وصفات برمجية</span></div>
+      <div class="stat"><span class="stat-val">100%</span><span class="stat-lbl">مفتوح المصدر</span></div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tools')">🛠 أدوات مجانية</button>
+    <button class="tab" onclick="switchTab('pipeline')">⚡ خط الإنتاج</button>
+    <button class="tab" onclick="switchTab('code')">💻 أكواد جاهزة</button>
+    <button class="tab" onclick="switchTab('audit')">🔍 قائمة الفحص</button>
+    <button class="tab" onclick="switchTab('arabic')">🌐 GEO باللغة العربية</button>
+  </div>
+
+  <!-- PANEL: FREE TOOLS -->
+  <div id="panel-tools" class="panel active">
+    <div class="section-title">ظهور الذكاء الاصطناعي والزحف</div>
+    <div class="cards-grid">
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <span class="badge free">مجاني</span>
+        <h3>Scrapy + Playwright</h3>
+        <p>قم بالزحف إلى موقعك واستخراج المحتوى، العناوين، والبيانات المنظمة. حدد النقص في وسوم Schema والمحتوى الضعيف الذي يتجاهله الذكاء الاصطناعي.</p>
+        <a href="https://scrapy.org" class="card-link" target="_blank">scrapy.org ←</a>
+      </div>
+
+      <div class="card" style="--card-accent:#7c3aed;">
+        <span class="badge python">PYTHON</span>
+        <h3>مدقق وسوم Schema</h3>
+        <p>استخدم API اختبار النتائج الغنية من جوجل + مكتبة schema.org للتحقق وتوليد بيانات JSON-LD المنظمة — الإشارة رقم 1 لمحركات الذكاء الاصطناعي.</p>
+        <a href="https://schema.org" class="card-link" target="_blank">schema.org ←</a>
+      </div>
+
+      <div class="card" style="--card-accent:#10b981;">
+        <span class="badge free">API مجاني</span>
+        <h3>Perplexity API</h3>
+        <p>استخدم API الخاص بـ Perplexity AI للتحقق مما إذا كانت علامتك التجارية تظهر في إجابات الذكاء الاصطناعي. أتمتة تتبع نقاط الظهور عبر المواضيع.</p>
+        <a href="https://docs.perplexity.ai" class="card-link" target="_blank">docs.perplexity.ai →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#f59e0b;">
+        <span class="badge python">PYTHON</span>
+        <h3>spaCy NLP (استخراج الكيانات)</h3>
+        <p>مكتبة معالجة لغات رقمية لاستخراج الكيانات — أشخاص، منظمات، منتجات. اربط الكيانات بـ Wikidata لتحسين الرسوم البيانية للمعرفة.</p>
+        <a href="https://spacy.io" class="card-link" target="_blank">spacy.io →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <span class="badge free">مجاني</span>
+        <h3>Wikidata SPARQL API</h3>
+        <p>وصول مجاني إلى رسوم Wikidata البيانية. تحقق من وجود علامتك التجارية، وقم بإثرائها. ضروري للاقتباس وتوثيق المعرفة في الذكاء الاصطناعي.</p>
+        <a href="https://query.wikidata.org" class="card-link" target="_blank">query.wikidata.org →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#7c3aed;">
+        <span class="badge api">API</span>
+        <h3>Google Search Console API</h3>
+        <p>تتبع الظهور العضوي، وظهور AI Overviews، ومعدلات النقر. استخدم هذه البيانات كخط أساس لدرجات ظهور الذكاء الاصطناعي الخاصة بك.</p>
+        <a href="https://developers.google.com/webmaster-tools" class="card-link" target="_blank">developers.google.com →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#10b981;">
+        <span class="badge js">JS</span>
+        <h3>Cheerio / Puppeteer</h3>
+        <p>أدوات Node.js لفحص بنية المحتوى. تحقق من تسلسل العناوين، كثافة الفقرات، ووجود الأسئلة الشائعة — كل هذه إشارات تستخدمها المحركات لاستخراج الإجابات.</p>
+        <a href="https://cheerio.js.org" class="card-link" target="_blank">cheerio.js.org →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#f59e0b;">
+        <span class="badge free">مجاني</span>
+        <h3>Ollama (اختبار محلي)</h3>
+        <p>شغل LLaMA و Mistral محلياً مجاناً. اختبر كيف يتم معالجة محتواك واقتباسه بواسطة الذكاء الاصطناعي دون تكاليف الـ API.</p>
+        <a href="https://ollama.ai" class="card-link" target="_blank">ollama.ai →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <span class="badge free">مجاني</span>
+        <h3>Apache Superset</h3>
+        <p>أداة ذكاء أعمال مفتوحة المصدر لبناء لوحة ظهور الذكاء الاصطناعي. تصور تكرار الاقتباسات، ترصد الدرجات، ومقارنات المنافسين.</p>
+        <a href="https://superset.apache.org" class="card-link" target="_blank">superset.apache.org →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANEL: PIPELINE -->
+  <div id="panel-pipeline" class="panel">
+    <div class="section-title">معمارية منصة الـ GEO</div>
+
+    <div class="alert">
+      <strong>⚡ كيف يعمل النظام</strong>
+      هذا هو خط الإنتاج الكامل لمحاكاة الوظائف الأساسية لمنصة Zaher AI. كل خطوة تترجم إلى خدمة حقيقية — مبنية بالكامل بأدوات مفتوحة المصدر.
+    </div>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <span class="pipe-num">خطوة 01</span>
+        <div class="pipe-label">زحف المحتوى</div>
+        <div class="pipe-tool">Scrapy + Playwright</div>
+        <span class="pipe-arrow">←</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">خطوة 02</span>
+        <div class="pipe-label">تدقيق المحتوى</div>
+        <div class="pipe-tool">spaCy + Cheerio</div>
+        <span class="pipe-arrow">←</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">خطوة 03</span>
+        <div class="pipe-label">توليد Schema</div>
+        <div class="pipe-tool">schema.org + JSON-LD</div>
+        <span class="pipe-arrow">←</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">خطوة 04</span>
+        <div class="pipe-label">اختبار الاستعلام</div>
+        <div class="pipe-tool">Perplexity + Ollama</div>
+        <span class="pipe-arrow">←</span>
+      </div>
+      <div class="pipe-step">
+        <span class="pipe-num">خطوة 05</span>
+        <div class="pipe-label">الدرجات والتقارير</div>
+        <div class="pipe-tool">Superset + Python</div>
+      </div>
+    </div>
+
+    <div class="section-title">مخطط الخدمات والأدوات</div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>خدمة Zaher AI</th>
+          <th>الأداة المجانية المكافئة</th>
+          <th>التكلفة</th>
+          <th>دعم اللغة العربية</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>تدقيق GEO</strong></td>
+          <td>Scrapy + spaCy + Cheerio</td>
+          <td class="yes">مجاني</td>
+          <td class="yes">✓ نعم</td>
+        </tr>
+        <tr>
+          <td><strong>درجة ظهور AI</strong></td>
+          <td>Perplexity API + Python scoring</td>
+          <td class="yes">باقة مجانية</td>
+          <td class="partial">جزئي</td>
+        </tr>
+        <tr>
+          <td><strong>تحسين الـ Schema</strong></td>
+          <td>schema.org + Google Rich Results API</td>
+          <td class="yes">مجاني</td>
+          <td class="yes">✓ نعم</td>
+        </tr>
+        <tr>
+          <td><strong>الكيانات والرسوم البيانية</strong></td>
+          <td>Wikidata SPARQL + spaCy NER</td>
+          <td class="yes">مجاني</td>
+          <td class="partial">محدود</td>
+        </tr>
+        <tr>
+          <td><strong>اختبار إجابات AI</strong></td>
+          <td>Ollama (نموذج محلي)</td>
+          <td class="yes">مجاني</td>
+          <td class="partial">جزئي</td>
+        </tr>
+        <tr>
+          <td><strong>لوحة تحليل البيانات</strong></td>
+          <td>Apache Superset</td>
+          <td class="yes">مجاني</td>
+          <td class="yes">✓ نعم</td>
+        </tr>
+        <tr>
+          <td><strong>مقارنة المنافسين</strong></td>
+          <td>GSC API + سكربتات Python</td>
+          <td class="yes">مجاني</td>
+          <td class="yes">✓ نعم</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PANEL: CODE RECIPES -->
+  <div id="panel-code" class="panel">
+    <div class="section-title">الوصفة 1 — فحص ظهور الذكاء الاصطناعي</div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+      <pre><span class="comment"># Check if your brand appears in Perplexity AI answers</span>
+<span class="comment"># pip install requests</span>
+
+<span class="keyword">import</span> requests, json
+
+<span class="fn">def</span> check_ai_visibility(brand_name, queries):
+    headers = {
+        <span class="string">"Authorization"</span>: <span class="string">f"Bearer YOUR_PERPLEXITY_KEY"</span>,
+        <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>
+    }
+    results = []
+    <span class="keyword">for</span> query <span class="keyword">in</span> queries:
+        response = requests.post(
+            <span class="string">"https://api.perplexity.ai/chat/completions"</span>,
+            headers=headers,
+            json={
+                <span class="string">"model"</span>: <span class="string">"sonar"</span>,
+                <span class="string">"messages"</span>: [{<span class="string">"role"</span>:<span class="string">"user"</span>, <span class="string">"content"</span>:query}]
+            }
+        )
+        answer = response.json()[<span class="string">"choices"</span>][<span class="num">0</span>][<span class="string">"message"</span>][<span class="string">"content"</span>]
+        mentioned = brand_name.lower() <span class="keyword">in</span> answer.lower()
+        results.append({<span class="string">"query"</span>: query, <span class="string">"mentioned"</span>: mentioned, <span class="string">"answer"</span>: answer})
+    
+    score = sum(<span class="num">1</span> <span class="keyword">for</span> r <span class="keyword">in</span> results <span class="keyword">if</span> r[<span class="string">"mentioned"</span>]) / len(results) * <span class="num">100</span>
+    <span class="keyword">return</span> {<span class="string">"brand"</span>: brand_name, <span class="string">"visibility_score"</span>: score, <span class="string">"details"</span>: results}</pre>
+    </div>
+
+    <div class="section-title">الوصفة 2 — مولد Schema التلقائي</div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+      <pre><span class="comment"># Generate AI-optimized schema markup for any page</span>
+<span class="comment"># pip install beautifulsoup4 requests</span>
+
+<span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup
+<span class="keyword">import</span> requests, json
+
+<span class="fn">def</span> generate_schema(url, org_name, org_url):
+    soup = BeautifulSoup(requests.get(url).text, <span class="string">"html.parser"</span>)
+    faqs = []
+    <span class="keyword">for</span> h3 <span class="keyword">in</span> soup.find_all(<span class="string">"h3"</span>):
+        answer = h3.find_next_sibling(<span class="string">"p"</span>)
+        <span class="keyword">if</span> answer:
+            faqs.append({
+                <span class="string">"@type"</span>: <span class="string">"Question"</span>,
+                <span class="string">"name"</span>: h3.get_text(strip=True),
+                <span class="string">"acceptedAnswer"</span>: { <span class="string">"@type"</span>: <span class="string">"Answer"</span>, <span class="string">"text"</span>: answer.get_text(strip=True) }
+            })
+    
+    schema = {
+        <span class="string">"@context"</span>: <span class="string">"https://schema.org"</span>,
+        <span class="string">"@graph"</span>: [
+            { <span class="string">"@type"</span>: <span class="string">"Organization"</span>, <span class="string">"name"</span>: org_name, <span class="string">"url"</span>: org_url },
+            { <span class="string">"@type"</span>: <span class="string">"FAQPage"</span>, <span class="string">"mainEntity"</span>: faqs }
+        ]
+    }
+    <span class="keyword">return</span> f<span class="string">'&lt;script type="application/ld+json"&gt;\n{json.dumps(schema, indent=2, ensure_ascii=False)}\n&lt;/script&gt;'</span></pre>
+    </div>
+  </div>
+
+  <!-- PANEL: AUDIT CHECKLIST -->
+  <div id="panel-audit" class="panel">
+    <div class="section-title">قائمة فحص GEO — 12 خطوة</div>
+    <div class="checklist" id="checklist">
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">✓</div>
+        <div class="check-content">
+          <h4>1. إضافة وسوم Schema للمنظمة</h4>
+          <p>يجب أن تحتوي كل صفحة على بيانات Organization مع الاسم والرابط. هذا هو مفتاح تعريف علامتك التجارية للمحركات.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>2. إنشاء Schema للأسئلة الشائعة</h4>
+          <p>بيانات FAQ هي الإشارة الأولى لاستخراج الإجابات. استخدم عناوين H3 متبوعة بفقرات شرح.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>3. إضافة Schema لخطوات العمل (HowTo)</h4>
+          <p>المحتوى التعليمي المنظم يظهر مباشرة في إجابات ChatGPT و Google AI Overviews.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>4. التحقق من وجود الكيان في Wikidata</h4>
+          <p>تحقق مما إذا كانت شركتك موجودة في Wikidata. إذا لم تكن موجودة، فأنشئها لتعزيز موثوقية علامتك.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>5. كتابة محتوى تعريفي "ما هو X؟"</h4>
+          <p>محركات الذكاء الاصطناعي تعشق التعريفات المباشرة. اكتب فقرة تعريفية واضحة لكل موضوع رئيسي.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>6. التحسين لصيغة الإجابة المباشرة</h4>
+          <p>ابدأ الفقرات بإجابات محددة. المحركات تفضل المحتوى الذي يجيب في أول 40-60 كلمة.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>7. ربط العلامة التجارية بمصادر الموثوقية</h4>
+          <p>اربط علامتك بـ LinkedIn و Wikipedia وقواعد بيانات الصناعة من خلال حقل sameAs في Schema.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>8. اختبار معدل الاقتباس المبدئي</h4>
+          <p>اختبر علامتك تجريبياً في ChatGPT و Gemini. سجل النتائج قبل البدء في التحسين.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>9. تدقيق تسلسل العناوين (H1←H2←H3)</h4>
+          <p>التسلسل الصحيح يساعد المحركات على فهم بنية الصفحة واستخراج المعلومات بسهولة.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>10. إضافة وسوم اللغة (hreflang)</h4>
+          <p>لظهور أفضل في منطقة الشرق الأوسط، تأكد من وجود وسوم "ar" و "ar-eg" الصحيحة.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>11. تهيئة ملف robots.txt للزواحف الذكية</h4>
+          <p>لا تحظر GPTBot أو PerplexityBot. تحتاج هذه المحركات للزحف لمحتواك حتى تتمكن من اقتباسه.</p>
+        </div>
+      </label>
+      <label class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <h4>12. تحديث خارطة الموقع (Sitemap)</h4>
+          <p>أبقِ خارطة موقعك محدثة دائماً لتسهيل اكتشاف المحتوى الجديد من قبل محركات البحث.</p>
+        </div>
+      </label>
+    </div>
+    <div id="progress-display" style="font-size:14px; color:var(--accent); margin-top:10px; font-weight:700;"></div>
+  </div>
+
+  <!-- PANEL: ARABIC GEO -->
+  <div id="panel-arabic" class="panel">
+    <div class="section-title">GEO باللغة العربية — تقنيات رئيسية</div>
+
+    <div class="alert">
+      <strong>🌐 فرصة المحتوى العربي</strong>
+      المحتوى العربي يعاني من ضعف حاد في بيانات تدريب الذكاء الاصطناعي. هذا هو سر تميز Zaher AI — وهو متاح لك من خلال أدوات مجانية.
+    </div>
+
+    <div class="section-title">كلمات الكيانات والـ Schema بالعربية</div>
+    <div style="margin-bottom:28px; line-height:2.5; text-align: center;">
+      <span class="arabic-badge">تحسين محركات البحث</span>
+      <span class="arabic-badge">ذكاء اصطناعي</span>
+      <span class="arabic-badge">تحسين محركات الذكاء</span>
+      <span class="arabic-badge">مرئية الذكاء الاصطناعي</span>
+      <span class="arabic-badge">محتوى عربي</span>
+      <span class="arabic-badge">نتائج الذكاء الاصطناعي</span>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card" style="--card-accent:#7c3aed;">
+        <span class="badge free">مجاني</span>
+        <h3>CAMeL Tools</h3>
+        <p>مكتبة NLP عربية مجانية من جامعة نيويورك أبوظبي. تعالج التحليل الصرفي والتعرف على الكيانات — ضرورية لـ GEO العربي.</p>
+        <a href="https://github.com/CAMeL-Lab/camel_tools" class="card-link" target="_blank">CAMeL-Lab/camel_tools →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#00d4ff;">
+        <span class="badge python">PYTHON</span>
+        <h3>AraBERT</h3>
+        <p>نموذج BERT عربي مدرب مسبقاً. استخدمه لفهم كيفية معالجة الأنظمة الذكية لمحتواك العربي وتحسين التشابه الدلالي.</p>
+        <a href="https://huggingface.co/aubmindlab/bert-base-arabertv2" class="card-link" target="_blank">AraBERT →</a>
+      </div>
+
+      <div class="card" style="--card-accent:#10b981;">
+        <span class="badge free">مجاني</span>
+        <h3>قوالب Schema عربية</h3>
+        <p>تدعم Schema لغتنا الأم. استخدم inLanguage: "ar" في جميع الكائنات. أضف أسماء بديلة بالعربية في alternateName.</p>
+        <a href="https://schema.org/inLanguage" class="card-link" target="_blank">المستندات الرسمية →</a>
+      </div>
+    </div>
+
+    <div class="section-title">ملف robots.txt — السماح بالزحف</div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+      <pre>User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /</pre>
+    </div>
+  </div>
+
+  <footer>
+    <span>مطوّر لتكامل <span class="footer-brand">Zaher AI</span></span>
+    <span>جميع الأدوات المذكورة مجانية ومفتوحة المصدر</span>
+    <span style="color:var(--accent3);">مجموعة أدوات GEO v1.0</span>
+  </footer>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = ['tools','pipeline','code','audit','arabic'];
+  const idx = tabs.indexOf(name);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  if (el.classList.contains('done')) {
+    el.querySelector('.check-box').textContent = '✓';
+  } else {
+    el.querySelector('.check-box').textContent = '';
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = document.querySelectorAll('.check-item.done').length;
+  const total = document.querySelectorAll('.check-item').length;
+  const pct = Math.round(done/total*100);
+  document.getElementById('progress-display').textContent =
+    `التقدم: تم إكمال ${done}/${total} (${pct}% جاهزية لـ GEO)`;
+}
+
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'تم النسخ!';
+    setTimeout(() => btn.textContent = 'نسخ', 2000);
+  });
+}
+
+// Init first check as done
+document.querySelector('.check-item').classList.add('done');
+document.querySelector('.check-item .check-box').textContent = '✓';
+updateProgress();
+</script>
+</body>
+</html>

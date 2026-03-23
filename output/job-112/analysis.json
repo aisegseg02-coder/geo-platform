@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-77dc7908-3ce4-47a0-8399-cf70d7fa6bdd')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"title\": \"Rabhanagency - أفضل شركة تسويق في السعودية\",\\n  \"url\": \"https://rabhanagency.com/\",\\n  \"text\": \"Rabhanagency\",\\n  \"duplicate\": true\\n}\\n```\\n\\nNote: The `duplicate` field is added to indicate that the two URLs have the same title and text, suggesting they may be duplicates or variations of the same page.', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774256538)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_d9492c3c54')('usage', CompletionUsage(completion_tokens=88, prompt_tokens=106, total_tokens=194, completion_time=0.132198424, completion_tokens_details=None, prompt_time=0.006459052, prompt_tokens_details=None, queue_time=0.045286205, total_time=0.138657476))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmcywgcwfdpa3256e8cz58hc', debug=None, seed=1595973791, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 21,
+    "status": "Critical",
+    "breakdown": {
+      "headings": 0,
+      "density": 1,
+      "entities": 20,
+      "faq": 0,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 2,
+      "warnings": 0,
+      "passed": 0
+    }
+  }
+}

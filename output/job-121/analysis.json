@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "openai": {
+      "enabled": true,
+      "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n"
+    },
+    "groq": {
+      "enabled": true,
+      "raw": "('id', 'chatcmpl-7ed34a31-38b7-4ded-abf2-745170a5e2cc')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n[\\n  {\\n    \"TITLE\": \"محرك - Mohrek\",\\n    \"URL\": \"https://mohrek.com/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  },\\n  {\\n    \"TITLE\": \"من نحن | محرك\",\\n    \"URL\": \"https://mohrek.com/%d9%85%d9%86-%d9%86%d8%ad%d9%86-%d9%85%d8%ad%d8%b1%d9%83/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  },\\n  {\\n    \"TITLE\": \"المدونة - محرك - Mohrek\",\\n    \"URL\": \"https://mohrek.com/%d8%a7%d9%84%d9%85%d8%af%d9%88%d9%86%d8%a9-2/\",\\n    \"TEXT\": \"محرك – Mohrek\"\\n  }\\n]\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774263708)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_e09ee421cf')('usage', CompletionUsage(completion_tokens=203, prompt_tokens=199, total_tokens=402, completion_time=0.230948787, completion_tokens_details=None, prompt_time=0.013283567, prompt_tokens_details=None, queue_time=0.046245488, total_time=0.244232354))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmd5qa8kej6tfd0fvc8251pd', debug=None, seed=1399826241, usage=None))",
+      "parse_error": "No JSON found in LLM response"
+    }
+  },
+  "geo_score": {
+    "score": 62,
+    "status": "Needs Work",
+    "breakdown": {
+      "headings": 13,
+      "density": 9,
+      "entities": 20,
+      "faq": 20,
+      "ai_visibility": 0
+    },
+    "counts": {
+      "critical": 1,
+      "warnings": 2,
+      "passed": 0
+    }
+  }
+}

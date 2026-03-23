@@ -33,17 +33,57 @@ RECS_CONTENT = {
         'ai_visibility': 'تحسين الظهور في الذكاء الاصطناعي: أنشئ محتوى تعريفياً قصيراً (Definitional Content) يسهل على النماذج مثل ChatGPT وPerplexity اقتباسه.',
         'h1_missing': 'إضافة عنوان H1: أضف عنواناً رئيسياً واضحاً يحتوي على الكلمة المفتاحية واسم العلامة التجارية.',
         'short_paras': 'تطوير الفقرات: اجعل الفقرة الأولى تبدأ بإجابة مباشرة ومختصرة لزيادة احتمالية الاقتباس.',
-        'thin_content': 'محتوى ضيق: أضف فقرات تعريفية وبيانات منظمة للمؤسسة (Organization Schema).'
+        'thin_content': 'محتوى ضيق: أضف فقرات تعريفية وبيانات منظمة للمؤسسة (Organization Schema).',
+        'critical_no_vis': {
+            'title': ' Critical Issue: No AI Visibility',
+            'why': 'Your brand is not recognized in AI answers',
+            'fix': ['Add definition paragraph', 'Add FAQ', 'Add competitor comparison'],
+            'impact': '+30% AI visibility',
+            'tasks': [
+                {'type': 'faq', 'label': 'توليد أسئلة FAQ ذكية', 'id': 'fix_faq'},
+                {'type': 'generate', 'label': 'إنشاء نص تعريفي (Authority)', 'id': 'fix_def'},
+                {'type': 'generate', 'label': 'مقارنة مع المنافسين', 'id': 'fix_comp'}
+            ]
+        },
+        'summary_engine': {
+            'current': 'SEO + Audit',
+            'target': 'AI Growth Engine',
+            'title': ' الخلاصة'
+        },
+        'top_5_additions': {
+            'title': ' أهم 5 إضافات لازم تبدأ بيهم فورًا',
+            'items': [
+                'AI Citation Generator',
+                'AI Query Coverage',
+                'Competitor AI Gap',
+                'Entity Authority Builder',
+                'Predictive Impact Score'
+                # These could also have IDs if we wanted to make them clickable later
+            ]
+        }
     },
     'en': {
-        'headings': 'Fix heading hierarchy: Ensure one H1 per page and incremental H2 → H3 structure for better indexing.',
-        'density': 'Increase content depth: Aim for 40–120 words in core paragraphs with direct, readable answers.',
-        'entities': 'Add named entities: Clearly mention Organizations, People, and Products and link them via Schema.',
-        'faq': 'Create FAQ sections: Use FAQPage JSON-LD to increase chances of being featured in AI search results.',
-        'ai_visibility': 'Optimize for AI: Create short, authoritative definitions of your services to encourage LLM citations.',
+        'headings': {'text': 'Fix heading hierarchy: Ensure one H1 per page and incremental H2 → H3 structure for better indexing.', 'task': 'optimize'},
+        'density': {'text': 'Increase content depth: Aim for 40–120 words in core paragraphs with direct, readable answers.', 'task': 'optimize'},
+        'entities': {'text': 'Add named entities: Clearly mention Organizations, People, and Products and link them via Schema.', 'task': 'semantic'},
+        'faq': {'text': 'Create FAQ sections: Use FAQPage JSON-LD to increase chances of being featured in AI search results.', 'task': 'faq'},
+        'ai_visibility': {'text': 'Optimize for AI: Create short, authoritative definitions of your services to encourage LLM citations.', 'task': 'generate'},
         'h1_missing': 'Add H1 heading: Ensure a clear H1 containing your primary keyword and brand name.',
         'short_paras': 'Expand paragraphs: Lead with a one-sentence "direct answer" to improve AI extraction likelihood.',
-        'thin_content': 'Thin content: Add a definitional paragraph and an Organization JSON-LD block.'
+        'thin_content': 'Thin content: Add a definitional paragraph and an Organization JSON-LD block.',
+        'critical_no_vis': {
+            'title': ' Summary'
+        },
+        'top_5_additions': {
+            'title': ' Top 5 Additions to Start Immediately',
+            'items': [
+                'AI Citation Generator',
+                'AI Query Coverage',
+                'Competitor AI Gap',
+                'Entity Authority Builder',
+                'Predictive Impact Score'
+            ]
+        }
     }
 }
 
@@ -428,6 +468,10 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
             recs['actions'].append(content['faq'])
         if b.get('ai_visibility', 0) < 10:
             recs['actions'].append(content['ai_visibility'])
+            # Inject new rich recommendations
+            recs['critical_issue'] = content['critical_no_vis']
+            recs['summary_engine'] = content['summary_engine']
+            recs['top_additions'] = content['top_5_additions']
 
     # Per-page recommendations
     for p in pages:
