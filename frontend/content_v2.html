@@ -481,6 +481,9 @@
             <div style="margin-top:20px; color:var(--red); font-weight:700; font-size:12px; text-transform:uppercase;">
               مشاكل حرجة</div>
             <div id="opt-issues"></div>
+            <div style="margin-top:20px; color:var(--green); font-weight:700; font-size:12px; text-transform:uppercase;">
+              التوصيات</div>
+            <div id="opt-suggestions" style="margin-top:5px;"></div>
             <div style="margin-top:20px; color:var(--yellow); font-weight:700; font-size:12px; text-transform:uppercase;">
               الإصلاحات المنفذة (GEO Proof)</div>
             <div id="opt-implemented-fixes" style="padding:10px; background:rgba(255,184,0,0.05); border-radius:8px; margin-top:5px;"></div>
@@ -526,7 +529,7 @@
         </div>
 
         <!-- Strategic Analysis Reference -->
-        <div id="smart-analysis-ref" class="hidden" style="margin-top:24px;">
+        <div id="smart-analysis-ref2" class="hidden" style="margin-top:24px;">
           <div class="panel" style="border: 1px solid var(--accent); background: rgba(0, 212, 255, 0.03);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
               <div style="font-weight:800; color:var(--accent); font-size:14px; text-transform:uppercase; letter-spacing:1px;">
@@ -534,7 +537,7 @@
               </div>
               <div id="market-grade-badge" class="badge-accent" style="padding:2px 8px; border-radius:4px; font-size:10px;">B</div>
             </div>
-            <div id="smart-analysis-body" style="font-size:13px; color:var(--text); line-height:1.6;">
+            <div id="smart-analysis-body2" style="font-size:13px; color:var(--text); line-height:1.6;">
               <!-- Dynamic recs show here -->
             </div>
             <div id="strategic-tasks" style="margin-top:15px; display:flex; flex-direction:column; gap:8px;">
@@ -1089,8 +1092,8 @@
     });
 
     function renderStrategicRecs(recs, geo) {
-      const ref = document.getElementById('smart-analysis-ref');
-      const bodyEl = document.getElementById('smart-analysis-body');
+      const ref = document.getElementById('smart-analysis-ref2');
+      const bodyEl = document.getElementById('smart-analysis-body2');
       const taskEl = document.getElementById('strategic-tasks');
       const badge = document.getElementById('market-grade-badge');
 
@@ -1354,7 +1357,7 @@
               }
               
               // Show Analysis Reference in Sidebar
-              const refBody = document.getElementById('smart-analysis-body');
+              const refBody = document.getElementById('smart-analysis-body2');
               const analysisResp = await fetch('/api/analyze', {
                   method: 'POST', headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ job_id: task.jobId })
@@ -1367,7 +1370,7 @@
                     <div style="margin-bottom:8px;"><strong style="color:var(--accent);">Top Competitors:</strong> ${(ci.top_competitors || []).map(c=>c.domain||c).join(', ')}</div>
                     <div><strong style="color:var(--accent);">Opportunity:</strong> ${analysisData.geo_score?.status || 'GEO Optimization Required'}</div>
                   `;
-                  document.getElementById('smart-analysis-ref').classList.remove('hidden');
+                  document.getElementById('smart-analysis-ref2').classList.remove('hidden');
               }
 
               // AUTO-TRIGGER GENERATION
