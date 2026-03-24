@@ -35,10 +35,10 @@ RECS_CONTENT = {
         'short_paras': 'تطوير الفقرات: اجعل الفقرة الأولى تبدأ بإجابة مباشرة ومختصرة لزيادة احتمالية الاقتباس.',
         'thin_content': 'محتوى ضيق: أضف فقرات تعريفية وبيانات منظمة للمؤسسة (Organization Schema).',
         'critical_no_vis': {
-            'title': ' Critical Issue: No AI Visibility',
-            'why': 'Your brand is not recognized in AI answers',
-            'fix': ['Add definition paragraph', 'Add FAQ', 'Add competitor comparison'],
-            'impact': '+30% AI visibility',
+            'title': '⚠️ مشكلة حرجة: لا يوجد ظهور في الذكاء الاصطناعي',
+            'why': 'علامتك التجارية غير معرّفة بشكل كافٍ لنماذج الذكاء الاصطناعي.',
+            'fix': ['أضف فقرة تعريفية سلطوية', 'أضف بيانات منظمة FAQ', 'قارن أداءك مع المنافسين'],
+            'impact': '+30% زيادة في احتمالية الاقتباس',
             'tasks': [
                 {'type': 'faq', 'label': 'توليد أسئلة FAQ ذكية', 'id': 'fix_faq'},
                 {'type': 'generate', 'label': 'إنشاء نص تعريفي (Authority)', 'id': 'fix_def'},
@@ -46,9 +46,9 @@ RECS_CONTENT = {
             ]
         },
         'summary_engine': {
-            'current': 'SEO + Audit',
-            'target': 'AI Growth Engine',
-            'title': ' الخلاصة'
+            'current': 'سيو تقليدي + تدقيق',
+            'target': 'محرك نمو ذكي (AI)',
+            'title': '📊 ملخص الأداء'
         },
         'top_5_additions': {
             'title': ' أهم 5 إضافات لازم تبدأ بيهم فورًا',
@@ -72,6 +72,19 @@ RECS_CONTENT = {
         'short_paras': 'Expand paragraphs: Lead with a one-sentence "direct answer" to improve AI extraction likelihood.',
         'thin_content': 'Thin content: Add a definitional paragraph and an Organization JSON-LD block.',
         'critical_no_vis': {
+            'title': ' Critical Issue: No AI Visibility',
+            'why': 'Your brand is not recognized in AI answers',
+            'fix': ['Add definition paragraph', 'Add FAQ', 'Add competitor comparison'],
+            'impact': '+30% AI visibility',
+            'tasks': [
+                {'type': 'faq', 'label': 'Generate Smart FAQs', 'id': 'fix_faq'},
+                {'type': 'generate', 'label': 'Create Authority Definition', 'id': 'fix_def'},
+                {'type': 'generate', 'label': 'Competitor Comparison', 'id': 'fix_comp'}
+            ]
+        },
+        'summary_engine': {
+            'current': 'SEO + Audit',
+            'target': 'AI Growth Engine',
             'title': ' Summary'
         },
         'top_5_additions': {
@@ -277,6 +290,9 @@ def compute_geo_score(pages: List[dict], audit: dict = None, ai_visibility: dict
     density_scores: List[float] = []
     entity_counts: int = 0
     faq_count: int = 0
+    critical_issues: int = 0
+    warnings: int = 0
+    passed: int = 0
 
     for p in pages:
         if p.get('headings'):
@@ -327,7 +343,7 @@ def compute_geo_score(pages: List[dict], audit: dict = None, ai_visibility: dict
     # AI visibility: compute mention ratio from ai_visibility results if present
     ai_score = 0.0
     if ai_visibility and ai_visibility.get('enabled') and ai_visibility.get('results'):
-        res = ai_visibility.get('results')
+        res = ai_visibility.get('results') or []
         mentions = sum(1 for r in res if r.get('mentioned'))
         ai_score = (mentions / max(1, len(res))) * 20
 
@@ -337,12 +353,9 @@ def compute_geo_score(pages: List[dict], audit: dict = None, ai_visibility: dict
     status = 'Good' if score >= 75 else ('Needs Work' if score >= 40 else 'Critical')
 
     # simple counts for UI
-    critical_issues = 0
-    warnings = 0
-    passed = 0
     for p in pages:
         paras = p.get('paragraphs', [])
-        avg = (sum(len(x.split()) for x in paras) / len(paras)) if paras else 0
+        avg: float = (sum(len(x.split()) for x in paras) / len(paras)) if paras else 0.0
         if not p.get('headings') or avg < 20:
             critical_issues += 1
         elif avg < 40:
@@ -424,13 +437,20 @@ def infer_brand_name(pages: List[dict]) -> str:
     return "Company"
 
 
-def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys: dict = None, ai_analysis_results: dict = None):
+def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys: dict = None, ai_analysis_results: dict = None, extra_context: dict = None):
     """
     Produce actionable recommendations and example schema snippets based on pages and GEO score breakdown.
     Prioritizes results from AI analysis (OpenAI/Groq) if provided.
     """
     api_keys = api_keys or {}
-    recs = {'actions': [], 'per_page': []}
+    extra_context = extra_context or {}
+    recs: dict = {
+        'actions': [], 
+        'per_page': [], 
+        'critical_issue': {}, 
+        'summary_engine': {}, 
+        'top_additions': {}
+    }
 
     # Use AI-driven global suggestions if available
     if ai_analysis_results:
@@ -453,10 +473,21 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
             is_ar = True
             break
     lang = 'ar' if is_ar else 'en'
+    keyword = extra_context.get('keyword', 'General SEO')
+    target_site = extra_context.get('target_site', '')
+    lang_label = 'Arabic' if lang == 'ar' else 'English'
+    
+    # Check for low-quality keywords
+    if keyword.isdigit() or len(keyword) < 3:
+        if pages:
+            keyword = pages[0].get('title', 'Brand')[:30]
+            
     content = RECS_CONTENT[lang]
 
     # Fallback/Heuristic actions if AI didn't provide any or as supplements
-    if not recs['actions'] and geo_score:
+    if not recs.get('actions') and geo_score:
+        if recs.get('actions') is None:
+            recs['actions'] = []
         b = geo_score.get('breakdown', {})
         if b.get('headings', 0) < 12:
             recs['actions'].append(content['headings'])
@@ -467,11 +498,13 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
         if b.get('faq', 0) < 10:
             recs['actions'].append(content['faq'])
         if b.get('ai_visibility', 0) < 10:
-            recs['actions'].append(content['ai_visibility'])
+            ai_vis_msg = content.get('ai_visibility')
+            if ai_vis_msg:
+                recs['actions'].append(ai_vis_msg)
             # Inject new rich recommendations
-            recs['critical_issue'] = content['critical_no_vis']
-            recs['summary_engine'] = content['summary_engine']
-            recs['top_additions'] = content['top_5_additions']
+            recs['critical_issue'] = content.get('critical_no_vis')
+            recs['summary_engine'] = content.get('summary_engine')
+            recs['top_additions'] = content.get('top_5_additions')
 
     # Per-page recommendations
     for p in pages:
@@ -479,39 +512,46 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
         tags = [h.get('tag','') for h in p.get('headings', [])]
         if 'h1' not in tags:
             page_rec['issues'].append('Missing H1' if lang == 'en' else 'عنوان H1 مفقود')
-            page_rec['suggestions'].append(content['h1_missing'])
+            page_rec['suggestions'].append(content.get('h1_missing', 'Fix H1'))
         # paragraph length
         paras = p.get('paragraphs', [])
-        avg = (sum(len(x.split()) for x in paras) / len(paras)) if paras else 0
+        avg = (sum(len(str(x).split()) for x in paras) / len(paras)) if paras else 0
         if avg < 30:
             page_rec['issues'].append('Short paragraphs' if lang == 'en' else 'فقرات قصيرة جداً')
-            page_rec['suggestions'].append(content['short_paras'])
+            page_rec['suggestions'].append(content.get('short_paras', 'Expand paragraphs'))
 
-        # FAQ suggestion: collect h3 candidate - Improved cleaning
-        import re
-        faq_candidates = [h['text'].strip() for h in p.get('headings', []) if h.get('tag') == 'h3']
+        # FAQ suggestion: smarter extraction
+        faq_candidates = [h['text'].strip() for h in p.get('headings', []) if h.get('tag') in ['h2', 'h3']]
         valid_q = None
         for q in faq_candidates:
-            # Avoid headings that are obviously UI elements or too long/short
-            if len(q) > 10 and len(q) < 100 and not q.startswith('[') and not q.endswith(']'):
+            # Avoid UI elements, short strings, and common nav labels
+            lower_q = q.lower()
+            if len(q) > 15 and len(q) < 120 and not any(x in lower_q for x in ['login', 'cart', 'menu', 'account', 'sign up', 'تسجيل', 'سلة']):
                 valid_q = q
                 break
 
         if valid_q:
-            ans = (paras[0] if paras else '')[:300]
-            schema = {
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": [
-                    {
-                        "@type": "Question",
-                        "name": valid_q,
-                        "acceptedAnswer": { "@type": "Answer", "text": ans }
-                    }
-                ]
-            }
-            page_rec['schema_example'] = schema
-            page_rec['suggestions'].append('Add the FAQ JSON-LD for the question above to improve AI extraction.' if lang == 'en' else 'أضف بيانات FAQ JSON-LD للسؤال أعلاه لتحسين استخلاص الإجابة بالذكاء الاصطناعي.')
+            # Find a paragraph that isn't just a single word
+            valid_ans = ""
+            for para in [str(x) for x in paras]:
+                if len(para.split()) > 10:
+                    valid_ans = para[:400]
+                    break
+            
+            if valid_ans:
+                schema = {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": [
+                        {
+                            "@type": "Question",
+                            "name": valid_q,
+                            "acceptedAnswer": { "@type": "Answer", "text": valid_ans }
+                        }
+                    ]
+                }
+                page_rec['schema_example'] = schema
+                page_rec['suggestions'].append('Add the FAQ JSON-LD for the question above to improve AI extraction.' if lang == 'en' else 'أضف بيانات FAQ JSON-LD للسؤال أعلاه لتحسين استخلاص الإجابة بالذكاء الاصطناعي.')
 
         # Entities hint
         if not p.get('headings') and not paras:
@@ -524,8 +564,9 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
                 # We reuse the _llm chain from geo_services if possible, 
                 # but to avoid circularity we'll define a simple request here or rely on analyze_with_openai
                 prompt = (
-                    f"Rewrite this Arabic/English paragraph for AI Search Optimization (ASO). "
-                    f"Make it authoritative, lead with a direct definition, and include the brand name. "
+                    f"Rewrite this {lang_label} paragraph for Elite AI Search Optimization (ASO). "
+                    f"CONTEXT: YEAR 2026. "
+                    f"RULES: Be authoritative, lead with a definitive direct answer, integrate semantic keywords for {keyword}, and use the brand {target_site or 'this brand'}. "
                     f"Return ONLY the rewritten text. TEXT: {paras[0][:800]}"
                 )
                 

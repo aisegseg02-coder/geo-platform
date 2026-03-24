@@ -137,12 +137,12 @@
           <table>
             <thead>
               <tr>
-                <th>الكلمة المفتاحية</th>
-                <th>العدد</th>
-                <th>الكثافة</th>
-                <th>الحجم</th>
-                <th>CPC</th>
-                <th>درجة الفرصة</th>
+                <th onclick="sortKeywords('kw')" style="cursor:pointer;">الكلمة المفتاحية ↕</th>
+                <th onclick="sortKeywords('count')" style="cursor:pointer;">العدد ↕</th>
+                <th onclick="sortKeywords('density')" style="cursor:pointer;">الكثافة ↕</th>
+                <th onclick="sortKeywords('volume')" style="cursor:pointer;">الحجم ↕</th>
+                <th onclick="sortKeywords('cpc')" style="cursor:pointer;">CPC ↕</th>
+                <th onclick="sortKeywords('opportunity_score')" style="cursor:pointer;">درجة الفرصة ↕</th>
               </tr>
             </thead>
             <tbody id="primaryBody"></tbody>
@@ -248,23 +248,43 @@
           if (report.keyword_results) {
             const kr = report.keyword_results;
             document.getElementById('kwSummary').textContent = `تم تحليل ${kr.total_found} كلمة مفتاحية عبر ${pages} صفحات.`;
+            renderPrimaryKeywords(kr.classification.primary.keywords);
+            document.getElementById('secondaryList').innerHTML = kr.classification.secondary.keywords.slice(0, 12).map(kw => `<span class="badge secondary" style="background:rgba(0,212,255,0.05);color:var(--accent);border:1px solid rgba(0,212,255,0.1)">${kw.kw}</span>`).join('');
+            document.getElementById('longtailList').innerHTML = kr.classification.long_tail.keywords.slice(0, 15).map(kw => kw.kw).join(' • ');
+          }
+
+          let currentKeywords = [];
+          function renderPrimaryKeywords(keywords) {
+            currentKeywords = keywords;
             const primaryBody = document.getElementById('primaryBody');
             primaryBody.innerHTML = '';
-            kr.classification.primary.keywords.slice(0, 10).forEach(kw => {
+            keywords.slice(0, 20).forEach(kw => {
               const row = primaryBody.insertRow();
               row.insertCell(0).innerHTML = `<strong>${kw.kw}</strong>`;
               row.insertCell(1).textContent = kw.count;
               row.insertCell(2).textContent = (kw.density || 0).toFixed(2) + '%';
-              row.insertCell(3).textContent = kw.volume ? kw.volume.toLocaleString('ar') : '—';
+              
+              const volCell = row.insertCell(3);
+              const vol = kw.volume || 0;
+              const volLabel = vol >= 1000 ? (vol/1000).toFixed(1) + 'K' : vol;
+              volCell.innerHTML = `<span class="badge ${vol > 500 ? 'high' : 'medium'}" style="min-width:45px;text-align:center;">${volLabel}</span>`;
+              
               row.insertCell(4).textContent = kw.cpc ? '$' + kw.cpc.toFixed(2) : '—';
               const oppCell = row.insertCell(5);
               const score = kw.opportunity_score || 0;
               const color = score > 70 ? 'var(--green)' : (score > 40 ? 'var(--yellow)' : 'var(--red)');
-              oppCell.innerHTML = `<span style="color:${color};font-weight:800;">${score}%</span>`;
+              oppCell.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${score}%;background:${color};"></div></div><span style="color:${color};font-weight:800;font-size:11px;">${score}%</span></div>`;
             });
-            document.getElementById('secondaryList').innerHTML = kr.classification.secondary.keywords.slice(0, 12).map(kw => `<span class="badge secondary" style="background:rgba(0,212,255,0.05);color:var(--accent);border:1px solid rgba(0,212,255,0.1)">${kw.kw}</span>`).join('');
-            document.getElementById('longtailList').innerHTML = kr.classification.long_tail.keywords.slice(0, 15).map(kw => kw.kw).join(' • ');
           }
+
+          window.sortKeywords = function(key) {
+            const sorted = [...currentKeywords].sort((a, b) => {
+              const valA = a[key] || 0;
+              const valB = b[key] || 0;
+              return typeof valA === 'string' ? valA.localeCompare(valB) : valB - valA;
+            });
+            renderPrimaryKeywords(sorted);
+          };
 
           if (report.topic_clusters) {
             let html = '';

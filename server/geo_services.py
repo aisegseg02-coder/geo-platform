@@ -388,8 +388,13 @@ Return JSON only:
     if not sentiment_results:
         return {"brand": brand, "avg_sentiment_score": 0, "overall_tone": "Unknown", "details": [], "error": "No LLM available"}
 
-    scores = [r["analysis"].get("score", 0.5) for r in sentiment_results]
-    avg = sum(scores) / len(scores)
+    def _get_score(res):
+        analysis = res.get("analysis", {})
+        if isinstance(analysis, str): return 0.5
+        return float(analysis.get("score", 0.5)) if isinstance(analysis, dict) else 0.5
+
+    scores = [_get_score(r) for r in sentiment_results]
+    avg = sum(scores) / len(scores) if scores else 0.5
 
     return {
         "brand": brand,
@@ -715,7 +720,7 @@ Return JSON ONLY:
             parts.extend(re.findall(r'[\u0600-\u06FF]+', c))
             comp_parts[c] = list(set([p for p in parts if len(p) > 2]))
 
-        success_count = 0
+        success_count: int = 0
         # Track LLM errors for UI display
         llm_error = ""
         for q in queries:

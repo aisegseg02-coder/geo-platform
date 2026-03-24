@@ -314,31 +314,31 @@
           <input id="orgName" placeholder="اسم الشركة" required />
           <input id="orgUrl" placeholder="رابط الشركة (اختياري)" />
           <input id="runs" placeholder="التكرار (1)" style="max-width:110px" />
-          <button type="submit" class="btn-analyze">🚀 ابدأ التحليل</button>
+          <button type="submit" class="btn-analyze"> ابدأ التحليل</button>
         </form>
         <div id="status"></div>
 
         <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
           <button id="keywordsBtn" class="btn" style="font-size:13px;padding:10px 20px">⚡ كلمات سريعة</button>
-          <button id="analyzeBtn" class="btn" style="font-size:13px;padding:10px 20px">🧠 تشغيل الذكاء</button>
+          <button id="analyzeBtn" class="btn" style="font-size:13px;padding:10px 20px"> تشغيل الذكاء</button>
           <span id="analyzeStatus" style="color:var(--muted);font-size:13px;align-self:center"></span>
         </div>
         <div id="keywordsOut" style="margin-top:8px;color:var(--muted);font-size:13px"></div>
 
         <div class="results-grid" id="resultsGrid" style="display:none">
           <div class="result-panel">
-            <h4>📈 نتيجة GEO</h4>
+            <h4> نتيجة GEO</h4>
             <div id="geoScore">—</div>
             <div id="results" style="margin-top:12px">لا توجد نتائج بعد.</div>
           </div>
           <div class="result-panel">
-            <h4>🌍 رؤى المنافسين</h4>
+            <h4> رؤى المنافسين</h4>
             <div id="competitorInsight" style="margin-top:12px">
               <div style="color:var(--muted); font-size:13px;">ابدأ التحليل لرؤية المنافسين وتوزيع الحركة.</div>
             </div>
           </div>
           <div class="result-panel">
-            <h4>🗃️ التدقيق الخام</h4>
+            <h4> التدقيق الخام</h4>
             <pre id="raw">—</pre>
           </div>
         </div>
@@ -373,7 +373,7 @@
         const data = await resp.json();
         if (!data.ok) { statusEl.textContent = 'Error: ' + (data.error || JSON.stringify(data)); return; }
         _lastJobId = data.job_id;
-        statusEl.innerHTML = `✅ تم إرسال المهمة <strong>${data.job_id}</strong> — <a href='/jobs.html'>عرض التقدم ←</a>`;
+        statusEl.innerHTML = ` تم إرسال المهمة <strong>${data.job_id}</strong> — <a href='/jobs.html'>عرض التقدم ←</a>`;
       } catch (err) {
         statusEl.textContent = 'Request failed: ' + err.message;
       }
@@ -406,7 +406,7 @@
         const r = await fetch('/api/analyze', { method: 'POST' });
         const j = await r.json();
         if (!j.ok) { s.textContent = 'Error: '+(j.error||JSON.stringify(j)); return; }
-        s.textContent = '✅ Done.';
+        s.textContent = ' Done.';
         document.getElementById('resultsGrid').style.display = 'grid';
         if (j.geo_score) {
           const g = j.geo_score;
@@ -524,7 +524,7 @@
         const r = await fetch('/api/keywords', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ url, max_pages: 1 }) });
         const j = await r.json();
         if (!j.ok) { out.textContent = 'Error: ' + (j.error||JSON.stringify(j)); return; }
-        out.textContent = '✅ Keywords extracted — check Jobs for full results.';
+        out.textContent = ' Keywords extracted — check Jobs for full results.';
       } catch(e) { out.textContent = 'Request failed: ' + e.message; }
     });
 

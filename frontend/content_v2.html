@@ -144,7 +144,7 @@
       <div style="display:flex; align-items:center; gap:16px;">
         <span class="badge badge-accent" style="letter-spacing: 2px;">v2.0-ULTRA</span>
         <button id="main-settings-btn" class="btn" style="padding:10px 20px; font-size:14px;">
-          ⚙️ إعدادات النظام
+           إعدادات النظام
         </button>
       </div>
     </div>
@@ -462,7 +462,7 @@
               <button class="btn" id="gen-copy"
                 style="background:rgba(255,255,255,0.05); border:1px solid var(--border);"> نسخ المقال</button>
               <button class="btn btn-accent" id="gen-deploy"
-                style="border:1px solid var(--accent);">📦 نسخ الحزمة</button>
+                style="border:1px solid var(--accent);"> نسخ الحزمة</button>
               <button class="btn" id="gen-download"
                 style="background:rgba(255,255,255,0.02); border:1px solid var(--border);">📥 تحميل الحزمة (.md)</button>
             </div>
@@ -1309,6 +1309,12 @@
         const task = JSON.parse(taskStr);
         // Expire task if older than 30 mins
         if (Date.now() - task.timestamp > 30 * 60 * 1000) {
+          localStorage.removeItem('geo_ai_task');
+          return;
+        }
+        // Skip tasks with invalid/localhost URLs
+        const invalidUrl = !task.url || /0\.0\.0\.0|127\.0\.0\.1|localhost/.test(task.url);
+        if (invalidUrl) {
           localStorage.removeItem('geo_ai_task');
           return;
         }

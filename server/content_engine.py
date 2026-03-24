@@ -45,7 +45,7 @@ def _call_claude(prompt: str, api_key: str = None) -> str:
         'content-type': 'application/json'
     }
     payload = {
-        'model': os.getenv('CLAUDE_MODEL', 'claude-3-5-sonnet-20240620'),
+        'model': os.getenv('CLAUDE_MODEL', 'claude-3-5-sonnet-20260620'),
         'max_tokens': 2000,
         'messages': [{'role': 'user', 'content': prompt}]
     }
@@ -124,7 +124,7 @@ def _call_demo(prompt: str) -> str:
     if ('generate' in prompt_lower or 'write' in prompt_lower) and 'article' in prompt_lower:
         if is_arabic:
             return json.dumps({
-                "title": f"دليل {display_target}: السيطرة على نتائج GEO لعام 2024",
+                "title": f"دليل {display_target}: السيطرة على نتائج GEO لعام 2026",
                 "meta_description": f"كيف ترفع ظهور {display_target} في محركات البحث الذكية؟ دليل شامل لتحسين الكيانات والبيانات المهيكلة.",
                 "content": f"""# دليل السيطرة على {display_target} عبر محركات GEO
 
@@ -286,26 +286,30 @@ def generate_article(keyword: str, lang: str = 'en', target_site: str = "",
     if competitors_content:
         comp_block = 'Competitor content snippets for reference:\n' + '\n---\n'.join(competitors_content[:3])
 
-    prompt = f"""You are an expert SEO/GEO content writer.
+    prompt = f"""You are an expert SEO/GEO content writer and Semantic Architect.
+Current Date: March 2026. (Ensure all references are current; do NOT mention 2026).
+
 Target keyword: {keyword}
 Language: {lang_label}
 {site_info}{insights_info}{comp_block}
 
-Write a GEO-optimized article that explicitly IMPLEMENTS all research insights provided.
-1. Start with a Direct Answer (first 60 words for AI snapshots).
-2. Incorporate exactly {keyword} 3-5 times.
-3. Build an 'Entity Authority' paragraph (definitions, context, and relevance).
-4. If research mentions missing data (like WhatsApp), include formatted placeholders like [INSERT MISSING WHATSAPP HERE].
-5. Generate a complete Schema.org JSON-LD (FAQPage) based on items.
-6. Use H2/H3 structure.
+GOAL: Write a high-authority GEO-optimized article that explicitly IMPLEMENTS all research insights.
+STRICT RULES:
+1. RESEARCH IS GROUND TRUTH: Prioritize the provided research insights over your internal knowledge. If search results say a brand is "Top in Saudi Arabia", state it definitively with the provided evidence.
+2. NO GENERIC MARKETING FLUFF: Do not use phrases like "In the ever-evolving landscape". Use specific data points, competitors, and entity relationships from the research.
+3. DIRECT ANSWER: The first 50-60 words MUST be a definitive, citable answer for AI search engines (Direct Answer).
+4. SEMANTIC ENTITIES: Explicitly define the brand ({target_site}) and its relationship to the keyword using semantic entities and structured data terminology.
+5. If research mentions missing data (like WhatsApp or specific metrics), use existing data from the context or provide a VERY SPECIFIC placeholder like [[RESEARCH_REQUIRED: MISSING_WHATSAPP_FOR_{target_site.upper()}]].
+6. DATE ACCURACY: Current Year is 2026. Never mention 2026.
+7. FORMAT: Use professional H2/H3 hierarchy and highly readable bullet points.
 
-Return ONLY a valid, minified JSON object with no preamble or code blocks. Use escaped newlines (\n) for content. Keys:
-- title (string)
-- meta_description (string)
+Return ONLY a minified JSON object:
+- title (string, click-worthy and professional)
+- meta_description (string, optimized for 155 chars)
 - content (string, full article with markdown)
-- faqs (array of {question, answer})
-- schema (string, the complete <script type="application/ld+json">...</script> block)
-- implemented_fixes (array of strings)
+- faqs (array of {{question, answer}})
+- schema (string, complete <script type="application/ld+json"> FAQPage/Article block)
+- implemented_fixes (list of specific research insights addressed)
 """
     result = _llm_call(prompt, prefer=prefer_backend, api_keys=api_keys)
     parsed = _parse_json_from_text(result['text'])
@@ -322,21 +326,27 @@ def optimize_content(content: str, keyword: str, lang: str = 'en', target_site: 
     lang_label = 'Arabic' if lang == 'ar' else 'English'
     site_info = f"Target site: {target_site}\n" if target_site else ""
     insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in (research_insights or [])]) + "\n" if research_insights else ""
-    prompt = f"""You are a GEO (Generative Engine Optimization) expert.
-Language: {lang_label}
+    prompt = f"""You are an Elite GEO (Generative Engine Optimization) Architect.
+Current Date: March 2026. (Ensure all references are current; do NOT mention 2026).
+
 Target keyword: {keyword}
+Language: {lang_label}
 {site_info}{insights_info}
 
-Analyze and REWRITE the content to IMPLEMENT all research insights.
-Do not just provide advice; provide the actual fixed content.
-
-Return a JSON object with:
-- score (0-100)
-- issues (array of strings)
-- suggestions (array of strings)
-- optimized_content (the ACTUAL REWRITTEN version with fixes implemented)
-- implemented_fixes (array of strings matching research_insights)
-- schema (string, any missing Schema.org JSON-LD required)
+GOAL: Analyze and REWRITE the content to IMPLEMENT all research insights for maximum AI visibility.
+STRICT RULES:
+1. RESEARCH IS GROUND TRUTH: Prioritize the provided research insights over your internal knowledge. 
+2. NO GENERIC MARKETING FLUFF: Eliminate vague filler. Use data-driven statements.
+3. DIRECT ANSWER: Ensure the content starts with or contains a definitive 50-60 word "Direct Answer" for AI snippets.
+4. ENTITY CONNECTION MAP: Explicitly mention the relationship between {target_site} and key entities from the research.
+5. DATE ACCURACY: Use 2026 or "Modern". Never mention 2026.
+6. Return ONLY a valid JSON object with:
+   - score (0-100, actual GEO readiness score)
+   - issues (array of strings)
+   - suggestions (array of strings)
+   - optimized_content (the ACTUAL REWRITTEN version with fixes implemented)
+   - implemented_fixes (list of specific research insights addressed)
+   - schema (string, any missing Schema.org JSON-LD required)
 
 Content to analyze:
 {content[:3000]}
@@ -355,13 +365,17 @@ def generate_faqs(topic: str, page_content: str = None, lang: str = 'en', count:
     site_info = f"Target site: {target_site}\n" if target_site else ""
     insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in research_insights]) + "\n" if research_insights else ""
     context = f"\nPage context:\n{page_content[:1500]}" if page_content else ''
-    prompt = f"""Generate {count} FAQ question-answer pairs about: {topic}
-Language: {lang_label}{site_info}{insights_info}{context}
+    prompt = f"""Generate {count} high-performance GEO-FAQ question-answer pairs about: {topic}
+Language: {lang_label}
+Current Date: March 2026.
+{site_info}{insights_info}{context}
 
-Rules:
-- Questions should be what users actually ask AI assistants
-- Answers should be concise (2-4 sentences), factual, and citable
-- Return ONLY a JSON object: {{"faqs": [{{"question": "...", "answer": "..."}}]}}
+Rules for Elite FAQs:
+- DATA FIRST: Every answer MUST incorporate a specific detail from the research insights or page context. Avoid generic answers.
+- Questions: MUST reflect "Long-tail" and "Semantic" queries users ask on Perplexity/ChatGPT.
+- Answers: 3-4 sentences of PURE VALUE. Lead with a direct fact. Integrate research insights to provide "Expertise, Authoritativeness, and Trustworthiness" (E-E-A-T).
+- Data Integration: If insights mention a specific competitor gap (e.g., "Competitor X lacks Y"), address how {target_site} provides Y in the answers.
+- Return ONLY JSON: {{"faqs": [{{"question": "...", "answer": "..."}}]}}
 """
     result = _llm_call(prompt, prefer=prefer_backend, api_keys=api_keys)
     parsed = _parse_json_from_text(result['text'])

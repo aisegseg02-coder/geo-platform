@@ -44,23 +44,23 @@ STEP 3: CLASSIFY KEYWORDS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 We group keywords by importance:
 
-1️⃣ PRIMARY = Most frequent keywords (top 20%)
+1️ PRIMARY = Most frequent keywords (top 20%)
    Example: "abaya" (10 times), "modest fashion" (8 times)
 
-2️⃣ SECONDARY = Medium frequency (next 30%)
+2️ SECONDARY = Medium frequency (next 30%)
    Example: "clothing" (5 times), "collection" (4 times)
 
-3️⃣ LONG-TAIL = Less frequent but specific (rest)
+3️ LONG-TAIL = Less frequent but specific (rest)
    Example: "black abaya dress" (2 times)
 
 STEP 4: FIND COMPETITORS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 We look at ALL links on the page and filter:
 
-✅ KEEP: Links to other e-commerce sites
+ KEEP: Links to other e-commerce sites
    Example: competitor-store.com
 
-❌ REMOVE: 
+ REMOVE: 
    • Same domain (abayanoir.com)
    • Social media (facebook.com, instagram.com)
    • CDNs (cloudflare.com, amazonaws.com)
@@ -90,14 +90,14 @@ print("=" * 80)
 # Test with audit
 audit_path = 'output/audit.json'
 if not os.path.exists(audit_path):
-    print(f"\n❌ {audit_path} not found. Run a crawl first.")
+    print(f"\n {audit_path} not found. Run a crawl first.")
     sys.exit(1)
 
 with open(audit_path, 'r') as f:
     audit = json.load(f)
 
 pages = audit.get('pages', [])
-print(f"\n✅ Loaded audit with {len(pages)} pages")
+print(f"\n Loaded audit with {len(pages)} pages")
 
 # Show what's in the pages
 print("\n" + "=" * 80)
@@ -125,7 +125,7 @@ print("=" * 80)
 from server.keyword_engine import extract_keywords_from_audit
 
 # Simple extraction (no analytics)
-print("\n1️⃣ SIMPLE MODE (just keywords)")
+print("\n1️ SIMPLE MODE (just keywords)")
 print("-" * 80)
 simple_kws = extract_keywords_from_audit(audit, top_n=10, enrich=False, analytics=False)
 print(f"\nFound {len(simple_kws)} keywords:\n")
@@ -133,7 +133,7 @@ for kw in simple_kws[:10]:
     print(f"  • {kw['kw']} ({kw['count']} times)")
 
 # Analytics mode
-print("\n\n2️⃣ ANALYTICS MODE (with classification)")
+print("\n\n2️\ ANALYTICS MODE (with classification)")
 print("-" * 80)
 analytics = extract_keywords_from_audit(audit, top_n=20, enrich=False, analytics=True)
 
@@ -165,7 +165,7 @@ print(f"Looking for competitors in {len(pages)} pages...")
 
 competitors = detect_competitors(pages, source_url, min_mentions=1)
 
-print(f"\n✅ Found {len(competitors)} competitors")
+print(f"\n Found {len(competitors)} competitors")
 
 if competitors:
     print("\nCompetitors:")
@@ -173,7 +173,7 @@ if competitors:
         print(f"  • {comp['domain']} ({comp['mentions']} mentions)")
         print(f"    Sample URL: {comp['sample_urls'][0]}")
 else:
-    print("\n❌ No competitors found")
+    print("\n No competitors found")
     print("\nWhy? Let's check the links:")
     
     all_links = []
@@ -245,24 +245,24 @@ print("SUMMARY")
 print("=" * 80)
 
 print("""
-✅ WHAT WORKS:
+ WHAT WORKS:
   • Keyword extraction
   • Keyword classification (primary/secondary/long-tail)
   • Topic clustering
   • DataForSEO enrichment (volume, CPC, competition)
 
-⚠️  WHY NO COMPETITORS:
+  WHY NO COMPETITORS:
   • The page only links to itself and social media
   • No links to other e-commerce/competitor sites
   • This is NORMAL for many websites
 
-💡 TO GET COMPETITOR DATA:
+ TO GET COMPETITOR DATA:
   • Crawl more pages (increase max_pages)
   • Look for blog posts (they often link to competitors)
   • Use DataForSEO competitor API (separate endpoint)
   • Manually add known competitors for comparison
 
-📊 THE ANALYTICS REPORT SHOWS:
+ THE ANALYTICS REPORT SHOWS:
   • How many times each keyword appears (frequency)
   • Which keywords are most important (classification)
   • What topics the page covers (clusters)
@@ -272,5 +272,5 @@ print("""
 """)
 
 print("\n" + "=" * 80)
-print("✅ TEST COMPLETE!")
+print(" TEST COMPLETE!")
 print("=" * 80)

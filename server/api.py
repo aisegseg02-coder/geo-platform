@@ -44,6 +44,7 @@ class CrawlRequest(BaseModel):
 class RecommendationRequest(BaseModel):
     api_keys: Optional[dict] = None
     job_id: Optional[int] = None
+    extra_context: Optional[dict] = None
 
 class AnalysisRequest(BaseModel):
     api_keys: Optional[dict] = None
@@ -300,6 +301,27 @@ async def ws_job_progress(ws: WebSocket, job_id: int):
             await ws.close()
         except Exception:
             pass
+
+@app.get('/api/jobs/{job_id}/results')
+async def api_job_results(job_id: int):
+    job = job_queue.get_job(job_id)
+    if not job:
+        return JSONResponse({'ok': False, 'error': 'not found'}, status_code=404)
+    result_path = job.get('result_path')
+    if not result_path:
+        return JSONResponse({'ok': False, 'error': 'no results yet'}, status_code=400)
+    out = {'ok': True, 'job_id': job_id}
+    audit_path = Path(result_path) / 'audit.json'
+    analysis_path = Path(result_path) / 'analysis.json'
+    schema_path = Path(result_path) / 'schema.jsonld'
+    if audit_path.exists():
+        out['audit'] = json.loads(audit_path.read_text(encoding='utf-8'))
+    if analysis_path.exists():
+        out['analysis'] = json.loads(analysis_path.read_text(encoding='utf-8'))
+    if schema_path.exists():
+        out['schema'] = schema_path.read_text(encoding='utf-8')
+    return out
+
 
 @app.get('/api/results')
 async def api_results(ts: str | None = None):
@@ -676,6 +698,7 @@ async def api_recommendations(req: RecommendationRequest = None):
     # load analysis and audit results then produce recommendations
     api_keys = req.api_keys if req else {}
     job_id = req.job_id if req else None
+    extra_context = req.extra_context if (req and req.extra_context) else {}
 
     # Resolve paths: prefer job-specific result_path, fall back to global output/
     if job_id:
@@ -742,7 +765,7 @@ async def api_recommendations(req: RecommendationRequest = None):
                 analysis_data = ana_obj.get('analysis')
                 geo_score = ana_obj.get('geo_score')
 
-    recs = ai_analysis.generate_recommendations(pages, geo_score=geo_score, api_keys=api_keys, ai_analysis_results=analysis_data)
+    recs = ai_analysis.generate_recommendations(pages, geo_score=geo_score, api_keys=api_keys, ai_analysis_results=analysis_data, extra_context=extra_context)
     
     return {
         'ok': True,
