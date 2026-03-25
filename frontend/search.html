@@ -174,16 +174,17 @@
 
       <div class="grid" style="margin-top:24px;">
         <div id="serpCard" class="card stagger-item">
-          <h3 style="margin-top:0;">3️⃣ تحليل نتائج البحث</h3>
+          <h3 style="margin-top:0;">تحليل نتائج البحث (SERP)</h3>
           <div style="overflow-x:auto">
             <table class="table-glow">
               <thead>
                 <tr>
-                  <th>الترتيب</th>
+                  <th>#</th>
                   <th>النطاق</th>
                   <th>DR</th>
-                  <th>الروابط</th>
-                  <th>الطول</th>
+                  <th>نوع المحتوى</th>
+                  <th>النية</th>
+                  <th>سبب الترتيب</th>
                 </tr>
               </thead>
               <tbody id="serpBody"></tbody>
@@ -191,8 +192,19 @@
           </div>
         </div>
         <div id="entityCard" class="card stagger-item">
-          <h3 style="margin-top:0;">5️⃣ خريطة الكيانات الدلالية</h3>
+          <h3 style="margin-top:0;">خريطة الكيانات الدلالية</h3>
           <div id="entityGraph" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;"></div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:24px;">
+        <div id="geoLocalCard" class="card stagger-item">
+          <h3 style="margin-top:0;">تحليل GEO المحلي</h3>
+          <div id="geoLocalContent" style="font-size:14px;"></div>
+        </div>
+        <div id="kwQualityCard" class="card stagger-item">
+          <h3 style="margin-top:0;">جودة الكلمات المفتاحية</h3>
+          <div id="kwQualityContent" style="font-size:14px;"></div>
         </div>
       </div>
 
@@ -302,11 +314,73 @@
         // ── SERP Intelligence ──────────────────────────────────────────
         if (report.serp_intelligence?.length) {
           document.getElementById('serpBody').innerHTML = report.serp_intelligence.map(s =>
-            `<tr><td><span style="color:var(--accent);font-weight:800">#${s.rank}</span></td><td>${s.domain}</td>
-            <td><span class="badge ${s.dr > 80 ? 'high' : 'medium'}">${s.dr}</span></td>
-            <td>${s.backlinks}</td><td style="color:var(--muted)">${s.length} كلمة</td></tr>`).join('');
+            `<tr>
+              <td><span style="color:var(--accent);font-weight:800">#${s.rank}</span></td>
+              <td><strong>${s.domain}</strong></td>
+              <td><span class="badge ${s.dr > 80 ? 'high' : s.dr > 50 ? 'medium' : 'low'}">${s.dr}</span></td>
+              <td><span style="color:var(--muted);font-size:12px">${s.content_type || '—'}</span></td>
+              <td><span style="color:var(--accent);font-size:12px">${s.intent || '—'}</span></td>
+              <td style="color:var(--muted);font-size:12px;max-width:200px">${s.why_ranks || s.length + ' كلمة'}</td>
+            </tr>`).join('');
         } else {
-          document.getElementById('serpBody').innerHTML = '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">لا تتوفر بيانات SERP — أضف مفتاح SerpAPI للحصول على نتائج حقيقية</td></tr>';
+          document.getElementById('serpBody').innerHTML = '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:20px">لا تتوفر بيانات SERP — أضف مفتاح SerpAPI للحصول على نتائج حقيقية</td></tr>';
+        }
+
+        // ── GEO Local ──────────────────────────────────────────────────
+        const geo = report.geo_local;
+        if (geo) {
+          const scoreColor = geo.geo_score >= 60 ? 'var(--green)' : geo.geo_score >= 30 ? 'var(--yellow)' : 'var(--red)';
+          document.getElementById('geoLocalContent').innerHTML = `
+            <div style="margin-bottom:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-weight:700">درجة GEO المحلي</span>
+                <span style="color:${scoreColor};font-size:22px;font-weight:900">${geo.geo_score}%</span>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${geo.geo_score}%;background:${scoreColor}"></div>
+              </div>
+            </div>
+            <div style="margin-bottom:12px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border-right:3px solid ${scoreColor}">
+              ${geo.verdict}
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+              <span style="font-size:12px;padding:4px 10px;border-radius:6px;background:${geo.has_google_maps ? 'rgba(0,255,149,0.1)' : 'rgba(255,51,102,0.1)'};color:${geo.has_google_maps ? 'var(--green)' : 'var(--red)'};border:1px solid currentColor">
+                ${geo.has_google_maps ? '✅' : '❌'} Google Maps
+              </span>
+              <span style="font-size:12px;padding:4px 10px;border-radius:6px;background:${geo.has_local_schema ? 'rgba(0,255,149,0.1)' : 'rgba(255,51,102,0.1)'};color:${geo.has_local_schema ? 'var(--green)' : 'var(--red)'};border:1px solid currentColor">
+                ${geo.has_local_schema ? '✅' : '❌'} LocalBusiness Schema
+              </span>
+              <span style="font-size:12px;padding:4px 10px;border-radius:6px;background:${geo.has_local_keywords ? 'rgba(0,255,149,0.1)' : 'rgba(255,51,102,0.1)'};color:${geo.has_local_keywords ? 'var(--green)' : 'var(--red)'};border:1px solid currentColor">
+                ${geo.has_local_keywords ? '✅' : '❌'} كلمات محلية
+              </span>
+            </div>
+            ${geo.missing_local_keywords?.length ? `
+            <div style="font-size:12px;color:var(--muted);margin-top:8px">كلمات محلية مقترحة:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+              ${geo.missing_local_keywords.map(k => `<span style="font-size:11px;padding:3px 8px;border-radius:4px;background:rgba(0,242,255,0.05);border:1px solid rgba(0,242,255,0.15);color:var(--accent)">${k}</span>`).join('')}
+            </div>` : ''}`;
+        }
+
+        // ── Keyword Quality ─────────────────────────────────────────────
+        const kq = report.keyword_quality;
+        if (kq) {
+          const verdictColor = kq.strong_count > kq.weak_count ? 'var(--green)' : 'var(--red)';
+          document.getElementById('kwQualityContent').innerHTML = `
+            <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:14px;border-right:3px solid ${verdictColor}">
+              ${kq.verdict}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              ${(kq.scored_keywords || []).slice(0,10).map(k => {
+                const col = k.quality_label === 'Strong' ? 'var(--green)' : k.quality_label === 'Medium' ? 'var(--yellow)' : 'var(--red)';
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:6px">
+                  <span style="font-size:13px">${k.kw}</span>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    ${k.volume ? `<span style="font-size:11px;color:var(--muted)">${k.volume >= 1000 ? (k.volume/1000).toFixed(1)+'K' : k.volume} بحث</span>` : ''}
+                    <span style="font-size:11px;font-weight:700;color:${col};padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.05)">${k.quality_label}</span>
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>`;
         }
 
         // ── Entity Map ─────────────────────────────────────────────────
@@ -355,7 +429,7 @@
         const status = document.getElementById('siStatus');
         const resultsWrap = document.getElementById('resultsContent');
         if (!url) { status.innerHTML = '<span style="color:var(--red)">أدخل رابط الموقع أولاً</span>'; return; }
-        status.innerHTML = '<span class="shine-text">⏳ جارٍ تحليل البيانات...</span>';
+        status.innerHTML = '<span class="shine-text"> جارٍ تحليل البيانات...</span>';
         resultsWrap.style.display = 'none';
         document.getElementById('exportCSV').style.display = 'none';
         try {
@@ -366,12 +440,12 @@
             body: JSON.stringify({ url, max_pages: pages, api_keys: keys })
           });
           const j = await r.json();
-          if (!j.ok) { status.innerHTML = `<span style="color:var(--red)">❌ خطأ: ${j.error || JSON.stringify(j)}</span>`; return; }
-          status.innerHTML = '<span style="color:var(--green)">✅ اكتمل التحليل.</span>';
+          if (!j.ok) { status.innerHTML = `<span style="color:var(--red)"> خطأ: ${j.error || JSON.stringify(j)}</span>`; return; }
+          status.innerHTML = '<span style="color:var(--green)"> اكتمل التحليل.</span>';
           resultsWrap.style.display = 'block';
           renderReport(j.report, pages);
         } catch (e) {
-          status.innerHTML = `<span style="color:var(--red)">❌ فشل الطلب: ${e.message}</span>`;
+          status.innerHTML = `<span style="color:var(--red)"> فشل الطلب: ${e.message}</span>`;
         }
       });
 
