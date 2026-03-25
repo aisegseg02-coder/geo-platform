@@ -762,6 +762,41 @@
       return JSON.parse(localStorage.getItem('active_geo_insights') || '[]');
     }
 
+    function getActiveCrawlData() {
+      // Build a structured crawl_data object from all stored research data
+      const job = JSON.parse(localStorage.getItem('active_geo_job') || 'null');
+      const context = localStorage.getItem('active_geo_context') || '';
+      const insights = JSON.parse(localStorage.getItem('active_geo_insights') || '[]');
+      if (!job) return {};
+
+      // Parse keywords from context block
+      const kwMatch = context.match(/\[KEYWORDS\]\s*([^\n]+)/);
+      const keywords = kwMatch ? kwMatch[1].split(',').map(k => k.trim()).filter(Boolean) : [];
+
+      // Parse headings from context
+      const headMatch = context.match(/\[SITE STRUCTURE\]\n([\s\S]*?)(?:\n\n|\[|$)/);
+      const headings = headMatch ? headMatch[1].split('\n').map(h => h.replace(/^[hH]\d:\s*/, '').trim()).filter(Boolean) : [];
+
+      // Parse entities
+      const entMatch = context.match(/\[KEY ENTITIES\]\s*([^\n]+)/);
+      const entities = entMatch ? entMatch[1].split(',').map(e => e.trim()).filter(Boolean) : [];
+
+      // Parse page content
+      const contentMatch = context.match(/\[PAGE CONTENT SAMPLE\]\n([\s\S]*)$/);
+      const pageContent = contentMatch ? contentMatch[1].trim().substring(0, 1500) : '';
+
+      return {
+        org_name: job.org_name || '',
+        url: job.url || '',
+        keywords: keywords.slice(0, 20),
+        headings: headings.slice(0, 10),
+        entities: entities.slice(0, 15),
+        page_content: pageContent,
+        issues: insights.slice(0, 8),
+        local_regions: [],  // populated by geo_local analysis if available
+      };
+    }
+
     // ── Generate Article ──────────────────────────────────────────────────────
     document.getElementById('gen-btn').addEventListener('click', async () => {
       const keyword = document.getElementById('gen-keyword').value.trim();
@@ -783,6 +818,7 @@
             target_site: getActiveSite(),
             research_insights: getActiveInsights(),
             competitors_content: competitors,
+            crawl_data: getActiveCrawlData(),
             prefer_backend: document.getElementById('gen-backend').value,
             api_keys: getApiKeys()
           })
@@ -793,15 +829,50 @@
         document.getElementById('gen-title').textContent = r.title || '';
         document.getElementById('gen-meta').textContent = r.meta_description || '';
         document.getElementById('gen-backend-tag').textContent = r.backend || '';
-        document.getElementById('gen-content').innerHTML = mdToHtml(r.content || '') + (r.schema ? `<div class="code-implementation" style="margin-top:20px;"><h4>Schema.org (Auto-Generated)</h4><pre style="background:#1a1a1a; padding:10px; border-radius:8px; overflow:auto; color:#0f0;">${r.schema.replace(/</g, '&lt;')}</pre></div>` : '');
-        
+
+        // Build content with entity graph + proof placeholders highlighted
+        let contentHtml = mdToHtml(r.content || '');
+        // Highlight proof placeholders
+        contentHtml = contentHtml.replace(/\[\[([^\]]+)\]\]/g,
+          '<span style="background:rgba(255,204,0,0.15);border:1px solid var(--yellow);border-radius:4px;padding:2px 6px;font-size:12px;color:var(--yellow)">&#9888; $1</span>');
+
+        let extras = '';
+        // Entity Graph
+        if (r.entity_graph?.length) {
+          extras += `<div style="margin-top:20px;padding:16px;background:rgba(0,242,255,0.04);border:1px solid rgba(0,242,255,0.15);border-radius:12px">
+            <h4 style="margin:0 0 12px;color:var(--accent)">🕸️ خريطة الكيانات (Entity Graph)</h4>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${r.entity_graph.map(e => `<div style="font-size:13px;font-family:monospace;color:var(--muted)">
+                <span style="color:var(--accent)">${e.subject}</span>
+                <span style="color:var(--yellow)"> → ${e.relation} → </span>
+                <span style="color:var(--green)">${e.object}</span>
+              </div>`).join('')}
+            </div>
+          </div>`;
+        }
+        // Local Keywords
+        if (r.local_keywords?.length) {
+          extras += `<div style="margin-top:16px;padding:12px;background:rgba(0,255,149,0.04);border:1px solid rgba(0,255,149,0.15);border-radius:12px">
+            <h4 style="margin:0 0 10px;color:var(--green)">📍 كلمات GEO المحلية</h4>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${r.local_keywords.map(k => `<span style="font-size:12px;padding:3px 10px;border-radius:4px;background:rgba(0,255,149,0.08);border:1px solid rgba(0,255,149,0.2);color:var(--green)">${k}</span>`).join('')}
+            </div>
+          </div>`;
+        }
+        // Schema
+        if (r.schema) {
+          extras += `<div style="margin-top:16px"><h4 style="color:var(--ultra-accent)">Schema.org (Multi-Type)</h4><pre style="background:#0a0a0a;padding:12px;border-radius:8px;overflow:auto;color:#0f0;font-size:11px;max-height:300px">${r.schema.replace(/</g,'&lt;')}</pre></div>`;
+        }
+        document.getElementById('gen-content').innerHTML = contentHtml + extras;
+
         const faqsEl = document.getElementById('gen-faqs');
         faqsEl.innerHTML = '';
-        if (r.implemented_fixes && r.implemented_fixes.length > 0) {
-            faqsEl.innerHTML = `<div class="fixes-log" style="background:var(--card-bg); padding:15px; border-radius:12px; border:1px solid var(--accent); margin-bottom:20px;">
-                <h4 style="margin:0 0 10px 0; color:var(--accent);">⚡ إصلاحات GEO الذكية (مفعلة)</h4>
-                ${r.implemented_fixes.map(f => `<div style="font-size:13px; margin:2px 0;">✅ ${f}</div>`).join('')}
-            </div>`;
+        if (r.implemented_fixes?.length) {
+          const isDemo = r.backend === 'demo';
+          faqsEl.innerHTML = `<div style="background:${isDemo ? 'rgba(255,204,0,0.05)' : 'rgba(0,242,255,0.05)'};padding:15px;border-radius:12px;border:1px solid ${isDemo ? 'var(--yellow)' : 'var(--accent)'};margin-bottom:20px">
+            <h4 style="margin:0 0 10px;color:${isDemo ? 'var(--yellow)' : 'var(--accent)'}">${isDemo ? '⚠️ وضع تجريبي — أضف Groq API للمحتوى الحقيقي' : '⚡ إصلاحات GEO المفعلة'}</h4>
+            ${r.implemented_fixes.map(f => `<div style="font-size:13px;margin:2px 0">${isDemo ? 'ℹ️' : '✅'} ${f}</div>`).join('')}
+          </div>`;
         }
         (r.faqs || []).forEach(f => {
           const div = document.createElement('div');
@@ -1167,6 +1238,7 @@
             lang: document.getElementById('opt-lang').value, 
             target_site: getActiveSite(),
             research_insights: getActiveInsights(),
+            crawl_data: getActiveCrawlData(),
             prefer_backend: document.getElementById('opt-backend').value, 
             api_keys: getApiKeys() 
           })
@@ -1175,12 +1247,16 @@
         if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
         const scoreEl = document.getElementById('opt-score');
-        scoreEl.innerHTML = `<span style="color:${scoreColor(r.score)}">${r.score}</span><div style="font-size:13px;color:var(--muted)">GEO Score</div>`;
+        // Show score breakdown if available
+        const breakdown = r.score_breakdown || {};
+        const breakdownHtml = Object.keys(breakdown).length
+          ? `<div style="font-size:11px;color:var(--muted);margin-top:6px">${Object.entries(breakdown).map(([k,v]) => `${k}: ${v}/20`).join(' · ')}</div>`
+          : '';
+        scoreEl.innerHTML = `<span style="color:${scoreColor(r.score)}">${r.score}</span><div style="font-size:13px;color:var(--muted)">GEO Score</div>${breakdownHtml}`;
         document.getElementById('opt-backend-tag').textContent = r.backend || '';
         document.getElementById('opt-issues').innerHTML = (r.issues || []).map(i => `<div class="issue-item">⚠ ${i}</div>`).join('');
         document.getElementById('opt-suggestions').innerHTML = (r.suggestions || []).map(s => `<div class="suggestion-item">✓ ${s}</div>`).join('');
         
-        // Populate Implemented Fixes
         const fixesEl = document.getElementById('opt-implemented-fixes');
         if (fixesEl) {
             fixesEl.innerHTML = (r.implemented_fixes || []).map(f => 
@@ -1216,6 +1292,7 @@
             lang: document.getElementById('faq-lang').value,
             target_site: getActiveSite(),
             research_insights: getActiveInsights(),
+            crawl_data: getActiveCrawlData(),
             count: parseInt(document.getElementById('faq-count').value) || 5,
             prefer_backend: document.getElementById('faq-backend').value,
             api_keys: getApiKeys()

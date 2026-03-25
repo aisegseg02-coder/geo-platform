@@ -969,7 +969,8 @@ class ArticleRequest(BaseModel):
     target_site: str = ""
     research_insights: list = []
     competitors_content: list = []
-    prefer_backend: str = 'ollama'
+    crawl_data: dict = {}
+    prefer_backend: str = 'groq'
     api_keys: dict = {}
 
 
@@ -979,7 +980,8 @@ class OptimizeRequest(BaseModel):
     lang: str = 'en'
     target_site: str = ""
     research_insights: list = []
-    prefer_backend: str = 'ollama'
+    crawl_data: dict = {}
+    prefer_backend: str = 'groq'
     api_keys: dict = {}
 
 
@@ -989,15 +991,16 @@ class FaqRequest(BaseModel):
     lang: str = 'en'
     target_site: str = ""
     research_insights: list = []
+    crawl_data: dict = {}
     count: int = 5
-    prefer_backend: str = 'ollama'
+    prefer_backend: str = 'groq'
     api_keys: dict = {}
 
 
 class SemanticRequest(BaseModel):
     content: str
     lang: str = 'en'
-    prefer_backend: str = 'ollama'
+    prefer_backend: str = 'groq'
     api_keys: dict = {}
 
 
@@ -1010,6 +1013,7 @@ async def api_content_generate(req: ArticleRequest):
             target_site=req.target_site,
             research_insights=req.research_insights,
             competitors_content=req.competitors_content,
+            crawl_data=req.crawl_data,
             prefer_backend=req.prefer_backend,
             api_keys=req.api_keys
         )
@@ -1026,6 +1030,7 @@ async def api_content_optimize(req: OptimizeRequest):
             req.content, req.keyword, lang=req.lang,
             target_site=req.target_site,
             research_insights=req.research_insights,
+            crawl_data=req.crawl_data,
             prefer_backend=req.prefer_backend,
             api_keys=req.api_keys
         )
@@ -1043,6 +1048,7 @@ async def api_content_faqs(req: FaqRequest):
             lang=req.lang, count=req.count,
             target_site=req.target_site,
             research_insights=req.research_insights,
+            crawl_data=req.crawl_data,
             prefer_backend=req.prefer_backend,
             api_keys=req.api_keys
         )

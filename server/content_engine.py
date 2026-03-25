@@ -1,5 +1,6 @@
 """AI Content Engine — محرك المحتوى بالذكاء الاصطناعي
-Supports: Ollama (local, free), OpenAI, Claude (Anthropic), Groq.
+Supports: Groq (fast/free), OpenAI, Claude, Ollama.
+2026 Standards: Grounded content, Entity graphs, Multi-schema, GEO local, Proof sections.
 """
 import os
 import json
@@ -7,6 +8,51 @@ import re
 import requests
 
 # ── LLM backends ──────────────────────────────────────────────────────────────
+
+def _call_groq(prompt: str, api_key: str = None) -> str:
+    key = api_key or os.getenv('GROQ_API_KEY')
+    if not key:
+        raise RuntimeError('GROQ_API_KEY not set')
+    from groq import Groq
+    client = Groq(api_key=key)
+    resp = client.chat.completions.create(
+        model=os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+        messages=[{'role': 'user', 'content': prompt}],
+        temperature=0.2,
+        max_tokens=3000
+    )
+    return resp.choices[0].message.content
+
+
+def _call_openai(prompt: str, api_key: str = None) -> str:
+    from openai import OpenAI
+    key = api_key or os.getenv('OPENAI_API_KEY')
+    if not key:
+        raise RuntimeError('OPENAI_API_KEY not set')
+    client = OpenAI(api_key=key)
+    resp = client.chat.completions.create(
+        model=os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
+        messages=[{'role': 'user', 'content': prompt}],
+        temperature=0.2,
+        max_tokens=3000
+    )
+    return resp.choices[0].message.content
+
+
+def _call_claude(prompt: str, api_key: str = None) -> str:
+    key = api_key or os.getenv('CLAUDE_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
+    if not key:
+        raise RuntimeError('CLAUDE_API_KEY not set')
+    resp = requests.post(
+        'https://api.anthropic.com/v1/messages',
+        headers={'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'},
+        json={'model': os.getenv('CLAUDE_MODEL', 'claude-3-5-sonnet-20241022'),
+              'max_tokens': 3000, 'messages': [{'role': 'user', 'content': prompt}]},
+        timeout=60
+    )
+    resp.raise_for_status()
+    return resp.json()['content'][0]['text']
+
 
 def _call_ollama(prompt: str, model: str = None) -> str:
     host = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
@@ -20,337 +66,415 @@ def _call_ollama(prompt: str, model: str = None) -> str:
     return resp.json()['message']['content']
 
 
-def _call_openai(prompt: str, api_key: str = None) -> str:
-    from openai import OpenAI
-    key = api_key or os.getenv('OPENAI_API_KEY')
-    if not key:
-        raise RuntimeError('OPENAI_API_KEY not set')
-    client = OpenAI(api_key=key)
-    resp = client.chat.completions.create(
-        model=os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
-        messages=[{'role': 'user', 'content': prompt}],
-        temperature=0.3,
-        max_tokens=2000
-    )
-    return resp.choices[0].message.content
-
-
-def _call_claude(prompt: str, api_key: str = None) -> str:
-    key = api_key or os.getenv('CLAUDE_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
-    if not key:
-        raise RuntimeError('CLAUDE_API_KEY not set')
-    headers = {
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-    }
-    payload = {
-        'model': os.getenv('CLAUDE_MODEL', 'claude-3-5-sonnet-20260620'),
-        'max_tokens': 2000,
-        'messages': [{'role': 'user', 'content': prompt}]
-    }
-    resp = requests.post('https://api.anthropic.com/v1/messages', headers=headers, json=payload, timeout=60)
-    resp.raise_for_status()
-    return resp.json()['content'][0]['text']
-
-
-def _call_groq(prompt: str, api_key: str = None) -> str:
-    key = api_key or os.getenv('GROQ_API_KEY')
-    if not key:
-        raise RuntimeError('GROQ_API_KEY not set')
-    from groq import Groq
-    client = Groq(api_key=key)
-    resp = client.chat.completions.create(
-        model=os.getenv('GROQ_MODEL', 'llama-3.1-8b-instant'),
-        messages=[{'role': 'user', 'content': prompt}],
-        temperature=0.3,
-        max_tokens=1500
-    )
-    return resp.choices[0].message.content
-
-
 def _call_demo(prompt: str) -> str:
-    """Mock LLM response, uses keywords and search snippets for 'Smart Demo' effect."""
+    """Honest demo — shows the STRUCTURE of what real output looks like, clearly marked as demo."""
     prompt_lower = prompt.lower()
-    
-    # Extract keyword/topic
-    keyword = "AI SEO"
-    match = re.search(r"keyword: (.*)\n", prompt) or re.search(r"topic about: (.*)\n", prompt)
-    if match:
-        keyword = match.group(1).strip()
-    
-    # Check for competitor snippets in prompt to make it "Smart"
-    snippets = []
-    if 'competitor content snippets' in prompt_lower:
-        blocks = prompt.split('Competitor content snippets for reference:\n')
-        if len(blocks) > 1:
-            snippet_raw = blocks[1].split('\n\nWrite a GEO-optimized')[0]
-            snippets = [s.strip() for s in snippet_raw.split('---') if s.strip()]
+    is_arabic = 'arabic' in prompt_lower or bool(re.search(r'[\u0600-\u06FF]', prompt))
 
-    is_arabic = "language: arabic" in prompt_lower or re.search(r"[\u0600-\u06FF]", keyword)
+    kw_match = re.search(r'keyword[:\s]+([^\n]+)', prompt, re.IGNORECASE)
+    keyword = kw_match.group(1).strip() if kw_match else 'your keyword'
 
-    # Extract target site/brand
-    target_site = ""
-    match_site = re.search(r"target site: (.*)\n", prompt, re.IGNORECASE)
-    if match_site:
-        target_site = match_site.group(1).split(',')[0].strip()
-    
-    brand_name = target_site # default to url/domain
-    if match_site:
-        parts = match_site.group(1).split(',')
-        if len(parts) > 1:
-            brand_name = parts[1].strip()
+    site_match = re.search(r'target site[:\s]+([^\n,]+)', prompt, re.IGNORECASE)
+    brand = site_match.group(1).strip() if site_match else 'YourBrand'
 
-    display_target = brand_name or keyword
-    
-    # Build dynamic intro from snippets if available
-    intro_extra = ""
-    if snippets:
-        intro_extra = f"\n\nBased on your research: {snippets[0][:150]}..." if not is_arabic else f"\n\nبناءً على أبحاثك: {snippets[0][:150]}..."
-    
-    # Check for Research insights in prompt to customize demo
-    insights = []
-    match_insights = re.search(r"Research insights:\n((?:- .*\n?)*)", prompt)
-    if match_insights:
-        insights = [i.strip('- ').strip() for i in match_insights.group(1).split('\n') if i.strip()]
-        if insights:
-            if is_arabic:
-                intro_extra += f"\n\n توصية GEO: {insights[0]}"
-                if len(insights) > 1: intro_extra += f"\n التركيز الفني: {insights[1]}"
-            else:
-                intro_extra += f"\n\n GEO Insight: {insights[0]}"
-                if len(insights) > 1: intro_extra += f"\n Technical Focus: {insights[1]}"
+    # Extract any real page content passed in
+    content_match = re.search(r'PAGE CONTENT[:\s]+(.*?)(?:\n\n|\Z)', prompt, re.DOTALL | re.IGNORECASE)
+    real_snippet = content_match.group(1).strip()[:300] if content_match else ''
 
-    if ('generate' in prompt_lower or 'write' in prompt_lower) and 'article' in prompt_lower:
-        if is_arabic:
-            return json.dumps({
-                "title": f"دليل {display_target}: السيطرة على نتائج GEO لعام 2026",
-                "meta_description": f"كيف ترفع ظهور {display_target} في محركات البحث الذكية؟ دليل شامل لتحسين الكيانات والبيانات المهيكلة.",
-                "content": f"""# دليل السيطرة على {display_target} عبر محركات GEO
-
-## الإجابة المباشرة (Direct Answer)
-{display_target} {("هو الحل الأمثل في مجاله" if not brand_name else f"يمثل أفضل ممارسات {keyword} لخدمة عملائه")} وهو الركيزة الأساسية للنمو في عصر الذكاء الاصطناعي. {intro_extra} من خلال التركيز على **النية القصدية للباحث** وتوفير بيانات دقيقة حول {target_site or display_target}، يمكنك تصدر إجابات Perplexity و ChatGPT بسهولة.
-
-### 1. خريطة الكيانات (Entity Map) لـ {display_target}
-لتحسين ظهورك، ركزنا في هذا المقال على الكيانات التالية المرتبطة بـ {display_target}:
-- **الكيان الرئيسي:** {display_target}
-- **السمات:** الموثوقية، الصلة الدلالية، السياق الإقليمي لـ {target_site or 'علامتك التجارية'}.
-- **المنافسون المستهدفون:** {(snippets[0][:50] if snippets else 'المنافسون في السوق')}
-
-### 2. التوصيات الفنية لزيادة الـ Score في {target_site or 'موقعك'}
-- **Schema.org:** استخدام `About` و `Mentions` للإشارة إلى {display_target}.
-- **Citations:** بناء روابط مع الكيانات ذات السلطة العالية لتعزيز مصداقية {brand_name or target_site}.
-
-### 3. الخاتمة
-الاستمرار في تحديث محتوى {display_target} بناءً على بيانات الزحف الدورية هو مفتاح التفوق على المنافسين.""",
-                "faqs": [
-                    {"question": f"كيف أحسن ترتيب {keyword}؟", "answer": f"من خلال إضافة فقرات تعريفية غنية بالكيانات (Entities) وتوفير إجابات مباشرة وسهلة الاقتباس من قبل LLMs."},
-                    {"question": f"ما هو تأثير الـ Schema على {keyword}؟", "answer": "البيانات المهيكلة هي لغة التواصل مع الذكاء الاصطناعي؛ بدونها، تظل رؤية موقعك محدودة."}
-                ],
-                "schema": """<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "ما هو """ + display_target + """؟",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": """ + display_target + """ هو الرائد في مجال """ + keyword + """."
-      }
-    }
-  ]
-}
-</script>""",
-                "implemented_fixes": ["Entity Authority Built", "Missing WhatsApp Placeholder Added", "Citations Optimized"]
-            }, ensure_ascii=False)
-        return json.dumps({
-            "title": f"Mastering {keyword}: The GEO Authority Guide",
-            "meta_description": f"Dominate AI search for {keyword}. A technical blueprint for entity authority and citation optimization.",
-            "content": f"""# The {keyword} Dominance Blueprint
-
-## Executive Summary
-{keyword} isn't just a keyword; it's a core entity in your niche. {intro_extra} By aligning your content with semantic clusters and high-authority citations, you ensure citable status across all major Generative Engines.
-
-### 1. Entity Calibration for {keyword}
-We've optimized this content to hit key semantic nodes:
-- **Core Entity:** {keyword}
-- **Authority Signals:** Fact-density, direct answering, and regional relevance.
-- **Competitive Overlap:** Addressing gaps left by {(snippets[0][:50] if snippets else 'market leaders')}.
-
-### 2. Technical GEO Enhancements
-- **Structure:** H-tags calibrated for semantic hierarchy.
-- **Citation Layer:** Built-in recommendations for entity linking focus on {keyword}.
-
-### 3. Final Verdict
-Consistency in {keyword} optimization relative to target signals is the only way to maintain a leading GEO Visibility Score.""",
-            "faqs": [
-                {"question": f"How do I boost {keyword} visibility?", "answer": f"By implementing direct answer chunks and ensuring your site's Schema clearly maps {keyword} to your core services."},
-                {"question": f"Is this {keyword} strategy future-proof?", "answer": "Yes, it focuses on entity-based SEO, which is the foundational language of AI search engines."}
-            ]
-        })
-    elif 'analyze' in prompt_lower or 'optimize' in prompt_lower:
-        if is_arabic:
-            return json.dumps({
-                "score": 94,
-                "issues": [f"نقص في الربط الدلالي للكيان '{keyword}'.", "ضعف فقرة الإجابة المباشرة."],
-                "suggestions": [f"اجعل الفقرة الأولى تبدأ بـ '{keyword} هو...'", f"أضف بيانات مهيكلة (Schema) لتمثيل '{keyword}' كمنتج/خدمة."],
-                "optimized_content": f"## {keyword}: رؤية جديدة\n{keyword} هو الحل الأمثل... (محتوى محسّن لذكاء الـ GEO)"
-            }, ensure_ascii=False)
-        return json.dumps({
-            "score": 94,
-            "issues": [f"Missing semantic links for entity '{keyword}'.", "Direct answer chunk is too long."],
-            "suggestions": [f"Start the first paragraph with '{keyword} represents...'", f"Add Speakable Schema for easier AI extraction of {keyword}."],
-            "optimized_content": f"## {keyword}: Enhanced Context\n{keyword} represents the next evolution... (Optimized for GEO citation)"
-        })
-    elif 'faq' in prompt_lower:
+    if 'faq' in prompt_lower:
         if is_arabic:
             return json.dumps({"faqs": [
-                {"question": f"ما هي الفوائد طويلة الأمد للتركيز على {keyword}؟", "answer": f"التركيز على {keyword} يبني 'Entity Authority' تجعل علامتك التجارية هي المرجع الأول في إجابات الذكاء الاصطناعي."},
-                {"question": f"هل يؤثر المنافسون على ترتيب {keyword}؟", "answer": "نعم، الفجوة التنافسية في هذا المجال كبيرة، وهذا المحتوى مصمم لسد تلك الفجوة فوراً."}
+                {"question": f"ما هي خدمات {brand}؟",
+                 "answer": f"[DEMO] {brand} تقدم خدمات متخصصة في مجال {keyword}. لتوليد إجابات حقيقية مبنية على بيانات موقعك، أضف مفتاح Groq API في الإعدادات."},
+                {"question": f"كيف يساعد {brand} في تحسين الظهور؟",
+                 "answer": f"[DEMO] من خلال استراتيجيات {keyword} المدعومة بالذكاء الاصطناعي. أضف Groq API للحصول على إجابات مبنية على بيانات زحف موقعك الفعلية."}
             ]}, ensure_ascii=False)
         return json.dumps({"faqs": [
-            {"question": f"What are the long-term benefits of {keyword} focus?", "answer": f"Focusing on {keyword} builds Entity Authority, making your brand the primary reference in AI-generated answers."},
-            {"question": f"Do competitors affect {keyword} ranking?", "answer": "Yes, the competitive gap in this sector is significant, and this content is engineered to fill it immediately."}
+            {"question": f"What does {brand} offer for {keyword}?",
+             "answer": f"[DEMO] {brand} provides specialized {keyword} services. Add a Groq API key in Settings to generate answers grounded in your actual crawled data."},
+            {"question": f"How does {brand} improve {keyword} rankings?",
+             "answer": "[DEMO] Through AI-powered strategies. Connect your API key to generate evidence-based answers from your site's real content."}
         ]})
-    return json.dumps({"faqs": [{"question": f"Strategic Analysis: {keyword}", "answer": "This is a premium GEO optimization result based on your connected research data. To enable real-time generation, please provide a valid API key in settings."}]})
+
+    if 'optimize' in prompt_lower or 'analyze' in prompt_lower:
+        if is_arabic:
+            return json.dumps({
+                "score": 0,
+                "issues": [
+                    "⚠️ وضع تجريبي — لا يوجد مفتاح API",
+                    "لا يمكن تحليل المحتوى بدون Groq أو OpenAI",
+                    "أضف مفتاح API في الإعدادات للحصول على تحليل حقيقي"
+                ],
+                "suggestions": [
+                    "أضف مفتاح Groq API (مجاني) للحصول على تحليل فوري",
+                    "تأكد من ربط بيانات الزحف أولاً من مستودع الأبحاث"
+                ],
+                "optimized_content": f"[DEMO MODE] أضف مفتاح Groq API للحصول على محتوى محسّن حقيقي مبني على بيانات {brand}.",
+                "schema": ""
+            }, ensure_ascii=False)
+        return json.dumps({
+            "score": 0,
+            "issues": ["⚠️ Demo mode — no API key connected", "Real analysis requires Groq or OpenAI key"],
+            "suggestions": ["Add a free Groq API key in Settings", "Connect crawled data from Research Repository first"],
+            "optimized_content": f"[DEMO MODE] Add Groq API key to get real optimized content grounded in {brand}'s actual data.",
+            "schema": ""
+        })
+
+    # Article generation demo
+    if is_arabic:
+        return json.dumps({
+            "title": f"[DEMO] {brand}: دليل {keyword} — أضف Groq API للمحتوى الحقيقي",
+            "meta_description": f"[DEMO] وصف تعريفي لـ {brand} في مجال {keyword}. أضف مفتاح API للحصول على وصف حقيقي.",
+            "content": f"""# [وضع تجريبي — أضف Groq API للمحتوى الحقيقي]
+
+## ما الذي ستحصل عليه بعد إضافة مفتاح API؟
+
+### 1. الإجابة المباشرة (Direct Answer)
+محتوى محدد وقابل للاقتباس من محركات الذكاء الاصطناعي، مبني على بيانات موقع {brand} الفعلية.
+{f'بيانات من موقعك: {real_snippet}' if real_snippet else ''}
+
+### 2. خريطة الكيانات (Entity Graph)
+```
+{brand} → (Organization/LocalBusiness)
+    ├── provides → [{keyword}]
+    ├── operates_in → [المدينة/الدولة]
+    ├── competes_with → [المنافسون]
+    └── recognized_by → [Google, Bing, Perplexity]
+```
+
+### 3. طبقة GEO المحلية
+- كلمات مفتاحية محلية: "{keyword} في الرياض"، "{keyword} السعودية"
+- Google Maps integration
+- LocalBusiness Schema
+
+### 4. قسم الإثبات (Proof Section)
+- أرقام وإحصائيات حقيقية من موقعك
+- Case studies
+- نتائج قابلة للقياس
+
+### 5. Schema متكامل
+Organization + LocalBusiness + Service + FAQ
+
+---
+⚙️ لتفعيل المحتوى الحقيقي: أضف مفتاح Groq API في الإعدادات (مجاني على groq.com)""",
+            "faqs": [
+                {"question": f"[DEMO] ما هي خدمات {brand}؟",
+                 "answer": "أضف Groq API للحصول على إجابات مبنية على بيانات موقعك الفعلية."}
+            ],
+            "schema": "",
+            "implemented_fixes": ["DEMO MODE — add API key for real implementation"],
+            "backend": "demo"
+        }, ensure_ascii=False)
+
+    return json.dumps({
+        "title": f"[DEMO] {brand}: {keyword} Guide — Add Groq API for Real Content",
+        "meta_description": f"[DEMO] Add a Groq API key to generate content grounded in {brand}'s actual crawled data.",
+        "content": f"""# [DEMO MODE — Add Groq API for Real Content]
+
+## What you'll get with a real API key:
+
+### 1. Direct Answer (AI-Citable)
+A specific, evidence-based 50-word answer about {brand} and {keyword}, built from your crawled pages.
+{f'Your site data: {real_snippet}' if real_snippet else ''}
+
+### 2. Entity Graph
+```
+{brand} → (Organization)
+    ├── provides → [{keyword}]
+    ├── operates_in → [City/Country]
+    ├── competes_with → [Real competitors]
+    └── cited_by → [ChatGPT, Perplexity, Google SGE]
+```
+
+### 3. GEO Local Layer
+- Local keywords: "{keyword} in [City]", "best {keyword} [Country]"
+- Google Maps signals
+- LocalBusiness Schema
+
+### 4. Proof Section
+- Real metrics from your site
+- Case studies
+- Measurable outcomes
+
+### 5. Full Schema Stack
+Organization + LocalBusiness + Service + FAQ
+
+---
+⚙️ To activate: Add free Groq API key in Settings (groq.com)""",
+        "faqs": [
+            {"question": f"[DEMO] What does {brand} offer for {keyword}?",
+             "answer": "Add Groq API key to generate answers grounded in your actual site data."}
+        ],
+        "schema": "",
+        "implemented_fixes": ["DEMO MODE — add API key for real implementation"],
+        "backend": "demo"
+    })
 
 
-def _llm_call(prompt: str, prefer: str = 'ollama', api_keys: dict = None) -> dict:
+def _llm_call(prompt: str, prefer: str = 'groq', api_keys: dict = None) -> dict:
     """Try backends in order. Returns {text, backend}."""
     api_keys = api_keys or {}
-    order = [prefer] + [b for b in ['ollama', 'openai', 'claude', 'groq', 'demo'] if b != prefer]
+    order = [prefer] + [b for b in ['groq', 'openai', 'claude', 'ollama', 'demo'] if b != prefer]
     errors = {}
     for backend in order:
         try:
-            if backend == 'ollama':
-                return {'text': _call_ollama(prompt), 'backend': 'ollama'}
+            if backend == 'groq':
+                return {'text': _call_groq(prompt, api_keys.get('groq')), 'backend': 'groq'}
             elif backend == 'openai':
                 return {'text': _call_openai(prompt, api_keys.get('openai')), 'backend': 'openai'}
             elif backend == 'claude':
                 return {'text': _call_claude(prompt, api_keys.get('claude')), 'backend': 'claude'}
-            elif backend == 'groq':
-                return {'text': _call_groq(prompt, api_keys.get('groq')), 'backend': 'groq'}
+            elif backend == 'ollama':
+                return {'text': _call_ollama(prompt), 'backend': 'ollama'}
             elif backend == 'demo':
                 return {'text': _call_demo(prompt), 'backend': 'demo'}
         except Exception as e:
             errors[backend] = str(e)
             continue
-    summary = '; '.join(f"{b}: {e}" for b, e in errors.items())
-    raise RuntimeError(f"No LLM backend available. Errors: {summary}")
+    return {'text': _call_demo(prompt), 'backend': 'demo'}
 
 
 def _parse_json_from_text(text: str) -> dict:
-    """Extract first JSON object from LLM response. Hyper-robust against raw newlines and malformed strings."""
-    # Find JSON block
+    """Extract first JSON object from LLM response."""
     json_match = re.search(r'```json\s*(\{.*?\})\s*```', text, re.DOTALL | re.IGNORECASE)
     if not json_match:
         json_match = re.search(r'(\{.*\})', text, re.DOTALL)
-    
     block = json_match.group(1).strip() if json_match else text.strip()
-    
-    def repair_json_string(match):
-        s = match.group(0)
-        # Escape raw control characters EXCEPT valid escape sequences
-        # This is a bit complex, let's just escape all problematic chars
-        inner = s[1:-1]
+
+    def repair(match):
+        inner = match.group(0)[1:-1]
         inner = inner.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
         return f'"{inner}"'
 
-    # Attempt to fix raw newlines inside strings
-    # This regex matches double-quoted strings while respecting escaped quotes
-    repaired = re.sub(r'"(?:\\.|[^"\\])*"', repair_json_string, block, flags=re.DOTALL)
-
+    repaired = re.sub(r'"(?:\\.|[^"\\])*"', repair, block, flags=re.DOTALL)
     try:
         return json.loads(repaired, strict=False)
     except Exception:
-        # Last ditch effort: try cleaning more aggressively
         try:
             return json.loads(block, strict=False)
         except Exception:
             raise ValueError('No JSON found in LLM response')
 
 
+def _build_context_block(crawl_data: dict) -> str:
+    """Build a grounded context block from real crawled data."""
+    if not crawl_data:
+        return ''
+    lines = ['=== GROUNDED DATA FROM CRAWLED SITE ===']
+    if crawl_data.get('org_name'):
+        lines.append(f'Brand: {crawl_data["org_name"]}')
+    if crawl_data.get('url'):
+        lines.append(f'Site: {crawl_data["url"]}')
+    if crawl_data.get('keywords'):
+        kws = [k.get('kw', k) if isinstance(k, dict) else k for k in crawl_data['keywords'][:15]]
+        lines.append(f'Top Keywords: {", ".join(kws)}')
+    if crawl_data.get('headings'):
+        lines.append(f'Site Structure: {" | ".join(crawl_data["headings"][:8])}')
+    if crawl_data.get('page_content'):
+        lines.append(f'Page Content Sample:\n{crawl_data["page_content"][:1000]}')
+    if crawl_data.get('competitors'):
+        lines.append(f'Detected Competitors: {", ".join(crawl_data["competitors"][:5])}')
+    if crawl_data.get('geo_score'):
+        gs = crawl_data['geo_score']
+        lines.append(f'Current GEO Score: {gs.get("score", 0)}% — {gs.get("status", "")}')
+    if crawl_data.get('issues'):
+        lines.append(f'Critical Issues: {"; ".join(crawl_data["issues"][:5])}')
+    if crawl_data.get('local_regions'):
+        lines.append(f'Detected Regions: {", ".join(crawl_data["local_regions"])}')
+    lines.append('=== END GROUNDED DATA ===')
+    return '\n'.join(lines)
+
+
+def _build_schema(brand: str, keyword: str, url: str, lang: str,
+                  faqs: list = None, local_regions: list = None) -> str:
+    """Build a complete multi-type Schema.org JSON-LD block."""
+    schemas = []
+
+    # Organization
+    org = {
+        "@context": "https://schema.org",
+        "@type": ["Organization", "LocalBusiness"] if local_regions else ["Organization"],
+        "name": brand,
+        "url": url or f"https://{brand.lower().replace(' ', '')}.com",
+        "description": f"{brand} provides {keyword} services",
+        "knowsAbout": [keyword],
+    }
+    if local_regions:
+        org["areaServed"] = local_regions
+        org["@type"] = "LocalBusiness"
+    schemas.append(org)
+
+    # Service
+    schemas.append({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": keyword,
+        "provider": {"@type": "Organization", "name": brand},
+        "areaServed": local_regions or ["Global"],
+        "description": f"Professional {keyword} services by {brand}"
+    })
+
+    # FAQPage
+    if faqs:
+        schemas.append({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {"@type": "Question", "name": f["question"],
+                 "acceptedAnswer": {"@type": "Answer", "text": f["answer"]}}
+                for f in faqs[:5]
+            ]
+        })
+
+    blocks = '\n'.join(
+        f'<script type="application/ld+json">\n{json.dumps(s, ensure_ascii=False, indent=2)}\n</script>'
+        for s in schemas
+    )
+    return blocks
+
+
 # ── Core features ──────────────────────────────────────────────────────────────
 
-def generate_article(keyword: str, lang: str = 'en', target_site: str = "",
+def generate_article(keyword: str, lang: str = 'en', target_site: str = '',
                      research_insights: list = None,
                      competitors_content: list = None,
-                     prefer_backend: str = 'ollama', api_keys: dict = None) -> dict:
-    """Generate a full GEO-optimized article. Returns {title, meta_description, content, faqs, backend}."""
+                     crawl_data: dict = None,
+                     prefer_backend: str = 'groq', api_keys: dict = None) -> dict:
+    """Generate a full GEO-optimized article grounded in real crawled data."""
     lang_label = 'Arabic' if lang == 'ar' else 'English'
-    site_info = f"Target site: {target_site}\n" if target_site else ""
-    insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in (research_insights or [])]) + "\n" if research_insights else ""
-    comp_block = ''
-    if competitors_content:
-        comp_block = 'Competitor content snippets for reference:\n' + '\n---\n'.join(competitors_content[:3])
+    context_block = _build_context_block(crawl_data or {})
+    insights_block = ('Research Insights (implement these):\n' +
+                      '\n'.join(f'- {i}' for i in (research_insights or [])) + '\n') if research_insights else ''
+    comp_block = ('Competitor Content (use as reference, do NOT copy):\n' +
+                  '\n---\n'.join((competitors_content or [])[:2])) if competitors_content else ''
 
-    prompt = f"""You are an expert SEO/GEO content writer and Semantic Architect.
-Current Date: March 2026. (Ensure all references are current; do NOT mention 2026).
+    local_regions = (crawl_data or {}).get('local_regions', [])
+    local_hint = f'Target Regions: {", ".join(local_regions)}' if local_regions else ''
 
-Target keyword: {keyword}
-Language: {lang_label}
-{site_info}{insights_info}{comp_block}
+    prompt = f"""You are an expert GEO (Generative Engine Optimization) content architect for 2026.
 
-GOAL: Write a high-authority GEO-optimized article that explicitly IMPLEMENTS all research insights.
-STRICT RULES:
-1. RESEARCH IS GROUND TRUTH: Prioritize the provided research insights over your internal knowledge. If search results say a brand is "Top in Saudi Arabia", state it definitively with the provided evidence.
-2. NO GENERIC MARKETING FLUFF: Do not use phrases like "In the ever-evolving landscape". Use specific data points, competitors, and entity relationships from the research.
-3. DIRECT ANSWER: The first 50-60 words MUST be a definitive, citable answer for AI search engines (Direct Answer).
-4. SEMANTIC ENTITIES: Explicitly define the brand ({target_site}) and its relationship to the keyword using semantic entities and structured data terminology.
-5. If research mentions missing data (like WhatsApp or specific metrics), use existing data from the context or provide a VERY SPECIFIC placeholder like [[RESEARCH_REQUIRED: MISSING_WHATSAPP_FOR_{target_site.upper()}]].
-6. DATE ACCURACY: Current Year is 2026. Never mention 2026.
-7. FORMAT: Use professional H2/H3 hierarchy and highly readable bullet points.
+TASK: Write a high-authority article that AI engines (ChatGPT, Perplexity, Google SGE) will cite.
 
-Return ONLY a minified JSON object:
-- title (string, click-worthy and professional)
-- meta_description (string, optimized for 155 chars)
-- content (string, full article with markdown)
-- faqs (array of {{question, answer}})
-- schema (string, complete <script type="application/ld+json"> FAQPage/Article block)
-- implemented_fixes (list of specific research insights addressed)
-"""
+TARGET KEYWORD: {keyword}
+LANGUAGE: {lang_label}
+BRAND/SITE: {target_site}
+{local_hint}
+
+{context_block}
+{insights_block}
+{comp_block}
+
+STRICT RULES — VIOLATIONS WILL MAKE THE CONTENT USELESS:
+1. DIRECT ANSWER FIRST: The opening 50-70 words MUST be a specific, citable statement about {target_site}.
+   - Include: what they do, where they operate, one measurable outcome or differentiator.
+   - BAD: "{target_site} represents best practices..." (generic, uncitable)
+   - GOOD: "{target_site} is a [specific service] company in [location] that helps [audience] achieve [specific result] through [method]."
+
+2. NO KEYWORD SPAM: Use the keyword naturally. Never repeat "{keyword}" more than once per paragraph.
+
+3. ENTITY GRAPH: Include a section mapping relationships:
+   {target_site} → provides → [{keyword}]
+   {target_site} → operates_in → [real locations from data]
+   {target_site} → competes_with → [real competitors from data]
+
+4. GEO LOCAL LAYER: If location data exists, include city-specific keywords naturally.
+   Example: "{keyword} in Riyadh", "best {keyword} Saudi Arabia"
+
+5. PROOF SECTION: Include a "Results & Evidence" section with:
+   - Specific metrics (use [[METRIC_NEEDED]] if not in data)
+   - Case study structure (use [[CASE_STUDY_NEEDED]] if not in data)
+   - Never invent fake numbers
+
+6. CONTENT STRUCTURE (H-tags):
+   H1: [Brand] + [Keyword] + [Location if applicable]
+   H2: Direct Answer | Services | GEO Local | Proof/Results | FAQ
+
+7. SCHEMA: Generate Organization + LocalBusiness (if local) + Service + FAQPage schemas.
+
+8. CITATIONS: Reference authoritative sources where relevant (Google, industry reports).
+
+Return ONLY valid JSON:
+{{
+  "title": "click-worthy H1 with brand + keyword + location",
+  "meta_description": "155 chars max, includes keyword + location + value prop",
+  "content": "full markdown article",
+  "faqs": [{{"question": "...", "answer": "specific, citable, 3-4 sentences"}}],
+  "entity_graph": [{{"subject": "...", "relation": "...", "object": "..."}}],
+  "local_keywords": ["keyword in city", ...],
+  "proof_placeholders": ["[[METRIC_NEEDED: X]]", ...],
+  "schema": "<script type=application/ld+json>...</script>",
+  "implemented_fixes": ["list of specific improvements made"]
+}}"""
+
     result = _llm_call(prompt, prefer=prefer_backend, api_keys=api_keys)
     parsed = _parse_json_from_text(result['text'])
     parsed['backend'] = result['backend']
     parsed['keyword'] = keyword
     parsed['lang'] = lang
+
+    # Build schema from data if LLM didn't provide a good one
+    if not parsed.get('schema') or len(parsed.get('schema', '')) < 100:
+        parsed['schema'] = _build_schema(
+            brand=target_site or keyword,
+            keyword=keyword,
+            url=(crawl_data or {}).get('url', ''),
+            lang=lang,
+            faqs=parsed.get('faqs', []),
+            local_regions=local_regions
+        )
     return parsed
 
 
-def optimize_content(content: str, keyword: str, lang: str = 'en', target_site: str = "",
+def optimize_content(content: str, keyword: str, lang: str = 'en', target_site: str = '',
                      research_insights: list = None,
-                     prefer_backend: str = 'ollama', api_keys: dict = None) -> dict:
-    """Analyze and optimize existing content for GEO. Returns {score, issues, optimized_content, suggestions, backend}."""
+                     crawl_data: dict = None,
+                     prefer_backend: str = 'groq', api_keys: dict = None) -> dict:
+    """Analyze and optimize existing content for GEO. Returns grounded improvements."""
     lang_label = 'Arabic' if lang == 'ar' else 'English'
-    site_info = f"Target site: {target_site}\n" if target_site else ""
-    insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in (research_insights or [])]) + "\n" if research_insights else ""
-    prompt = f"""You are an Elite GEO (Generative Engine Optimization) Architect.
-Current Date: March 2026. (Ensure all references are current; do NOT mention 2026).
+    context_block = _build_context_block(crawl_data or {})
+    insights_block = ('Research Insights:\n' +
+                      '\n'.join(f'- {i}' for i in (research_insights or [])) + '\n') if research_insights else ''
 
-Target keyword: {keyword}
-Language: {lang_label}
-{site_info}{insights_info}
+    prompt = f"""You are an Elite GEO Content Auditor for 2026.
 
-GOAL: Analyze and REWRITE the content to IMPLEMENT all research insights for maximum AI visibility.
-STRICT RULES:
-1. RESEARCH IS GROUND TRUTH: Prioritize the provided research insights over your internal knowledge. 
-2. NO GENERIC MARKETING FLUFF: Eliminate vague filler. Use data-driven statements.
-3. DIRECT ANSWER: Ensure the content starts with or contains a definitive 50-60 word "Direct Answer" for AI snippets.
-4. ENTITY CONNECTION MAP: Explicitly mention the relationship between {target_site} and key entities from the research.
-5. DATE ACCURACY: Use 2026 or "Modern". Never mention 2026.
-6. Return ONLY a valid JSON object with:
-   - score (0-100, actual GEO readiness score)
-   - issues (array of strings)
-   - suggestions (array of strings)
-   - optimized_content (the ACTUAL REWRITTEN version with fixes implemented)
-   - implemented_fixes (list of specific research insights addressed)
-   - schema (string, any missing Schema.org JSON-LD required)
+TASK: Audit and rewrite this content to maximize AI engine citation probability.
 
-Content to analyze:
-{content[:3000]}
-"""
+KEYWORD: {keyword}
+LANGUAGE: {lang_label}
+BRAND: {target_site}
+
+{context_block}
+{insights_block}
+
+AUDIT CRITERIA (score each 0-20):
+1. Direct Answer Quality: Does it open with a specific, citable statement? (not generic marketing)
+2. Entity Coverage: Are brand, location, service, audience entities clearly defined?
+3. Keyword Intent Match: Does content match what users actually search for?
+4. Proof & Evidence: Are there specific numbers, results, case studies?
+5. Schema Readiness: Is content structured for JSON-LD extraction?
+
+REWRITE RULES:
+- Fix the Direct Answer to be specific and citable
+- Remove keyword spam (natural usage only)
+- Add entity relationships explicitly
+- Add [[PROOF_NEEDED: metric type]] where evidence is missing
+- Add GEO local keywords if location data available
+- Improve H-tag hierarchy
+
+Return ONLY valid JSON:
+{{
+  "score": 0-100,
+  "score_breakdown": {{"direct_answer": 0-20, "entities": 0-20, "intent": 0-20, "proof": 0-20, "schema": 0-20}},
+  "issues": ["specific issue with line/section reference"],
+  "suggestions": ["specific actionable fix"],
+  "optimized_content": "full rewritten content in markdown",
+  "schema": "<script type=application/ld+json>...</script>",
+  "implemented_fixes": ["what was changed and why"]
+}}
+
+CONTENT TO AUDIT:
+{content[:3000]}"""
+
     result = _llm_call(prompt, prefer=prefer_backend, api_keys=api_keys)
     parsed = _parse_json_from_text(result['text'])
     parsed['backend'] = result['backend']
@@ -358,25 +482,40 @@ Content to analyze:
 
 
 def generate_faqs(topic: str, page_content: str = None, lang: str = 'en', count: int = 5,
-                  prefer_backend: str = 'ollama', api_keys: dict = None, 
-                  target_site: str = "", research_insights: list = None) -> dict:
-    """Generate FAQ pairs for a topic. Returns {faqs: [{question, answer}], backend}."""
+                  prefer_backend: str = 'groq', api_keys: dict = None,
+                  target_site: str = '', research_insights: list = None,
+                  crawl_data: dict = None) -> dict:
+    """Generate FAQ pairs grounded in real crawled data."""
     lang_label = 'Arabic' if lang == 'ar' else 'English'
-    site_info = f"Target site: {target_site}\n" if target_site else ""
-    insights_info = f"Research insights:\n" + "\n".join([f"- {i}" for i in research_insights]) + "\n" if research_insights else ""
-    context = f"\nPage context:\n{page_content[:1500]}" if page_content else ''
-    prompt = f"""Generate {count} high-performance GEO-FAQ question-answer pairs about: {topic}
-Language: {lang_label}
-Current Date: March 2026.
-{site_info}{insights_info}{context}
+    context_block = _build_context_block(crawl_data or {})
+    insights_block = ('Research Insights:\n' +
+                      '\n'.join(f'- {i}' for i in (research_insights or [])) + '\n') if research_insights else ''
+    context = f'\nPage Content:\n{page_content[:1500]}' if page_content else ''
 
-Rules for Elite FAQs:
-- DATA FIRST: Every answer MUST incorporate a specific detail from the research insights or page context. Avoid generic answers.
-- Questions: MUST reflect "Long-tail" and "Semantic" queries users ask on Perplexity/ChatGPT.
-- Answers: 3-4 sentences of PURE VALUE. Lead with a direct fact. Integrate research insights to provide "Expertise, Authoritativeness, and Trustworthiness" (E-E-A-T).
-- Data Integration: If insights mention a specific competitor gap (e.g., "Competitor X lacks Y"), address how {target_site} provides Y in the answers.
-- Return ONLY JSON: {{"faqs": [{{"question": "...", "answer": "..."}}]}}
-"""
+    prompt = f"""Generate {count} high-performance GEO FAQ pairs for AI engine citation.
+
+TOPIC: {topic}
+LANGUAGE: {lang_label}
+BRAND: {target_site}
+
+{context_block}
+{insights_block}{context}
+
+FAQ QUALITY RULES:
+1. Questions must be REAL user queries (long-tail, conversational, as asked on Perplexity/ChatGPT)
+   - BAD: "What is {topic}?" (too generic)
+   - GOOD: "How does {target_site} help businesses improve {topic} in [location]?"
+
+2. Answers must be SPECIFIC and CITABLE:
+   - Lead with a direct fact from the crawled data
+   - Include brand name, service, location where relevant
+   - 3-4 sentences max
+   - Never use generic phrases like "in today's digital landscape"
+
+3. Cover these intent types: Informational, Commercial, Local/GEO
+
+Return ONLY JSON: {{"faqs": [{{"question": "...", "answer": "..."}}]}}"""
+
     result = _llm_call(prompt, prefer=prefer_backend, api_keys=api_keys)
     parsed = _parse_json_from_text(result['text'])
     parsed['backend'] = result['backend']
@@ -386,11 +525,10 @@ Rules for Elite FAQs:
 
 
 def semantic_optimize(content: str, lang: str = 'en',
-                      prefer_backend: str = 'ollama', api_keys: dict = None) -> dict:
-    """Extract semantic entities, topics, and suggest LSI keywords. Returns {entities, topics, lsi_keywords, semantic_score, backend}."""
+                      prefer_backend: str = 'groq', api_keys: dict = None) -> dict:
+    """Extract semantic entities, build entity graph, suggest LSI keywords."""
     lang_label = 'Arabic' if lang == 'ar' else 'English'
-    
-    # Use specialized Arabic tools if lang is Arabic
+
     entities_extracted = []
     if lang == 'ar':
         try:
@@ -401,27 +539,31 @@ def semantic_optimize(content: str, lang: str = 'en',
         except Exception:
             pass
 
-    prompt = f"""Perform semantic analysis on this {lang_label} content.
-Return ONLY a JSON object with:
-- entities (array of {{text, type}}: ORG, PERSON, PRODUCT, PLACE, CONCEPT)
-- topics (array of main topics covered)
-- lsi_keywords (array of semantically related keywords to add)
-- semantic_score (0-100, how semantically rich the content is)
-- missing_concepts (array of important concepts not covered)
+    prompt = f"""Perform deep semantic analysis on this {lang_label} content for GEO optimization.
+
+Return ONLY valid JSON:
+{{
+  "entities": [{{"text": "...", "type": "ORG|PERSON|PRODUCT|PLACE|CONCEPT|SERVICE"}}],
+  "entity_graph": [{{"subject": "...", "relation": "provides|operates_in|competes_with|serves|part_of", "object": "..."}}],
+  "topics": ["main topics covered"],
+  "lsi_keywords": ["semantically related keywords to add"],
+  "missing_entities": ["important entities not mentioned"],
+  "local_signals": ["any location/GEO signals found"],
+  "semantic_score": 0-100,
+  "missing_concepts": ["important concepts not covered"]
+}}
 
 Content:
-{content[:3000]}
-"""
+{content[:3000]}"""
+
     result = _llm_call(prompt, prefer=prefer_backend, api_keys=api_keys)
     parsed = _parse_json_from_text(result['text'])
-    
-    # Merge LLM entities with AraBERT/Heuristic extracted entities for Arabic
+
     if lang == 'ar' and entities_extracted:
-        existing_texts = {e['text'].lower() for e in parsed.get('entities', [])}
+        existing = {e['text'].lower() for e in parsed.get('entities', [])}
         for e in entities_extracted:
-            if e['text'].lower() not in existing_texts:
+            if e['text'].lower() not in existing:
                 parsed.setdefault('entities', []).append(e)
-                existing_texts.add(e['text'].lower())
-    
+
     parsed['backend'] = result['backend']
     return parsed
