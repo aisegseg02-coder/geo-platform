@@ -71,14 +71,33 @@ def _call_demo(prompt: str) -> str:
     prompt_lower = prompt.lower()
     is_arabic = 'arabic' in prompt_lower or bool(re.search(r'[\u0600-\u06FF]', prompt))
 
-    kw_match = re.search(r'keyword[:\s]+([^\n]+)', prompt, re.IGNORECASE)
+    # Extract keyword
+    kw_match = re.search(r'(?:TARGET KEYWORD|keyword)[:\s]+([^\n]+)', prompt, re.IGNORECASE)
     keyword = kw_match.group(1).strip() if kw_match else 'your keyword'
 
-    site_match = re.search(r'target site[:\s]+([^\n,]+)', prompt, re.IGNORECASE)
-    brand = site_match.group(1).strip() if site_match else 'YourBrand'
+    # Extract brand — try multiple patterns
+    brand = 'YourBrand'
+    for pattern in [
+        r'Brand[:\s]+([^\n,]+)',
+        r'BRAND[:\s]+([^\n,]+)',
+        r'BRAND/SITE[:\s]+([^\n,]+)',
+        r'target site[:\s]+([^\n,]+)',
+    ]:
+        m = re.search(pattern, prompt, re.IGNORECASE)
+        if m:
+            candidate = m.group(1).strip()
+            # Clean URL from brand
+            if ',' in candidate:
+                parts = [p.strip() for p in candidate.split(',')]
+                candidate = next((p for p in parts if not p.startswith('http')), parts[-1])
+            if candidate.startswith('http'):
+                candidate = candidate.split('//')[-1].split('/')[0].replace('www.', '')
+            if candidate and candidate != 'YourBrand':
+                brand = candidate
+                break
 
-    # Extract any real page content passed in
-    content_match = re.search(r'PAGE CONTENT[:\s]+(.*?)(?:\n\n|\Z)', prompt, re.DOTALL | re.IGNORECASE)
+    # Extract real page content if passed
+    content_match = re.search(r'Page Content[:\s]+(.*?)(?:\n\n|\Z)', prompt, re.DOTALL | re.IGNORECASE)
     real_snippet = content_match.group(1).strip()[:300] if content_match else ''
 
     if 'faq' in prompt_lower:
