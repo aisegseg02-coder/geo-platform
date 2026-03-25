@@ -288,12 +288,21 @@ def _build_context_block(crawl_data: dict) -> str:
 def _build_schema(brand: str, keyword: str, url: str, lang: str,
                   faqs: list = None, local_regions: list = None) -> str:
     """Build a complete multi-type Schema.org JSON-LD block."""
+    # Clean brand: if it contains a URL, extract just the org name
+    if ',' in brand:
+        parts = [p.strip() for p in brand.split(',')]
+        # pick the non-URL part
+        brand = next((p for p in parts if not p.startswith('http')), parts[-1])
+    if brand.startswith('http'):
+        # extract domain as brand fallback
+        brand = brand.split('//')[-1].split('/')[0].replace('www.', '')
+
     schemas = []
 
-    # Organization
+    # Organization / LocalBusiness
     org = {
         "@context": "https://schema.org",
-        "@type": ["Organization", "LocalBusiness"] if local_regions else ["Organization"],
+        "@type": "LocalBusiness" if local_regions else "Organization",
         "name": brand,
         "url": url or f"https://{brand.lower().replace(' ', '')}.com",
         "description": f"{brand} provides {keyword} services",
@@ -301,7 +310,6 @@ def _build_schema(brand: str, keyword: str, url: str, lang: str,
     }
     if local_regions:
         org["areaServed"] = local_regions
-        org["@type"] = "LocalBusiness"
     schemas.append(org)
 
     # Service
@@ -326,11 +334,10 @@ def _build_schema(brand: str, keyword: str, url: str, lang: str,
             ]
         })
 
-    blocks = '\n'.join(
+    return '\n'.join(
         f'<script type="application/ld+json">\n{json.dumps(s, ensure_ascii=False, indent=2)}\n</script>'
         for s in schemas
     )
-    return blocks
 
 
 # ── Core features ──────────────────────────────────────────────────────────────

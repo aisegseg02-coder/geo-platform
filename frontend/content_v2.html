@@ -754,8 +754,14 @@
 
     function getActiveSite() {
       const job = JSON.parse(localStorage.getItem('active_geo_job') || 'null');
-      if (!job) return "";
-      return `${job.url}, ${job.org_name || 'Brand'}`;
+      if (!job) return '';
+      // Return "url, org_name" format used by backend to extract brand
+      return `${job.url || ''}, ${job.org_name || 'Brand'}`;
+    }
+
+    function getActiveBrand() {
+      const job = JSON.parse(localStorage.getItem('active_geo_job') || 'null');
+      return job ? (job.org_name || job.url || '') : '';
     }
 
     function getActiveInsights() {
@@ -1160,6 +1166,19 @@
       if (mbtn) mbtn.addEventListener('click', performResearchFetch);
       updateConnectionStatus();
       autoLoadLastJob();
+      // Show bottom section immediately if we have a connected job
+      const job = JSON.parse(localStorage.getItem('active_geo_job') || 'null');
+      if (job) {
+        const insights = JSON.parse(localStorage.getItem('active_geo_insights') || '[]');
+        const fakeRecs = {
+          actions: insights.slice(0, 5).map(i => ({ text: i, priority: 'MEDIUM' })),
+          critical_issue: insights.length === 0 ? {
+            title: 'لا توجد توصيات بعد — اضغط على زحف لتحميل البيانات',
+            why: 'اربط مهمة مكتملة من مستودع الأبحاث للحصول على توصيات حقيقية'
+          } : null
+        };
+        renderStrategicRecs(fakeRecs, null);
+      }
     });
 
     function renderStrategicRecs(recs, geo) {
@@ -1169,55 +1188,80 @@
       const badge = document.getElementById('market-grade-badge');
 
       ref.classList.remove('hidden');
-      
-      const score = geo ? (geo.score || 0) : 0;
-      let grade = 'F';
-      if(score > 90) grade = 'A+';
-      else if(score > 80) grade = 'A';
-      else if(score > 70) grade = 'B';
-      else if(score > 60) grade = 'C';
-      badge.textContent = `GEO Score: ${grade} (${score}%)`;
+      document.getElementById('empty-state').style.display = 'none';
 
-      // Main Recommendation
+      const score = geo ? (geo.score || 0) : 0;
+      const grade = score > 90 ? 'A+' : score > 80 ? 'A' : score > 70 ? 'B' : score > 60 ? 'C' : score > 40 ? 'D' : 'F';
+      const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--yellow)' : 'var(--red)';
+      badge.innerHTML = `<span style="color:${scoreColor};font-weight:800">${grade}</span> <span style="color:var(--muted);font-size:10px">${score}%</span>`;
+
+      // Build body from actions array (new format)
+      const actions = recs.actions || [];
       const critical = recs.critical_issue;
       const topAdd = recs.top_additions;
-      
+
+      let bodyHtml = '';
+
       if (critical && critical.title) {
-        bodyEl.innerHTML = `<div style="color:var(--red); font-weight:700; margin-bottom:5px;">⚠️ ${critical.title}</div>
-                            <div style="opacity:0.8; font-size:12px;">${critical.why || ''}</div>`;
-        
-        if (critical.tasks) {
-          taskEl.innerHTML = critical.tasks.map(t => `
-            <button class="btn btn-accent" style="width:100%; justify-content:center; font-size:11px; padding:6px; background:rgba(0,212,255,0.1);" 
-                    onclick="triggerAutonomousFix('${t.type}', '${t.id}', '${t.label}')">
-              ⚡ ${t.label}
-            </button>
-          `).join('');
-        }
-      } else if (topAdd && topAdd.items) {
-        bodyEl.innerHTML = `<div style="font-weight:700; margin-bottom:5px;">🚀 ${topAdd.title || 'Top Opportunities'}</div>
-                            <ul style="margin:0; padding-left:15px; opacity:0.8; font-size:11px;">
-                              ${topAdd.items.slice(0,3).map(i => `<li>${i}</li>`).join('')}
-                            </ul>`;
-        taskEl.innerHTML = `<button class="btn" style="width:100%; font-size:11px;" onclick="document.getElementById('gen-tab').click()">🛠️ Start Optimization</button>`;
+        bodyHtml += `<div style="padding:10px;border-radius:8px;background:rgba(255,51,102,0.08);border-right:3px solid var(--red);margin-bottom:12px">
+          <div style="color:var(--red);font-weight:700;margin-bottom:4px">⚠️ ${critical.title}</div>
+          <div style="font-size:12px;color:var(--muted)">${critical.why || ''}</div>
+        </div>`;
       }
+
+      if (actions.length) {
+        bodyHtml += actions.slice(0, 5).map(a => {
+          const text = typeof a === 'object' ? (a.text || a.title || JSON.stringify(a)) : a;
+          const priority = typeof a === 'object' ? (a.priority || '') : '';
+          const pColor = priority === 'HIGH' ? 'var(--red)' : priority === 'MEDIUM' ? 'var(--yellow)' : 'var(--accent)';
+          return `<div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:6px">
+            <span style="color:${pColor};font-size:10px;font-weight:800;min-width:40px;padding-top:2px">${priority || '•'}</span>
+            <span style="font-size:12px;line-height:1.5">${text}</span>
+          </div>`;
+        }).join('');
+      }
+
+      if (topAdd && topAdd.items) {
+        bodyHtml += `<div style="margin-top:10px;padding:10px;background:rgba(124,58,237,0.08);border-radius:8px;border-right:3px solid #a78bfa">
+          <div style="color:#a78bfa;font-weight:700;font-size:12px;margin-bottom:8px">🚀 ${topAdd.title || 'Top Opportunities'}</div>
+          ${topAdd.items.slice(0,4).map(i => `<div style="font-size:11px;color:var(--muted);margin-bottom:3px">• ${i}</div>`).join('')}
+        </div>`;
+      }
+
+      bodyEl.innerHTML = bodyHtml || '<div style="color:var(--muted);font-size:13px">تحليل البيانات جارٍ...</div>';
+
+      // Action buttons — wired to real tabs + auto-fill
+      const brand = getActiveBrand();
+      const kw = document.getElementById('gen-keyword')?.value || brand;
+
+      taskEl.innerHTML = `
+        <button class="btn" style="width:100%;justify-content:center;font-size:12px;padding:8px;background:rgba(0,212,255,0.08);border-color:var(--accent);color:var(--accent)"
+          onclick="triggerAutonomousFix('faq', '', 'أسئلة شائعة حول ${kw}')">&#9889; توليد أسئلة FAQ ذكية</button>
+        <button class="btn" style="width:100%;justify-content:center;font-size:12px;padding:8px;background:rgba(0,255,149,0.06);border-color:var(--green);color:var(--green)"
+          onclick="triggerAutonomousFix('generate', '', 'نص تعريفي سلطوي Authority لـ ${brand}')">&#9889; إنشاء نص تعريفي (Authority)</button>
+        <button class="btn" style="width:100%;justify-content:center;font-size:12px;padding:8px;background:rgba(255,0,234,0.06);border-color:var(--accent-secondary);color:var(--accent-secondary)"
+          onclick="triggerAutonomousFix('generate', '', 'مقارنة ${brand} مع المنافسين')">&#9889; مقارنة مع المنافسين</button>
+      `;
     }
 
     window.triggerAutonomousFix = function(type, id, label) {
-      const tabMap = { 'faq': 'faq-tab', 'generate': 'gen-tab', 'optimize': 'opt-tab' };
-      const tabId = tabMap[type] || 'gen-tab';
-      const tabBtn = document.getElementById(tabId);
+      const tabMap = { 'faq': 'faq-tab', 'generate': 'gen-tab', 'optimize': 'opt-tab', 'semantic': 'sem-tab' };
+      const tabBtn = document.getElementById(tabMap[type] || 'gen-tab');
       if (tabBtn) tabBtn.click();
 
       setTimeout(() => {
         if (type === 'faq') {
-          document.getElementById('faq-topic').value = label;
-          document.getElementById('faq-btn').click();
-        } else if (type === 'generate') {
-          document.getElementById('gen-kw').value = label;
-          document.getElementById('gen-btn').click();
+          const el = document.getElementById('faq-topic');
+          if (el) { el.value = label; }
+          // auto-trigger
+          const btn = document.getElementById('faq-btn');
+          if (btn) btn.click();
+        } else if (type === 'generate' || type === 'optimize') {
+          const kwEl = document.getElementById('gen-keyword');
+          if (kwEl && label) kwEl.value = label;
+          // Don't auto-click — let user review first
         }
-      }, 300);
+      }, 400);
     };
 
     // ── Optimize Content ──────────────────────────────────────────────────────
