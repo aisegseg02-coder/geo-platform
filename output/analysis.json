@@ -10,17 +10,17 @@
     }
   },
   "geo_score": {
-    "score": 65,
-    "status": "Needs Work",
+    "score": 0,
+    "status": "Critical",
     "breakdown": {
-      "headings": 20,
-      "density": 5,
-      "entities": 20,
-      "faq": 20,
+      "headings": 0,
+      "density": 0,
+      "entities": 0,
+      "faq": 0,
       "ai_visibility": 0
     },
     "counts": {
-      "critical": 3,
+      "critical": 2,
       "warnings": 0,
       "passed": 0
     }

@@ -6,7 +6,7 @@
     },
     "groq": {
       "enabled": true,
-      "raw": "('id', 'chatcmpl-988c0548-89ab-4e71-a05e-6d61aefcbca0')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"title\": \"Rabhanagency - أفضل شركة تسويق في السعودية\",\\n  \"url\": \"https://rabhanagency.com/\",\\n  \"text\": \"Rabhanagency\",\\n  \"url_with_anchor\": \"https://rabhanagency.com/#content\",\\n  \"text_duplicate\": \"Rabhanagency\"\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774269188)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_6a1eabf260')('usage', CompletionUsage(completion_tokens=74, prompt_tokens=106, total_tokens=180, completion_time=0.08283466, completion_tokens_details=None, prompt_time=0.005927158, prompt_tokens_details=None, queue_time=0.017948606, total_time=0.088761818))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmdayhvhegvr3qtr2pr8cw45', debug=None, seed=1738281301, usage=None))",
+      "raw": "('id', 'chatcmpl-d3c9b14e-0736-492c-9d66-5660a68c3e6b')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"title\": \"Rabhanagency - أفضل شركة تسويق في السعودية\",\\n  \"url\": \"https://rabhanagency.com/\",\\n  \"text\": \"Rabhanagency\"\\n}\\n```\\n\\n```json\\n{\\n  \"title\": \"Rabhanagency - أفضل شركة تسويق في السعودية\",\\n  \"url\": \"https://rabhanagency.com/#content\",\\n  \"text\": \"Rabhanagency\"\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774271969)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_8639719ff2')('usage', CompletionUsage(completion_tokens=96, prompt_tokens=106, total_tokens=202, completion_time=0.094449388, completion_tokens_details=None, prompt_time=0.006478208, prompt_tokens_details=None, queue_time=0.018456577, total_time=0.100927596))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmddke09ftsrxewc3g14fwh6', debug=None, seed=2120619979, usage=None))",
       "parse_error": "No JSON found in LLM response"
     }
   },
@@ -26,72 +26,81 @@
       "passed": 0
     },
     "v2": {
-      "score": 55.0,
+      "score": 60.0,
       "breakdown": {
         "seo_rank": 100.0,
         "ai_visibility": 0.0,
-        "traffic": 75.0
+        "traffic": 100
       },
       "avg_rank": 1.0
     }
   },
   "competitor_insight": {
-    "monthly_visits": "75K",
+    "monthly_visits": "150K",
     "traffic_sources": {
-      "search": 45,
+      "search": 55,
       "direct": 25,
-      "social": 20,
-      "referral": 10
+      "social": 15,
+      "referral": 5
     },
     "top_competitors": [
       {
         "name": "Rabhan",
         "domain": "rabhanagency.com",
-        "overlap_score": 95,
+        "overlap_score": 92,
         "region": "SA"
       },
       {
         "name": "Bayt.com",
         "domain": "bayt.com",
-        "overlap_score": 88,
+        "overlap_score": 85,
         "region": "Global"
       },
       {
-        "name": "Souq.com",
-        "domain": "souq.com",
-        "overlap_score": 85,
+        "name": "Savvi",
+        "domain": "savvi.com",
+        "overlap_score": 78,
         "region": "Global"
       }
     ],
     "regional_split": [
       {
         "country": "Saudi Arabia",
-        "share": 60
+        "share": 55
       },
       {
         "country": "UAE",
-        "share": 20
+        "share": 25
       },
       {
         "country": "Egypt",
         "share": 10
       },
       {
-        "country": "Other MENA countries",
-        "share": 10
-      }
-    ],
-    "industry": "E-commerce and Digital Marketing",
-    "seo_rankings": [
-      {
-        "query": "best e-commerce platforms in saudi arabia",
-        "rank": 1,
-        "link": "https://rabhanagency.com/best-e-commerce-platforms-in-saudi-arabia"
+        "country": "Kuwait",
+        "share": 5
       },
       {
-        "query": "top digital marketing agencies in saudi arabia",
+        "country": "Oman",
+        "share": 5
+      }
+    ],
+    "industry": "Digital Marketing and E-commerce",
+    "seo_rankings": [
+      {
+        "query": "best marketing agencies in saudi arabia",
         "rank": 2,
-        "link": "https://rabhanagency.com/top-digital-marketing-agencies-in-saudi-arabia"
+        "link": "https://rabhanagency.com/"
+      },
+      {
+        "query": "top advertising agencies in saudi arabia",
+        "rank": 3,
+        "link": "https://rabhanagency.com/"
+      },
+      {
+        "query": "best e-commerce platforms in saudi arabia",
+        "rank": 5,
+        "link": "https://rabhanagency.com/"
       }
     ]
   }

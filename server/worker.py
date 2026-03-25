@@ -66,6 +66,19 @@ def process_job(job):
             print(f"Failed to copy job results to main output dir: {copy_err}")
 
         job_queue.update_job(jid, status='completed', progress={'stage':'done','percent':100}, result_path=str(out_dir))
+
+        # ── Save tracking snapshots & check alerts ────────────────────────
+        try:
+            from server.advanced_features import (
+                save_keyword_snapshot, save_geo_score_snapshot, check_and_create_alerts
+            )
+            from server.keyword_engine import extract_keywords_from_audit
+            kws = extract_keywords_from_audit({'pages': pages}, top_n=30, enrich=False)
+            save_keyword_snapshot(jid, job.get('url', ''), kws if isinstance(kws, list) else kws.get('top_keywords', []))
+            save_geo_score_snapshot(jid, job.get('url', ''), geo)
+            check_and_create_alerts(jid, job.get('url', ''), geo)
+        except Exception as track_err:
+            print(f'Tracking error (non-fatal): {track_err}')
     except Exception as e:
         job_queue.update_job(jid, status='failed', progress={'stage':'error','error': str(e)})
 

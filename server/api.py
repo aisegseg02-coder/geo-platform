@@ -1333,3 +1333,213 @@ async def serve_regional_dashboard():
 async def serve_ads_dashboard():
     """Serve the Paid Ads Management dashboard."""
     return FileResponse(str(frontend_dir / 'ads.html'))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADVANCED FEATURES — Keyword Tracking, Alerts, Scheduler, Bulk, Gap, Email
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from server.advanced_features import (
+    save_keyword_snapshot, save_geo_score_snapshot,
+    get_keyword_trends, get_geo_score_trends,
+    check_and_create_alerts, get_alerts, mark_alerts_seen,
+    add_scheduled_crawl, list_scheduled_crawls, delete_scheduled_crawl,
+    competitor_keyword_gap, bulk_enqueue, send_weekly_report,
+    start_scheduler, init_advanced_tables
+)
+
+try:
+    init_advanced_tables()
+    start_scheduler()
+except Exception:
+    pass
+
+
+@app.get('/api/tracking/keywords')
+async def api_keyword_trends(url: str, keyword: str = None, days: int = 30):
+    try:
+        return {'ok': True, 'trends': get_keyword_trends(url, keyword, days)}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.get('/api/tracking/geo-score')
+async def api_geo_score_trends(url: str, days: int = 90):
+    try:
+        return {'ok': True, 'trends': get_geo_score_trends(url, days)}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.get('/api/alerts')
+async def api_get_alerts(url: str = None, unseen_only: bool = False):
+    try:
+        alerts = get_alerts(url, unseen_only)
+        return {'ok': True, 'alerts': alerts, 'count': len(alerts)}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.post('/api/alerts/seen')
+async def api_mark_alerts_seen(req: dict):
+    try:
+        mark_alerts_seen(req.get('ids', []))
+        return {'ok': True}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+class ScheduleRequest(BaseModel):
+    url: str
+    org_name: str = ''
+    org_url: str = ''
+    max_pages: int = 3
+    frequency: str = 'weekly'
+
+
+@app.post('/api/schedule')
+async def api_add_schedule(req: ScheduleRequest):
+    try:
+        sid = add_scheduled_crawl(req.url, req.org_name, req.org_url, req.max_pages, req.frequency)
+        return {'ok': True, 'schedule_id': sid}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.get('/api/schedule')
+async def api_list_schedules():
+    try:
+        return {'ok': True, 'schedules': list_scheduled_crawls()}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.delete('/api/schedule/{schedule_id}')
+async def api_delete_schedule(schedule_id: int):
+    try:
+        delete_scheduled_crawl(schedule_id)
+        return {'ok': True}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+class GapRequest(BaseModel):
+    your_keywords: list = []
+    competitor_url: str
+    max_pages: int = 3
+
+
+@app.post('/api/competitor/gap')
+async def api_competitor_gap(req: GapRequest):
+    try:
+        return {'ok': True, 'gap': competitor_keyword_gap(req.your_keywords, req.competitor_url, req.max_pages)}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+class BulkRequest(BaseModel):
+    urls: list
+    org_name: str = ''
+    max_pages: int = 2
+
+
+@app.post('/api/bulk/crawl')
+async def api_bulk_crawl(req: BulkRequest):
+    try:
+        job_ids = bulk_enqueue(req.urls, req.org_name, req.max_pages)
+        return {'ok': True, 'job_ids': job_ids, 'count': len(job_ids)}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+class EmailReportRequest(BaseModel):
+    to_email: str
+    url: str
+
+
+@app.post('/api/reports/email')
+async def api_send_email_report(req: EmailReportRequest):
+    try:
+        ok = send_weekly_report(req.to_email, req.url)
+        if ok:
+            return {'ok': True, 'message': f'تم الإرسال إلى {req.to_email}'}
+        return JSONResponse({'ok': False, 'error': 'فشل الإرسال — أضف SMTP_HOST و SMTP_USER و SMTP_PASS في .env'}, status_code=400)
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+_SETTINGS_PATH = Path(os.environ.get('OUTPUT_DIR', Path(__file__).resolve().parent.parent / 'output')) / 'settings.json'
+
+
+def _load_settings() -> dict:
+    if _SETTINGS_PATH.exists():
+        try:
+            return json.loads(_SETTINGS_PATH.read_text())
+        except Exception:
+            pass
+    return {}
+
+
+def _save_settings(data: dict):
+    _SETTINGS_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+
+
+@app.get('/api/settings')
+async def api_get_settings():
+    s = _load_settings()
+    safe = {}
+    for k, v in s.items():
+        safe[k] = '***' if (v and (k.endswith('_key') or k.endswith('_KEY') or 'pass' in k.lower())) else v
+    return {'ok': True, 'settings': safe}
+
+
+@app.post('/api/settings')
+async def api_save_settings(req: dict):
+    try:
+        current = _load_settings()
+        for k, v in req.items():
+            if v and v != '***':
+                current[k] = v
+                os.environ[k.upper()] = v
+        _save_settings(current)
+        return {'ok': True}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+try:
+    for k, v in _load_settings().items():
+        if v and v != '***':
+            os.environ.setdefault(k.upper(), v)
+except Exception:
+    pass
+
+
+# ── Competitor Intelligence Analyzer ─────────────────────────────────────────
+
+class CompetitorIntelRequest(BaseModel):
+    url: str
+    region: str = 'Saudi Arabia'
+    industry: str = ''
+    count: int = 7
+    api_keys: dict = {}
+
+
+@app.post('/api/competitor/intelligence')
+async def api_competitor_intelligence(req: CompetitorIntelRequest):
+    try:
+        from server.competitor_intel import analyze_competitors
+        result = analyze_competitors(
+            req.url, region=req.region,
+            industry=req.industry, count=req.count,
+            api_keys=req.api_keys
+        )
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.get('/competitor-intel.html')
+@app.get('/competitor-intel')
+async def serve_competitor_intel():
+    return FileResponse(str(frontend_dir / 'competitor-intel.html'))
