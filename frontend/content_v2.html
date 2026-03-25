@@ -1230,67 +1230,83 @@
 
       bodyEl.innerHTML = bodyHtml || '<div style="color:var(--muted);font-size:13px">تحليل البيانات جارٍ...</div>';
 
-      // Action buttons — wired to real tabs + auto-fill with crawled data
-      const brand = getActiveBrand();
-      const crawl = getActiveCrawlData();
-      const topKw = (crawl.keywords || [])[0] || document.getElementById('gen-keyword')?.value || brand;
-
+      // Action buttons — use data attributes to avoid template literal escaping issues
       taskEl.innerHTML = `
-        <button class="btn" style="width:100%;justify-content:center;font-size:12px;padding:10px;background:rgba(0,212,255,0.08);border-color:var(--accent);color:var(--accent);margin-bottom:4px"
-          onclick="triggerAutonomousFix('faq', '', 'أسئلة شائعة حول ${topKw}')">&#9889; توليد أسئلة FAQ ذكية</button>
-        <button class="btn" style="width:100%;justify-content:center;font-size:12px;padding:10px;background:rgba(0,255,149,0.06);border-color:var(--green);color:var(--green);margin-bottom:4px"
-          onclick="triggerAutonomousFix('generate', '', 'نص تعريفي سلطوي Authority لـ ${brand}')">&#9889; إنشاء نص تعريفي (Authority)</button>
-        <button class="btn" style="width:100%;justify-content:center;font-size:12px;padding:10px;background:rgba(255,0,234,0.06);border-color:var(--accent-secondary);color:var(--accent-secondary)"
-          onclick="triggerAutonomousFix('generate', '', 'مقارنة ${brand} مع المنافسين في مجال ${topKw}')">&#9889; مقارنة مع المنافسين</button>
+        <button class="btn" data-fix-type="faq"
+          style="width:100%;justify-content:center;font-size:12px;padding:10px;background:rgba(0,212,255,0.08);border-color:var(--accent);color:var(--accent);margin-bottom:4px">
+          &#9889; توليد أسئلة FAQ ذكية
+        </button>
+        <button class="btn" data-fix-type="generate" data-fix-mode="authority"
+          style="width:100%;justify-content:center;font-size:12px;padding:10px;background:rgba(0,255,149,0.06);border-color:var(--green);color:var(--green);margin-bottom:4px">
+          &#9889; إنشاء نص تعريفي (Authority)
+        </button>
+        <button class="btn" data-fix-type="generate" data-fix-mode="compare"
+          style="width:100%;justify-content:center;font-size:12px;padding:10px;background:rgba(255,0,234,0.06);border-color:var(--accent-secondary);color:var(--accent-secondary)">
+          &#9889; مقارنة مع المنافسين
+        </button>
       `;
+
+      // Wire buttons via event listeners (avoids template literal escaping)
+      taskEl.querySelectorAll('[data-fix-type]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.fixType;
+          const mode = btn.dataset.fixMode || '';
+          triggerAutonomousFix(type, mode);
+        });
+      });
     }
 
-    window.triggerAutonomousFix = function(type, id, label) {
-      // Map type to correct data-tab value
+    window.triggerAutonomousFix = function(type, mode) {
+      // Switch to correct tab
       const tabMap = { 'faq': 'faqs', 'generate': 'generate', 'optimize': 'optimize', 'semantic': 'semantic' };
       switchTab(tabMap[type] || 'generate');
 
-      // Get all crawled data to pre-fill fields
-      const brand = getActiveBrand();
-      const crawl = getActiveCrawlData();
-      const insights = getActiveInsights();
+      // Always pull fresh crawl data
+      const brand   = getActiveBrand();
+      const crawl   = getActiveCrawlData();
+      const topKw   = (crawl.keywords || [])[0] || brand;
+      const allKws  = (crawl.keywords || []).slice(0, 8).join('\n');
       const pageContent = crawl.page_content || '';
-      const keywords = (crawl.keywords || []).slice(0, 5).join(', ');
-      const topKw = (crawl.keywords || [])[0] || brand;
+      const headings    = (crawl.headings  || []).join(' | ');
 
       setTimeout(() => {
         if (type === 'faq') {
-          // Pre-fill topic with real keyword + brand context
+          // Topic = real keyword + brand
           const topicEl = document.getElementById('faq-topic');
-          if (topicEl) topicEl.value = label || `أسئلة شائعة حول ${topKw} - ${brand}`;
-          // Pre-fill context with real page content
+          if (topicEl) topicEl.value = `أسئلة شائعة حول ${topKw} - ${brand}`;
+          // Context = real page content
           const ctxEl = document.getElementById('faq-context');
-          if (ctxEl && pageContent) ctxEl.value = pageContent;
+          if (ctxEl) ctxEl.value = pageContent || headings;
           // Auto-trigger
-          const btn = document.getElementById('faq-btn');
-          if (btn) btn.click();
+          document.getElementById('faq-btn')?.click();
 
         } else if (type === 'generate') {
-          // Pre-fill keyword
-          const kwEl = document.getElementById('gen-keyword');
-          if (kwEl) kwEl.value = label || topKw;
-          // Pre-fill competitors with real crawled headings/keywords as context
+          const kwEl   = document.getElementById('gen-keyword');
           const compEl = document.getElementById('gen-competitors');
-          if (compEl && keywords) compEl.value = keywords;
+
+          if (mode === 'authority') {
+            // Authority text: keyword = brand definition
+            if (kwEl) kwEl.value = `نص تعريفي سلطوي لـ ${brand} في مجال ${topKw}`;
+          } else if (mode === 'compare') {
+            // Competitor comparison: keyword = comparison query
+            if (kwEl) kwEl.value = `مقارنة ${brand} مع المنافسين في مجال ${topKw}`;
+          } else {
+            if (kwEl) kwEl.value = topKw;
+          }
+
+          // Fill competitors with real extracted keywords as context
+          if (compEl && allKws) compEl.value = allKws;
           // Auto-trigger
-          const btn = document.getElementById('gen-btn');
-          if (btn) btn.click();
+          document.getElementById('gen-btn')?.click();
 
         } else if (type === 'optimize') {
-          const kwEl = document.getElementById('opt-keyword');
-          if (kwEl) kwEl.value = label || topKw;
+          const kwEl      = document.getElementById('opt-keyword');
           const contentEl = document.getElementById('opt-content');
+          if (kwEl) kwEl.value = topKw;
           if (contentEl && pageContent) contentEl.value = pageContent;
-          // Auto-trigger
-          const btn = document.getElementById('opt-btn');
-          if (btn) btn.click();
+          document.getElementById('opt-btn')?.click();
         }
-      }, 300);
+      }, 350);
     };
 
     // ── Optimize Content ──────────────────────────────────────────────────────
