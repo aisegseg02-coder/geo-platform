@@ -142,6 +142,36 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .seg-tab {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--muted); padding: 8px 16px; border-radius: 10px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s; font-family: 'Cairo', sans-serif;
+    }
+    .seg-tab:hover { border-color: var(--accent); color: var(--text); }
+    .seg-tab.active {
+      background: var(--accent-grad); color: #000;
+      border-color: transparent; font-weight: 800;
+    }
+
+    .comp-type-badge {
+      position: absolute; top: 16px; right: 16px;
+      font-size: 10px; padding: 4px 10px; border-radius: 8px;
+      font-weight: 700; text-transform: uppercase;
+    }
+    .type-direct { background: rgba(0,255,149,0.1); color: var(--green); border: 1px solid rgba(0,255,149,0.2); }
+    .type-indirect { background: rgba(255,204,0,0.1); color: var(--yellow); border: 1px solid rgba(255,204,0,0.2); }
+    .type-aspirational { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
+
+    .comp-score-big {
+      font-size: 28px; font-weight: 900; margin: 12px 0 8px;
+      text-align: center;
+    }
+    .comp-grade {
+      text-align: center; font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
     @media(max-width:768px) {
       .form-grid { grid-template-columns: 1fr; }
       .speed-grid { grid-template-columns: 1fr 1fr; }
@@ -226,10 +256,21 @@
             <div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:4px">موقعك</div>
             <div id="yourDomain" style="font-size:20px;font-weight:800"></div>
           </div>
-          <div id="yourPosition" style="font-size:13px;color:var(--muted)"></div>
+          <div style="text-align:left">
+            <div id="yourScore" style="font-size:32px;font-weight:900;color:var(--accent)"></div>
+            <div id="yourRank" style="font-size:13px;color:var(--muted)"></div>
+          </div>
         </div>
         <div class="speed-grid" id="yourSpeed"></div>
         <div class="vitals-row" id="yourVitals"></div>
+      </div>
+
+      <!-- Segmentation Tabs -->
+      <div style="display:flex;gap:12px;margin:24px 0 16px;flex-wrap:wrap" id="segmentTabs">
+        <button class="seg-tab active" data-seg="all" onclick="filterSegment('all')">الكل</button>
+        <button class="seg-tab" data-seg="direct" onclick="filterSegment('direct')">منافسون مباشرون</button>
+        <button class="seg-tab" data-seg="indirect" onclick="filterSegment('indirect')">منافسون غير مباشرين</button>
+        <button class="seg-tab" data-seg="aspirational" onclick="filterSegment('aspirational')">علامات كبرى</button>
       </div>
 
       <!-- Competitors -->
@@ -300,13 +341,37 @@
       grid.innerHTML = '';
       competitors.forEach((c, i) => {
         const ps = c.pagespeed || {};
+        const score = c.score || {};
         const card = document.createElement('div');
         card.className = 'comp-card stagger-item';
         card.style.animationDelay = `${i * 0.05}s`;
+        
+        const dataQuality = score.data_quality || 'unknown';
+        const qualityBadge = dataQuality === 'pagespeed' ? '✓ حقيقي' : dataQuality === 'estimated' ? '≈ تقديري' : '~ تقريبي';
+        const qualityColor = dataQuality === 'pagespeed' ? 'var(--green)' : 'var(--yellow)';
+        
+        const brandTier = score.brand_tier || 'unknown';
+        const tierLabel = {
+          'global_giant': '🌍 عملاق عالمي',
+          'regional_leader': '⭐ قائد إقليمي',
+          'established': '✓ لاعب معروف',
+          'niche': '🎯 متخصص',
+          'unknown': ''
+        }[brandTier];
+        
         card.innerHTML = `
-          <div class="comp-rank">${c.position || i+1}</div>
+          <div class="comp-rank">${c.serp_position || i+1}</div>
           <div class="comp-domain">${c.domain}</div>
+          ${tierLabel ? `<div style="font-size:10px;color:var(--accent);margin-bottom:8px">${tierLabel}</div>` : ''}
           <div class="comp-snippet">${c.snippet || c.title || ''}</div>
+          <div style="text-align:center;margin:12px 0">
+            <div style="font-size:28px;font-weight:900;color:${scoreColor(score.total)}">${score.total || '—'}</div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase">تقييم ${score.grade || '?'} <span style="color:${qualityColor};font-size:9px">${qualityBadge}</span></div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;font-size:10px">
+              <span style="color:var(--muted)">موقع: ${score.website_quality || '?'}</span>
+              <span style="color:var(--accent)">سوق: ${score.market_power || '?'}</span>
+            </div>
+          </div>
           <div class="speed-grid">
             ${[['الأداء', ps.performance], ['SEO', ps.seo], ['وصول', ps.accessibility]].map(([l,v]) => `
               <div class="speed-item">
@@ -334,19 +399,31 @@
       const grid = document.getElementById('aiGrid');
 
       const sections = [
-        { title: ' موقعك في السوق', key: 'market_position', single: true },
-        { title: ' فرصك الذهبية', key: 'your_opportunities' },
+        { title: '🎯 موقعك في السوق', key: 'market_position', single: true },
+        { title: '💪 نقاط قوتك', key: 'your_strengths' },
+        { title: '⚠️ نقاط ضعفك', key: 'your_weaknesses' },
         { title: '⚡ انتصارات سريعة', key: 'quick_wins' },
-        { title: ' كلمات مفتاحية مقترحة', key: 'recommended_keywords' },
-        { title: ' التهديدات', key: 'threats' },
-        { title: ' مميزات المنافسين', key: 'key_differentiators' },
+        { title: '🎓 فرص ذهبية', key: 'opportunities' },
+        { title: '🔴 تهديدات', key: 'direct_threats' },
       ];
 
       grid.innerHTML = sections.map(s => {
         const val = ai[s.key];
-        const items = s.single
-          ? `<div class="ai-item" style="font-size:16px;font-weight:800;color:var(--accent)">${val}</div>`
-          : (Array.isArray(val) ? val.map(v => `<div class="ai-item">${v}</div>`).join('') : '');
+        let items = '';
+        if (s.single) {
+          items = `<div class="ai-item" style="font-size:16px;font-weight:800;color:var(--accent)">${val || 'N/A'}</div>`;
+        } else if (Array.isArray(val)) {
+          items = val.map(v => {
+            let text = v;
+            if (typeof v === 'object') {
+              if (v.win) text = v.win;
+              else if (v.action) text = v.action;
+              else if (v.competitor && v.threat) text = `${v.competitor}: ${v.threat}`;
+              else text = JSON.stringify(v);
+            }
+            return `<div class="ai-item">${text}</div>`;
+          }).join('');
+        }
         return `<div class="ai-section"><h4>${s.title}</h4>${items}</div>`;
       }).join('');
 
@@ -397,6 +474,18 @@
 
         // Your site
         document.getElementById('yourDomain').textContent = r.your_domain;
+        const yourScore = r.your_score || {};
+        document.getElementById('yourScore').textContent = yourScore.total || '?';
+        const tierEmoji = {
+          'global_giant': '🌍',
+          'regional_leader': '⭐',
+          'established': '✓',
+          'niche': '🎯'
+        }[yourScore.brand_tier] || '';
+        document.getElementById('yourRank').innerHTML = `
+          ${tierEmoji} #${r.your_rank || '?'} في ${r.competitor_count + 1} مواقع · ${r.market_position || 'Niche Player'}<br>
+          <span style="font-size:11px;color:var(--muted)">موقع: ${yourScore.website_quality || '?'} | سوق: ${yourScore.market_power || '?'}</span>
+        `;
         renderSpeedGrid(r.your_pagespeed, 'yourSpeed', 'yourVitals');
 
         // Competitors
@@ -404,7 +493,7 @@
         renderCompetitors(r.competitors);
 
         // AI Analysis
-        renderAIAnalysis(r.ai_analysis);
+        renderAIAnalysis(r.insights);
 
         document.getElementById('results').style.display = 'block';
       } catch (e) {

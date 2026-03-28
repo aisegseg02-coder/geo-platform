@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install system deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ && \
+    gcc g++ curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python deps
@@ -17,10 +17,17 @@ RUN python -m spacy download en_core_web_sm
 # Copy project
 COPY . .
 
+# Make startup script executable
+RUN chmod +x start.sh
+
 # Create output dir
 ENV OUTPUT_DIR=/tmp/geo-output
 RUN mkdir -p /tmp/geo-output
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:7860/health || exit 1
+
 EXPOSE 7860
 
-CMD ["uvicorn", "server.api:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["./start.sh"]

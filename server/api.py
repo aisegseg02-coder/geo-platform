@@ -342,6 +342,10 @@ async def api_results(ts: str | None = None):
         out['schema'] = schema_path.read_text(encoding='utf-8')
     return out
 
+@app.get('/health')
+async def health_check():
+    return {'status': 'healthy', 'service': 'GEO Platform'}
+
 @app.get('/')
 async def index():
     index_file = frontend_dir / 'index.html'

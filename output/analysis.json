@@ -6,7 +6,8 @@
     },
     "groq": {
       "enabled": true,
-      "error": "Error code: 401 - {'error': {'message': 'Invalid API Key', 'type': 'invalid_request_error', 'code': 'invalid_api_key'}}"
+      "raw": "('id', 'chatcmpl-897ecf70-f2fb-4a4a-827b-3262ae237c2d')('choices', [Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='```json\\n{\\n  \"title\": \"Rabhanagency - أفضل شركة تسويق في السعودية\",\\n  \"url\": \"https://rabhanagency.com/\",\\n  \"text\": \"Rabhanagency\",\\n  \"additional_url\": \"https://rabhanagency.com/#content\"\\n}\\n```', role='assistant', annotations=None, executed_tools=None, function_call=None, reasoning=None, tool_calls=None))])('created', 1774441634)('model', 'llama-3.1-8b-instant')('object', 'chat.completion')('mcp_list_tools', None)('service_tier', 'on_demand')('system_fingerprint', 'fp_6a1eabf260')('usage', CompletionUsage(completion_tokens=62, prompt_tokens=106, total_tokens=168, completion_time=0.068615903, completion_tokens_details=None, prompt_time=0.007829861, prompt_tokens_details=None, queue_time=0.023641068, total_time=0.076445764))('usage_breakdown', None)('x_groq', XGroq(id='req_01kmjfd70wed5ta3tw2sc9a77e', debug=None, seed=1900544051, usage=None))",
+      "parse_error": "No JSON found in LLM response"
     }
   },
   "geo_score": {
@@ -23,6 +24,40 @@
       "critical": 2,
       "warnings": 0,
       "passed": 0
+    },
+    "v2": {
+      "score": 2.0,
+      "breakdown": {
+        "seo_rank": 0,
+        "ai_visibility": 0.0,
+        "traffic": 10.0
+      },
+      "avg_rank": 52.0
     }
+  },
+  "competitor_insight": {
+    "monthly_visits": "10K - 50K",
+    "traffic_sources": {
+      "search": 40,
+      "direct": 30,
+      "social": 20,
+      "referral": 10
+    },
+    "top_competitors": [
+      {
+        "name": "منافس 1",
+        "domain": "comp1.com",
+        "overlap_score": 90,
+        "region": "SA"
+      },
+      {
+        "name": "منافس 2",
+        "domain": "comp2.com",
+        "overlap_score": 85,
+        "region": "UAE"
+      }
+    ],
+    "industry": "خدمات رقمية",
+    "seo_rankings": []
   }
 }

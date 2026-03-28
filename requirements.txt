@@ -6,3 +6,5 @@ fastapi>=0.95
 uvicorn[standard]>=0.22
 openai>=1.0
 groq>=0.1
+lxml>=4.9
+html5lib>=1.1
