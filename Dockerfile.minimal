@@ -1,0 +1,13 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Minimal dependencies
+RUN pip install --no-cache-dir fastapi uvicorn
+
+# Create minimal app
+RUN echo 'from fastapi import FastAPI\napp = FastAPI()\n@app.get("/")\ndef read_root():\n    return {"status": "ok", "message": "GEO Platform Running"}\n@app.get("/health")\ndef health():\n    return {"status": "healthy"}' > main.py
+
+EXPOSE 7860
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]

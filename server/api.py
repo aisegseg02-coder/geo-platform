@@ -12,26 +12,75 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+print(" GEO Platform API starting...")
+print(f" Working directory: {os.getcwd()}")
+print(f" Python version: {os.sys.version}")
+
 # lazily import heavy pipeline to avoid startup failures when optional deps
 # (like spaCy) are not installed. import inside handlers that need it.
 run_pipeline = None
-from server import ai_visibility
-from server import ai_analysis
-from server import job_queue
-from server import keyword_engine
-from server import users as user_mgmt
-from server import search_intel
+
+try:
+    from server import ai_visibility
+    print(" ai_visibility loaded")
+except Exception as e:
+    print(f"  ai_visibility failed: {e}")
+    ai_visibility = None
+
+try:
+    from server import ai_analysis
+    print(" ai_analysis loaded")
+except Exception as e:
+    print(f" ai_analysis failed: {e}")
+    ai_analysis = None
+
+try:
+    from server import job_queue
+    print(" job_queue loaded")
+except Exception as e:
+    print(f" job_queue failed: {e}")
+    job_queue = None
+
+try:
+    from server import keyword_engine
+    print(" keyword_engine loaded")
+except Exception as e:
+    print(f"  keyword_engine failed: {e}")
+    keyword_engine = None
+
+try:
+    from server import users as user_mgmt
+    print(" users loaded")
+except Exception as e:
+    print(f" users failed: {e}")
+    user_mgmt = None
+
+try:
+    from server import search_intel
+    print(" search_intel loaded")
+except Exception as e:
+    print(f" search_intel failed: {e}")
+    search_intel = None
+
 from fastapi import WebSocket
 import asyncio
 
 OUTPUT_DIR = Path(os.environ.get('OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / 'output')))
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+print(f" Output directory: {OUTPUT_DIR}")
+
 app = FastAPI(title='GEO Platform API')
+
+print(" FastAPI app created")
 
 # Serve frontend static files
 frontend_dir = Path(__file__).resolve().parent.parent / 'frontend'
-app.mount('/static', StaticFiles(directory=str(frontend_dir)), name='static')
+if frontend_dir.exists():
+    app.mount('/static', StaticFiles(directory=str(frontend_dir)), name='static')
+    print(f" Frontend mounted: {frontend_dir}")
+else:
+    print(f" Frontend directory not found: {frontend_dir}")
 
 class CrawlRequest(BaseModel):
     url: str
@@ -341,6 +390,12 @@ async def api_results(ts: str | None = None):
     if schema_path.exists():
         out['schema'] = schema_path.read_text(encoding='utf-8')
     return out
+
+@app.on_event("startup")
+async def startup_event():
+    print(" GEO Platform API is ready!")
+    print(f" Access at: http://0.0.0.0:7860")
+    print(f" Health check: http://0.0.0.0:7860/health")
 
 @app.get('/health')
 async def health_check():

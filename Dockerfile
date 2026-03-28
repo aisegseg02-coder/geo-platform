@@ -2,32 +2,29 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install system deps
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python deps
+# Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download spaCy model
-RUN python -m spacy download en_core_web_sm
+# Download spaCy model (with retry)
+RUN python -m spacy download en_core_web_sm || \
+    python -m spacy download en_core_web_sm || \
+    echo "spaCy model download failed, will retry at startup"
 
-# Copy project
+# Copy application code
 COPY . .
 
-# Make startup script executable
-RUN chmod +x start.sh
-
-# Create output dir
-ENV OUTPUT_DIR=/tmp/geo-output
+# Create output directory
 RUN mkdir -p /tmp/geo-output
+ENV OUTPUT_DIR=/tmp/geo-output
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:7860/health || exit 1
-
+# Expose port
 EXPOSE 7860
 
-CMD ["./start.sh"]
+# Start application
+CMD ["python", "-m", "uvicorn", "server.api:app", "--host", "0.0.0.0", "--port", "7860", "--log-level", "info"]
