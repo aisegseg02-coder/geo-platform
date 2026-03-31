@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>محاكي الظهور في AI — منصة محرك</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=Teko:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css?v=moharek2025" />
+  <style>
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 120px 20px 60px;
+    }
+
+    .simulator-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 40px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      background: rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 20px;
+      font-family: 'Cairo';
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .result-card {
+      margin-top: 30px;
+      display: none;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 30px;
+      border-top: 4px solid var(--accent);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 20px;
+      background: #f8f9fa;
+      border: 1px solid #eee;
+    }
+
+    .stat-val {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <a href="/" class="nav-logo">محرك<span>.</span></a>
+    <div class="nav-links">
+      <a href="/jobs.html">المهام</a>
+      <a href="/search.html">البحث</a>
+      <a href="/ads.html">الإعلانات</a>
+      <a href="/recommendations.html">التوصيات</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="stagger-item">
+      <div class="section-label">AI Visibility Simulator</div>
+      <h1 class="section-title">محاكي الظهور في <span class="shine-text">الذكاء الاصطناعي</span></h1>
+      <p class="section-sub">اختبر تأثير محتواك على رؤية الذكاء الاصطناعي قبل نشره. أدخل النص أدناه وسيقوم المحرك بتقدير
+        كيفية فهم نماذج AI لعلامتك التجارية.</p>
+    </div>
+
+    <div class="simulator-box panel stagger-item">
+      <h3 style="margin-top:0">محتوى الصفحة / النص المقترح</h3>
+      <textarea id="simulateText" placeholder="أدخل هنا نص المقال أو محتوى الصفحة الذي تنوي نشره..."></textarea>
+      <div style="display:flex; gap:10px;">
+        <input id="brandName" placeholder="اسم علامتك التجارية (مثال: محرك)" style="flex:1" />
+        <button id="simulateBtn" class="btn btn-primary" style="padding:16px 40px">تشغيل المحاكاة 🧪</button>
+      </div>
+      <div id="status" style="margin-top:15px; font-size:14px; color:var(--muted)"></div>
+    </div>
+
+    <div id="simulationResult" class="result-card stagger-item">
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div id="resScore" class="stat-val">0%</div>
+          <div class="stat-label">قوة الظهور (AI Strength)</div>
+        </div>
+        <div class="stat-item">
+          <div id="resSentiment" class="stat-val">—</div>
+          <div class="stat-label">نبرة المحتوى</div>
+        </div>
+        <div class="stat-item">
+          <div id="resEntity" class="stat-val">—</div>
+          <div class="stat-label">وضوح الكيان</div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #eee; padding-top:20px;">
+        <h4 style="margin-top:0; color:var(--ultra-accent)">تحليل الذكاء الاصطناعي للمحتوى:</h4>
+        <div id="resDetailedAnalysis" style="line-height:1.8; color:var(--text); font-size:15px;"></div>
+
+        <div id="recommendationBox"
+          style="margin-top:20px; padding:20px; background:rgba(0,90,90,0.05); border-left:4px solid var(--accent);">
+          <h5 style="margin:0 0 10px; color:var(--accent)">توصيات فورية للتحسين:</h5>
+          <div id="resFixes" style="font-size:14px; color:var(--muted)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('simulateBtn').addEventListener('click', async () => {
+      const text = document.getElementById('simulateText').value;
+      const brand = document.getElementById('brandName').value;
+      const btn = document.getElementById('simulateBtn');
+      const status = document.getElementById('status');
+      const result = document.getElementById('simulationResult');
+
+      if (!text || !brand) {
+        status.innerHTML = '<span style="color:var(--red)">يرجى إدخال النص واسم العلامة التجارية</span>';
+        return;
+      }
+
+      btn.disabled = true;
+      status.innerHTML = 'جاري تحليل المحتوى بواسطة محرك المحاكاة...';
+      result.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: text, brand: brand })
+        });
+        const data = await resp.json();
+
+        if (data.ok) {
+          document.getElementById('resScore').textContent = data.prediction.ai_visibility_score + '%';
+          document.getElementById('resSentiment').textContent = data.prediction.sentiment;
+          document.getElementById('resEntity').textContent = data.prediction.entity_clarity;
+          document.getElementById('resDetailedAnalysis').innerHTML = data.prediction.detailed_analysis;
+          document.getElementById('resFixes').innerHTML = data.prediction.suggested_fixes.join('<br>');
+
+          result.style.display = 'block';
+          status.innerHTML = '';
+        } else {
+          status.innerHTML = '<span style="color:var(--red)">حدث خطأ: ' + data.error + '</span>';
+        }
+      } catch (err) {
+        status.innerHTML = '<span style="color:var(--red)">خطأ في الاتصال بالسيرفر</span>';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>

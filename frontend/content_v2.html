@@ -5,29 +5,97 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>محرك المحتوى بذكاء الـ GEO</title>
+  <link rel="icon" type="image/svg+xml" href="/moharek-favicon.svg" />
+  <link rel="apple-touch-icon" href="/moharek-favicon.svg" />
   <link
-    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=Teko:wght@400;500;600;700&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/theme.css?v=1.2" />
+  <link rel="stylesheet" href="/theme.css?v=moharek2025" />
   <style>
+    nav {
+      background: var(--ultra-accent);
+      border-bottom: 1px solid var(--accent);
+      padding: 0 60px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      width: 100%;
+      box-sizing: border-box;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'Teko', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .nav-logo span {
+      color: var(--accent-secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      color: #f5f5f5;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--accent-secondary);
+    }
+
+    html {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+
     body {
-      font-family: 'Cairo', 'Outfit', sans-serif;
+      font-family: 'Manrope', 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
     }
 
     /* 3D and Premium Effects */
     .panel {
-      transform-style: preserve-3d;
-      transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 0;
+      transition: all 0.3s;
+      box-shadow: var(--card-shadow);
+      padding: 30px;
     }
 
     .panel:hover {
-      transform: translateY(-5px) rotateX(2deg);
-      box-shadow: 0 20px 50px rgba(0, 242, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
     }
 
     .workspace-main {
       perspective: 1500px;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     /* 3D Progress Bar */
@@ -42,23 +110,23 @@
     .progress-track {
       width: 100%;
       height: 18px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 9px;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 0;
       position: relative;
       transform-style: preserve-3d;
       transform: rotateX(20deg);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
       overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, var(--accent), #a78bfa);
-      border-radius: 9px;
+      background: linear-gradient(90deg, #49A460, #4D86DA, #EABD2D);
+      border-radius: 0;
       position: relative;
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 0 20px var(--accent);
+      box-shadow: 0 0 20px rgba(73, 164, 96, 0.5);
     }
 
     .progress-fill::after {
@@ -86,7 +154,7 @@
       font-size: 14px;
       font-weight: 700;
       margin-top: 15px;
-      color: #fff;
+      color: var(--text);
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
@@ -112,39 +180,58 @@
     .dashboard-grid>div {
       animation: floatIn 0.8s ease-out both;
     }
+
     @keyframes pulse {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(0.95); opacity: 0.8; }
+      0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
     }
   </style>
 </head>
 
 <body>
+
   <nav>
-    <div class="nav-logo">GEO<span>.</span>AI</div>
-    <div id="geo-pulse" style="display:flex; align-items:center; gap:8px; margin-left:20px; font-size:10px; color:var(--muted); border-left:1px solid rgba(255,255,255,0.1); padding-left:15px;">
-      <div style="width:8px; height:8px; background:var(--green); border-radius:50%; box-shadow:0 0 10px var(--green); animation: pulse 2s infinite;"></div>
-      <span>LIVE GEO PULSE: <span id="pulse-status" style="color:#fff">SYNCED</span></span>
-      <span id="pulse-entity-count" style="color:var(--accent); font-weight:700;">-- Entities</span>
+    <a href="/" class="nav-logo">محرك<span>.</span>AI</a>
+    <div id="geo-pulse"
+      style="display:flex; align-items:center; gap:8px; margin-right:20px; font-size:10px; color:var(--muted); border-right:1px solid var(--accent); padding-right:15px;">
+      <div style="width:8px; height:8px; background:var(--green); border-radius: 0; animation: pulse 2s infinite;">
+      </div>
+      <span>LIVE GEO PULSE: <span id="pulse-status" style="color:var(--text)">SYNCED</span></span>
+      <span id="pulse-entity-count" style="color:var(--accent-secondary); font-weight:700;">-- Entities</span>
     </div>
     <div class="nav-links">
       <a href="/jobs.html">المهام</a>
       <a href="/recommendations.html">التوصيات</a>
-      <a href="/search.html">تحليل البحث</a>
-      <a href="/content_v2.html" style="color:var(--accent)">المحتوى</a>
+      <a href="/search.html">الذكاء</a>
+      <a href="/content_v2.html" class="active">المحتوى</a>
       <a href="/ads.html">الإعلانات</a>
-      <a href="/geo-toolkit.html">خدمات GEO</a>
+      <a href="/geo-toolkit.html">الخدمات</a>
     </div>
-    <a href="/" class="nav-cta" id="navCta">الرئيسية</a>
+    <a href="/" class="nav-cta">الرئيسية</a>
   </nav>
+
   <div class="wrap" style="padding-top: 100px;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
-      <h2 class="shine-text" style="font-size: 38px; margin: 0; letter-spacing: -1.5px;"> لوحة تحكم المحتوى الذكي</h2>
+      <h2 class="shine-text"
+        style="font-size: 38px; margin: 0; letter-spacing: -1.5px; font-family: 'Teko', sans-serif;">لوحة تحكم المحتوى
+        الذكي</h2>
       <div style="display:flex; align-items:center; gap:16px;">
-        <span class="badge badge-accent" style="letter-spacing: 2px;">v2.0-ULTRA</span>
+        <span class="badge badge-accent"
+          style="letter-spacing: 2px; background: var(--accent); color: var(--text); padding: 4px 12px; font-size: 10px;">v2.0-ULTRA</span>
         <button id="main-settings-btn" class="btn" style="padding:10px 20px; font-size:14px;">
-           إعدادات النظام
+          إعدادات النظام
         </button>
       </div>
     </div>
@@ -159,6 +246,7 @@
         <button class="tab" data-tab="optimize">⚡ المحسن</button>
         <button class="tab" data-tab="faqs"> مصنع الأسئلة</button>
         <button class="tab" data-tab="semantic"> فحص دلالي</button>
+        <button class="tab" data-tab="identity"> الهوية الذكية</button>
       </div>
 
       <!-- Main Dashboard Area -->
@@ -167,12 +255,16 @@
         <div class="workspace-main">
 
           <!-- Smart Task Banner -->
-          <div id="smart-task-banner" class="hidden" style="background:rgba(0,242,255,0.05); border:1px solid rgba(0,242,255,0.2); border-right: 4px solid var(--accent); padding:15px; border-radius:12px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; animation: slideInDown 0.5s ease-out;">
-              <div>
-                  <div style="font-weight:800; color:var(--accent); font-size:14px;">⚡ Smart Fix Active / إصلاح ذكي نشط</div>
-                  <div id="smart-task-desc" style="font-size:12px; color:var(--muted); margin-top:4px;">Preparing content based on your GEO analysis...</div>
+          <div id="smart-task-banner" class="hidden"
+            style="background:rgba(0,242,255,0.05); border:1px solid rgba(0,242,255,0.2); border-right: 4px solid var(--accent); padding:15px; border-radius: 0; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; animation: slideInDown 0.5s ease-out;">
+            <div>
+              <div style="font-weight:800; color:var(--accent); font-size:14px;">⚡ Smart Fix Active / إصلاح ذكي نشط
               </div>
-              <button class="btn" style="padding:5px 12px; font-size:11px;" onclick="clearSmartTask()">إلغاء / Cancel</button>
+              <div id="smart-task-desc" style="font-size:12px; color:var(--muted); margin-top:4px;">Preparing content
+                based on your GEO analysis...</div>
+            </div>
+            <button class="btn" style="padding:5px 12px; font-size:11px;" onclick="clearSmartTask()">إلغاء /
+              Cancel</button>
           </div>
 
           <!-- Research Connection Bar -->
@@ -198,13 +290,19 @@
                   <div style="display:flex; gap:10px;">
                     <input id="gen-keyword" placeholder="مثلاً: أفضل العبايات الخليجية لعام 2026" />
                     <button class="btn" id="gen-example"
-                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                      style="padding: 10px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
                       نموذج تجريبي</button>
                   </div>
                 </div>
               </div>
+              
+              <!-- 🔷 NEW: Niche / Industry Field -->
+              <div style="margin-top:15px;">
+                <label>المجال / النيش (اختياري)</label>
+                <input id="gen-niche" placeholder="مثلاً: تجارة إلكترونية، تسويق عقاري، أزياء..." />
+              </div>
               <div class="row"
-                style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 0; border: 1px solid var(--border);">
                 <div style="flex:1"><label>اللغة</label>
                   <select id="gen-lang">
                     <option value="ar">العربية</option>
@@ -248,13 +346,13 @@
                   <div style="display:flex; gap:10px;">
                     <input id="opt-keyword" placeholder="مثلاً: تحسين متجر الكتروني" />
                     <button class="btn" id="opt-example"
-                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                      style="padding: 10px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
                       نموذج تجريبي</button>
                   </div>
                 </div>
               </div>
               <div class="row"
-                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 0; border: 1px solid var(--border);">
                 <div style="flex:1"><label>اللغة</label>
                   <select id="opt-lang">
                     <option value="ar">العربية</option>
@@ -297,13 +395,13 @@
                   <div style="display:flex; gap:10px;">
                     <input id="faq-topic" placeholder="مثلاً: تحسين متجر العبايات للذكاء الاصطناعي" />
                     <button class="btn" id="faq-example"
-                      style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                      style="padding: 10px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
                       نموذج تجريبي</button>
                   </div>
                 </div>
               </div>
               <div class="row"
-                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+                style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 0; border: 1px solid var(--border);">
                 <div style="flex:1"><label>اللغة</label>
                   <select id="faq-lang">
                     <option value="ar">العربية</option>
@@ -328,6 +426,14 @@
               </div>
               <button class="btn btn-primary btn-main-action" id="faq-btn"
                 style="width:100%; height:54px; font-size:18px;">توليد الأسئلة الشائعة</button>
+              <!-- Progress bar for FAQ -->
+              <div id="faq-progress" class="progress-container">
+                <div class="progress-track">
+                  <div class="progress-fill" id="faq-progressBar"></div>
+                </div>
+                <div class="stage-label" id="faq-stageLabel">جارٍ توليد الأسئلة...</div>
+                <div class="stage-detail" id="faq-stageDetail">تحليل سياق الصفحة وبناء الأسئلة الذكية</div>
+              </div>
               <div id="faq-status"
                 style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
             </div>
@@ -345,13 +451,13 @@
                   <div style="flex:1; color: var(--muted); font-size: 13px; font-style: italic; margin-bottom: 5px;">
                     انسخ المحتوى أدناه أو جرب النموذج</div>
                   <button class="btn" id="sem-example"
-                    style="padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
+                    style="padding: 10px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); min-width: 140px; font-size: 13px;">
                     نموذج تجريبي</button>
                 </div>
               </div>
             </div>
             <div class="row"
-              style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+              style="margin-top:15px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 0; border: 1px solid var(--border);">
               <div style="flex:1"><label>اللغة</label>
                 <select id="sem-lang">
                   <option value="ar">العربية</option>
@@ -377,7 +483,8 @@
               style="margin-top:14px;color:var(--muted);font-size:14px;font-weight:500;text-align:center;"></div>
             <!-- Semantic Results Container -->
             <div id="sem-results" class="hidden" style="margin-top:20px;">
-              <div style="font-weight:700; font-size:14px; color:var(--accent); margin-bottom:12px;"> نتائج التحليل الدلالي</div>
+              <div style="font-weight:700; font-size:14px; color:var(--accent); margin-bottom:12px;"> نتائج التحليل
+                الدلالي</div>
               <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
               <div id="sem-topics" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
@@ -389,8 +496,10 @@
             style="border-left: 4px solid var(--yellow); background: linear-gradient(135deg, var(--surface) 0%, rgba(255, 184, 0, 0.05) 100%);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <div style="font-weight: 800; font-size: 18px; color: var(--yellow); letter-spacing: -0.5px;">مصفوفة المنافسين الاستراتيجية</div>
-                <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">تحليل التموضع في السوق وعوامل النجاح</div>
+                <div style="font-weight: 800; font-size: 18px; color: var(--yellow); letter-spacing: -0.5px;">مصفوفة
+                  المنافسين الاستراتيجية</div>
+                <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">تحليل التموضع في السوق وعوامل النجاح
+                </div>
               </div>
               <div id="market-grade-badge" class="badge"
                 style="background:var(--yellow); color:var(--surface); font-weight:800; font-size:16px; padding:8px 15px;">
@@ -399,7 +508,7 @@
 
             <!-- Positioning Map (Visual Representation) -->
             <div id="positioning-map-container"
-              style="margin-top:20px; height:200px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; position:relative; overflow:hidden;">
+              style="margin-top:20px; height:200px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius: 0; position:relative; overflow:hidden;">
               <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.1);">
               </div>
               <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.1);">
@@ -443,69 +552,149 @@
         <!-- Analysis Reference Card (Visible in Smart Mode) -->
         <div id="smart-analysis-ref" class="hidden" style="margin-bottom:20px;">
           <div class="panel" style="border-color:var(--yellow); background:rgba(255,184,0,0.05);">
-            <div style="font-weight:800; color:var(--yellow); font-size:14px; margin-bottom:8px;">📊 مرجع التحليل الذكي</div>
+            <div style="font-weight:800; color:var(--yellow); font-size:14px; margin-bottom:8px;"> مرجع التحليل الذكي
+            </div>
             <div id="smart-analysis-body" style="font-size:12px; color:var(--text); line-height:1.6;"></div>
           </div>
         </div>
 
-        <!-- Generator Result Display -->
+        <!-- Generator Result Display (Premium Audit View) -->
         <div id="gen-result" class="hidden">
-          <div class="panel" style="border-color: var(--accent);">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3 id="gen-title" style="margin:0; font-size:24px; color:white;"></h3>
-              <span id="gen-backend-tag" class="badge-accent"
-                style="padding:4px 10px; border-radius:6px; font-size:10px;"></span>
+          <div class="panel" style="padding:0; overflow:hidden; border-color:var(--accent); border-top-width:4px;">
+            <div style="background:var(--ultra-accent); padding:24px 30px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 id="gen-title" style="margin:0; font-family:'Teko'; font-size:28px; color:white; letter-spacing:1px; line-height:1;"></h3>
+                    <div style="color:rgba(255,255,255,0.5); font-size:10px; margin-top:4px; font-weight:700; letter-spacing:2px;">v2.0-ULTRA | CONTENT ARCHITECTURE</div>
+                </div>
+                <span id="gen-backend-tag" class="badge-accent" style="font-size:10px; border:1px solid rgba(255,255,255,0.2);"></span>
             </div>
-            <p id="gen-meta" style="color:var(--muted); font-size:14px; font-style:italic; margin:10px 0;"></p>
-            <div class="result-box" id="gen-content" style="height: 400px;"></div>
-            <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-              <button class="btn" id="gen-copy"
-                style="background:rgba(255,255,255,0.05); border:1px solid var(--border);"> نسخ المقال</button>
-              <button class="btn btn-accent" id="gen-deploy"
-                style="border:1px solid var(--accent);"> نسخ الحزمة</button>
-              <button class="btn" id="gen-download"
-                style="background:rgba(255,255,255,0.02); border:1px solid var(--border);">📥 تحميل الحزمة (.md)</button>
+
+            <div style="padding:40px;">
+                <p id="gen-meta" style="color:var(--muted); font-size:14px; font-style:italic; margin-bottom:24px; border-right:2px solid var(--accent); padding-right:15px;"></p>
+                <div class="result-box" id="gen-content" style="height: 500px; font-size:16px; padding:30px;"></div>
+                
+                <!-- 🔷 Strategic Insights Panels -->
+                <div id="gen-detailed-insights" class="hidden" style="margin-top:40px; display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+                    <div style="border-right:3px solid var(--accent-secondary); background:rgba(255,0,234,0.02); padding:20px; border:1px solid rgba(255,0,234,0.05); border-right:3px solid var(--accent-secondary);">
+                        <h4 style="margin:0 0 12px; color:var(--accent-secondary); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">🎯 التباين الاستراتيجي (Strategic Contrast)</h4>
+                        <div id="gen-contrast" style="font-size:12px; line-height:1.7; color:var(--text);"></div>
+                    </div>
+                    
+                    <div style="border-right:3px solid var(--yellow); background:rgba(255,184,0,0.02); padding:20px; border:1px solid rgba(255,184,0,0.05); border-right:3px solid var(--yellow);">
+                        <h4 style="margin:0 0 12px; color:var(--yellow); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">🏛️ سلطة الكيان (Brand Authority)</h4>
+                        <div id="gen-authority" style="font-size:12px; line-height:1.7; color:var(--text);"></div>
+                    </div>
+
+                    <div style="border-right:3px solid var(--green); background:rgba(0,255,149,0.02); padding:20px; border:1px solid rgba(0,255,149,0.05); border-right:3px solid var(--green);">
+                        <h4 style="margin:0 0 12px; color:var(--green); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">⚡ ملخص تأثير GEO</h4>
+                        <div id="gen-impact" style="font-size:12px; line-height:1.7; color:var(--text);"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top:40px; display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px;">
+                  <button class="btn" id="gen-copy" style="background:var(--surface); border:1px solid var(--border); font-size:12px;">
+                    نسخ المقال</button>
+                  <button class="btn btn-accent" id="gen-deploy" style="border:1px solid var(--accent); font-size:12px;"> نسخ
+                    الحزمة</button>
+                  <button class="btn" id="gen-download"
+                    style="background:var(--surface); border:1px solid var(--border); font-size:12px;"> تحميل الحزمة (.md)</button>
+                </div>
+                
+                <div id="gen-faqs-container" class="hidden" style="margin-top:40px;">
+                    <div style="font-weight:800; color:var(--accent); font-size:11px; margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">إضافات مقترحة (Bespoke Add-ons)</div>
+                    <div id="gen-faqs" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;"></div>
+                </div>
             </div>
-            <div style="margin-top:24px; font-weight:700; color:var(--accent);">إضافات مقترحة</div>
-            <div id="gen-faqs"></div>
           </div>
         </div>
 
-        <!-- Optimizer Result Display -->
+        <!-- Optimizer Result Display (Premium Audit View) -->
         <div id="opt-result" class="hidden">
-          <div class="panel">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div class="score-ring" id="opt-score" style="font-size: 32px; padding: 15px;"></div>
-              <span id="opt-backend-tag" class="badge badge-accent"></span>
-            </div>
-            <div style="margin-top:20px; color:var(--red); font-weight:700; font-size:12px; text-transform:uppercase;">
-              مشاكل حرجة</div>
-            <div id="opt-issues"></div>
-            <div style="margin-top:20px; color:var(--green); font-weight:700; font-size:12px; text-transform:uppercase;">
-              التوصيات</div>
-            <div id="opt-suggestions" style="margin-top:5px;"></div>
-            <div style="margin-top:20px; color:var(--yellow); font-weight:700; font-size:12px; text-transform:uppercase;">
-              الإصلاحات المنفذة (GEO Proof)</div>
-            <div id="opt-implemented-fixes" style="padding:10px; background:rgba(255,184,0,0.05); border-radius:8px; margin-top:5px;"></div>
+           <div class="panel" style="padding:0; overflow:hidden; border-color:var(--accent); border-top-width:4px;">
+              <div style="background:var(--ultra-accent); padding:24px 30px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                      <h3 style="margin:0; font-family:'Teko'; font-size:28px; color:white; letter-spacing:1px; line-height:1;">GEO AUDIT & OPTIMIZATION</h3>
+                      <div style="color:rgba(255,255,255,0.5); font-size:10px; margin-top:4px; font-weight:700; letter-spacing:2px;">v2.0-ULTRA | REAL-TIME SEMANTIC FEEDBACK</div>
+                  </div>
+                  <span id="opt-backend-tag" class="badge-accent" style="font-size:10px; border:1px solid rgba(255,255,255,0.2);"></span>
+              </div>
+              
+              <div style="padding:40px;">
+                  <!-- Top Row: Score + Key Stats -->
+                  <div style="display:grid; grid-template-columns: 200px 1fr; gap:40px; align-items:stretch; margin-bottom:40px;">
+                      <div class="score-card" style="text-align:center; padding:30px 20px; border:1px solid var(--border); background:rgba(255,255,255,0.01); display:flex; flex-direction:column; justify-content:center; box-shadow: inset 0 0 40px rgba(0,0,0,0.05);">
+                           <div id="opt-score-val" style="font-size: 64px; font-weight:800; font-family:'Teko'; line-height:1; color:var(--accent);">--</div>
+                           <div style="font-size:11px; color:var(--muted); text-transform:uppercase; margin-top:5px; font-weight:700; letter-spacing:1px;">GEO Authority Score</div>
+                           <div id="opt-score-label" style="font-size:10px; margin-top:15px; font-weight:800; padding:4px 8px; background:rgba(0,0,0,0.05); color:var(--muted);">WAITING...</div>
+                      </div>
+                      
+                      <div id="opt-stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:15px;">
+                          <!-- Populated via JS: direct_answer, entities, intent, etc. -->
+                      </div>
+                  </div>
 
-            <div style="margin-top:20px; color:var(--blue); font-weight:700; font-size:12px; text-transform:uppercase;">
-              النسخة المحسنة</div>
-            <div class="result-box" id="opt-content-out" style="height: 300px;"></div>
-          </div>
+                  <!-- Middle Row: Issues vs Recommendations -->
+                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin-bottom:40px;">
+                      <div style="background:rgba(255,0,0,0.02); padding:20px; border:1px solid rgba(255,0,0,0.1); border-top:3px solid var(--red);">
+                          <div style="color:var(--red); font-weight:800; font-size:11px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                             <div style="width:10px; height:10px; background:var(--red); box-shadow:0 0 10px var(--red);"></div> CRITICAL CONTENT GAPS / ثغرات المحتوى
+                          </div>
+                          <div id="opt-issues" style="display:flex; flex-direction:column; gap:10px;"></div>
+                      </div>
+                      <div style="background:rgba(0,255,0,0.02); padding:20px; border:1px solid rgba(0,255,0,0.1); border-top:3px solid var(--green);">
+                          <div style="color:var(--green); font-weight:800; font-size:11px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                             <div style="width:10px; height:10px; background:var(--green); box-shadow:0 0 10px var(--green);"></div> STRATEGIC CONTENT FIXES / التحسينات المطلوبة
+                          </div>
+                          <div id="opt-suggestions" style="display:flex; flex-direction:column; gap:10px;"></div>
+                      </div>
+                  </div>
+
+                  <!-- Implementation Log -->
+                  <div style="margin-bottom:40px;">
+                      <div style="color:var(--yellow); font-weight:800; font-size:11px; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                          <span style="font-family:'Teko'; font-size:18px;">⚡</span> LIVE IMPLEMENTATION LOG / سجل الإصلاحات
+                      </div>
+                      <div id="opt-implemented-fixes" style="font-family:monospace; font-size:12px; background:#0a0a0a; color:#00ff8c; padding:20px; border-radius:4px; height:150px; overflow-y:auto; border:1px solid #333; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                          <div style="opacity:0.5;">[GEO PROOF ENGINE IDLE]</div>
+                      </div>
+                  </div>
+
+                  <!-- Optimized Content Area -->
+                  <div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                          <div style="color:var(--blue); font-weight:800; font-size:11px; display:flex; align-items:center; gap:8px;">
+                             <div style="width:10px; height:10px; background:var(--blue); box-shadow:0 0 10px var(--blue);"></div> FINAL GENERATED CONTENT / النسخة المحسنة
+                          </div>
+                          <button class="btn" id="opt-copy-final" style="padding:6px 16px; font-size:10px; background:var(--surface); border:1px solid var(--border);">Copy HTML Content</button>
+                      </div>
+                      <div class="result-box" id="opt-content-out" style="height: 500px; border-right: 4px solid var(--blue); padding:30px; font-size:16px;"></div>
+                  </div>
+              </div>
+           </div>
         </div>
 
-        <!-- FAQ Result Display -->
+        <!-- FAQ Result Display (Premium Audit View) -->
         <div id="faq-result" class="hidden">
-          <div class="panel">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3 style="margin:0; font-size:20px;">الأسئلة الشائعة المولدة</h3>
-              <span id="faq-backend-tag" class="badge badge-accent"></span>
+          <div class="panel" style="padding:0; overflow:hidden; border-color:var(--accent); border-top-width:4px;">
+            <div style="background:var(--ultra-accent); padding:24px 30px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="margin:0; font-family:'Teko'; font-size:28px; color:white; letter-spacing:1px; line-height:1;">BEYOND-SEARCH FAQs</h3>
+                    <div style="color:rgba(255,255,255,0.5); font-size:10px; margin-top:4px; font-weight:700; letter-spacing:2px;">v2.0-ULTRA | ENTITY-DRIVEN Q&A</div>
+                </div>
+                <span id="faq-backend-tag" class="badge-accent" style="font-size:10px; border:1px solid rgba(255,255,255,0.2);"></span>
             </div>
-            <div id="faq-list" style="margin-top:20px;"></div>
-            <div style="margin-top:24px; font-weight:700; font-size:12px; color:var(--accent);">مخطط البيانات المنظمة (JSON-LD)</div>
-            <div class="result-box" id="faq-schema" style="height:150px; font-family:monospace; font-size:11px;">
+
+            <div style="padding:40px;">
+                <div id="faq-list" style="display:flex; flex-direction:column; gap:20px;"></div>
+                
+                <div style="margin-top:40px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <div style="color:var(--accent); font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1px;">مخطط البيانات المنظمة (JSON-LD) / Structured Schema</div>
+                        <button class="btn" id="faq-copy-schema-v2" style="padding:6px 16px; font-size:10px; background:var(--surface); border:1px solid var(--border);">Copy JSON-LD</button>
+                    </div>
+                    <div class="result-box" id="faq-schema" style="height:250px; font-family:monospace; font-size:12px; background:#0a0a0a; color:#f8f8f2; padding:20px; border-right:4px solid var(--accent);"></div>
+                </div>
             </div>
-            <button class="btn" id="faq-copy-schema" style="margin-top:10px; width:100%; padding:8px;"> نسخ المخطط</button>
           </div>
         </div>
 
@@ -519,7 +708,8 @@
             <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--blue);">الكيانات المكتشفة
             </div>
             <div id="sem-entities" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;"></div>
-            <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--accent);">المواضيع والكلمات المرتبطة</div>
+            <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--accent);">المواضيع والكلمات
+              المرتبطة</div>
             <div id="sem-topics" style="margin-top:8px;"></div>
             <div id="sem-lsi" style="margin-top:4px;"></div>
             <div style="margin-top:20px; font-weight:700; font-size:12px; color:var(--yellow);">الفرص الضائعة
@@ -528,14 +718,64 @@
           </div>
         </div>
 
+        <!-- Identity Result Display (Premium Audit View) -->
+        <div id="identity-result" class="hidden">
+          <div class="panel" style="padding:0; overflow:hidden; border-color:var(--accent); border-top-width:4px;">
+            <div style="background:var(--ultra-accent); padding:24px 30px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="margin:0; font-family:'Teko'; font-size:28px; color:white; letter-spacing:1px; line-height:1;">BRAND IDENTITY & AUTHORITY</h3>
+                    <div style="color:rgba(255,255,255,0.5); font-size:10px; margin-top:4px; font-weight:700; letter-spacing:2px;">v2.0-ULTRA | NARRATIVE ANCHORING</div>
+                </div>
+                <span id="identity-backend-tag" class="badge-accent" style="font-size:10px; border:1px solid rgba(255,255,255,0.2);"></span>
+            </div>
+
+            <div style="padding:40px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div style="font-weight:800; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+                       <div style="width:10px; height:10px; background:var(--accent); border-radius:50%;"></div> خطاف العلامة التجارية (Narrative Hook)
+                    </div>
+                    <button class="btn" id="identity-copy" style="padding:4px 12px; font-size:10px;">Copy Identity</button>
+                </div>
+                <div id="identity-hook" style="font-size:16px; line-height:1.7; color:var(--text); padding:20px; background:rgba(0,0,0,0.01); border-right:4px solid var(--accent); margin-bottom:30px;"></div>
+
+
+            <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+              <div>
+                <div style="font-weight:700; font-size:11px; color:var(--blue); text-transform:uppercase; margin-bottom:5px;">الصوت والنبرة</div>
+                <div id="identity-voice" style="font-size:12px; color:var(--text);"></div>
+              </div>
+              <div>
+                <div style="font-weight:700; font-size:11px; color:var(--green); text-transform:uppercase; margin-bottom:5px;">سلطة الكيان</div>
+                <div id="identity-proposition" style="font-size:12px; color:var(--text);"></div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;">
+              <div style="font-weight:700; font-size:11px; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">الركائز الأساسية (Narrative Pillars)</div>
+              <div id="identity-pillars" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div style="font-weight:700; font-size:11px; color:var(--yellow); text-transform:uppercase; margin-bottom:10px;">التموضع الجغرافي (GEO Positioning)</div>
+                <div id="identity-geo" style="font-size:12px; line-height:1.6; color:var(--text);"></div>
+            </div>
+
+            <div style="margin-top:25px; display:flex; gap:10px;">
+              <button class="btn btn-primary" id="identity-copy" style="flex:1;">نسخ الهوية</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Strategic Analysis Reference -->
         <div id="smart-analysis-ref2" class="hidden" style="margin-top:24px;">
           <div class="panel" style="border: 1px solid var(--accent); background: rgba(0, 212, 255, 0.03);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-              <div style="font-weight:800; color:var(--accent); font-size:14px; text-transform:uppercase; letter-spacing:1px;">
-                💡 توصيات استراتيجية (GEO)
+              <div
+                style="font-weight:800; color:var(--accent); font-size:14px; text-transform:uppercase; letter-spacing:1px;">
+                توصيات استراتيجية (GEO)
               </div>
-              <div id="market-grade-badge" class="badge-accent" style="padding:2px 8px; border-radius:4px; font-size:10px;">B</div>
+              <div id="market-grade-badge" class="badge-accent"
+                style="padding:2px 8px; border-radius: 0; font-size:10px;">B</div>
             </div>
             <div id="smart-analysis-body2" style="font-size:13px; color:var(--text); line-height:1.6;">
               <!-- Dynamic recs show here -->
@@ -549,9 +789,10 @@
         <!-- Placeholder if no result -->
         <div id="empty-state" class="panel"
           style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; opacity: 0.5;">
-          <div style="font-size: 48px; margin-bottom: 20px;">🧠</div>
+          <div style="font-size: 48px; margin-bottom: 20px;">.</div>
           <div style="font-weight:700; font-size:18px;">جاهز للتوليد الذكي</div>
-          <div style="font-size:14px; color:var(--muted); margin-top:10px;">قم بتهيئة المدخلات وتشغيل المهمة لرؤية النتائج هنا.</div>
+          <div style="font-size:14px; color:var(--muted); margin-top:10px;">قم بتهيئة المدخلات وتشغيل المهمة لرؤية
+            النتائج هنا.</div>
         </div>
 
       </div> <!-- End sidebar -->
@@ -561,8 +802,9 @@
   <!-- Research Modal -->
   <div id="research-modal" class="modal-overlay hidden">
     <div class="modal-content" style="width: 550px; max-height: 80vh; overflow: auto;">
-      <h3 style="margin-top:0; font-family:'Outfit'; font-size:24px; color:var(--accent);"> مستودع الأبحاث</h3>
-      <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">اربط البيانات التي تم زحفها مسبقاً بسير عمل الذكاء الاصطناعي الخاص بك.</p>
+      <h3 style="margin-top:0; font-family:'Teko'; font-size:24px; color:var(--accent);"> مستودع الأبحاث</h3>
+      <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">اربط البيانات التي تم زحفها مسبقاً بسير عمل
+        الذكاء الاصطناعي الخاص بك.</p>
       <div id="research-list" style="margin: 20px 0; min-height: 100px;">
         <div style="text-align:center; padding: 20px;">
           <div class="spinner" style="margin: 0 auto 10px;"></div>
@@ -579,8 +821,9 @@
   <!-- Backend Settings Modal -->
   <div id="settings-modal" class="modal-overlay hidden">
     <div class="modal-content" style="max-width:400px;">
-      <h2 style="margin-top:0; font-family:'Outfit'; font-size:20px;"> إعدادات النظام</h2>
-      <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">أدخل مفاتيح API الخاصة بك لتمكين التوليد الذكي. يتم حفظ المفاتيح محلياً في متصفحك.</p>
+      <h2 style="margin-top:0; font-family:'Teko'; font-size:20px;"> إعدادات النظام</h2>
+      <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">أدخل مفاتيح API الخاصة بك لتمكين التوليد الذكي.
+        يتم حفظ المفاتيح محلياً في متصفحك.</p>
 
       <div style="margin-bottom:15px;">
         <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">مفتاح Groq API</label>
@@ -660,17 +903,17 @@
       const statusEl = document.getElementById(prefix + '-status');
 
       if (loading) {
-        container.style.display = 'block';
-        bar.style.width = '10%';
-        label.textContent = msg;
-        detailEl.textContent = detail;
-        btn.disabled = true;
-        statusEl.textContent = '';
+        if (container) container.style.display = 'block';
+        if (bar) bar.style.width = '10%';
+        if (label) label.textContent = msg;
+        if (detailEl) detailEl.textContent = detail;
+        if (btn) btn.disabled = true;
+        if (statusEl) statusEl.textContent = '';
       } else {
-        bar.style.width = '100%';
+        if (bar) bar.style.width = '100%';
         setTimeout(() => {
-          container.style.display = 'none';
-          btn.disabled = false;
+          if (container) container.style.display = 'none';
+          if (btn) btn.disabled = false;
         }, 500);
       }
     }
@@ -791,6 +1034,12 @@
       const contentMatch = context.match(/\[PAGE CONTENT SAMPLE\]\n([\s\S]*)$/);
       const pageContent = contentMatch ? contentMatch[1].trim().substring(0, 1500) : '';
 
+      // Read enriched data stored by injectJob background fetch
+      const geoScore = JSON.parse(localStorage.getItem('active_geo_score') || 'null');
+      const competitors = JSON.parse(localStorage.getItem('active_geo_competitors') || '[]');
+      const localRegions = JSON.parse(localStorage.getItem('active_geo_regions') || '[]');
+      const industry = localStorage.getItem('active_geo_industry') || '';
+
       return {
         org_name: job.org_name || '',
         url: job.url || '',
@@ -799,7 +1048,10 @@
         entities: entities.slice(0, 15),
         page_content: pageContent,
         issues: insights.slice(0, 8),
-        local_regions: [],  // populated by geo_local analysis if available
+        local_regions: localRegions,
+        competitors: competitors,
+        geo_score: geoScore,
+        industry: industry,
       };
     }
 
@@ -814,7 +1066,7 @@
         update3DProgress(prefix, 30, 'جارٍ البحث عن السياق...', 'استخراج البيانات الدلالية من سجل الأبحاث');
         const competitors = document.getElementById('gen-competitors').value
           .split('\n').map(s => s.trim()).filter(Boolean);
-        
+
         update3DProgress(prefix, 60, 'جارٍ صياغة المقال...', 'توليد محتوى متوافق مع معايير GEO و SEO');
         const resp = await fetch('/api/content/generate', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -822,7 +1074,10 @@
             keyword,
             lang: document.getElementById('gen-lang').value,
             target_site: getActiveSite(),
-            research_insights: getActiveInsights(),
+            research_insights: [
+              ...(getActiveInsights() || []),
+              ...(document.getElementById('gen-niche').value ? [`Industry: ${document.getElementById('gen-niche').value}`] : [])
+            ],
             competitors_content: competitors,
             crawl_data: getActiveCrawlData(),
             prefer_backend: document.getElementById('gen-backend').value,
@@ -832,15 +1087,32 @@
         const data = await resp.json();
         if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
-        document.getElementById('gen-title').textContent = r.title || '';
+        let bTag = r.backend || '';
+        if (r.backend === 'demo' && r.backend_errors) {
+            const errStr = Object.entries(r.backend_errors).map(([k,v]) => `${k}:${v}`).join(', ');
+            if (errStr) bTag += ` (Errors: ${errStr})`;
+        }
+        document.getElementById('gen-backend-tag').textContent = bTag;
+        
+        document.getElementById('gen-title').textContent = r.title || 'Generated Content';
         document.getElementById('gen-meta').textContent = r.meta_description || '';
-        document.getElementById('gen-backend-tag').textContent = r.backend || '';
+
+        // Render detailed insights
+        const detailedInsights = document.getElementById('gen-detailed-insights');
+        if (r.strategic_contrast || r.brand_entity_authority || r.geo_impact_summary) {
+          detailedInsights.classList.remove('hidden');
+          document.getElementById('gen-contrast').textContent = r.strategic_contrast || '';
+          document.getElementById('gen-authority').textContent = r.brand_entity_authority || '';
+          document.getElementById('gen-impact').textContent = r.geo_impact_summary || '';
+        } else {
+          detailedInsights.classList.add('hidden');
+        }
 
         // Build content with entity graph + proof placeholders highlighted
         let contentHtml = mdToHtml(r.content || '');
         // Highlight proof placeholders
         contentHtml = contentHtml.replace(/\[\[([^\]]+)\]\]/g,
-          '<span style="background:rgba(255,204,0,0.15);border:1px solid var(--yellow);border-radius:4px;padding:2px 6px;font-size:12px;color:var(--yellow)">&#9888; $1</span>');
+          '<span style="background:rgba(255,204,0,0.15);border:1px solid var(--yellow);border-radius: 0;padding:2px 6px;font-size:12px;color:var(--yellow)">&#9888; $1</span>');
 
         let extras = '';
         // Entity Graph
@@ -861,13 +1133,13 @@
           extras += `<div style="margin-top:16px;padding:12px;background:rgba(0,255,149,0.04);border:1px solid rgba(0,255,149,0.15);border-radius:12px">
             <h4 style="margin:0 0 10px;color:var(--green)">📍 كلمات GEO المحلية</h4>
             <div style="display:flex;flex-wrap:wrap;gap:6px">
-              ${r.local_keywords.map(k => `<span style="font-size:12px;padding:3px 10px;border-radius:4px;background:rgba(0,255,149,0.08);border:1px solid rgba(0,255,149,0.2);color:var(--green)">${k}</span>`).join('')}
+              ${r.local_keywords.map(k => `<span style="font-size:12px;padding:3px 10px;border-radius: 0;background:rgba(0,255,149,0.08);border:1px solid rgba(0,255,149,0.2);color:var(--green)">${k}</span>`).join('')}
             </div>
           </div>`;
         }
         // Schema
         if (r.schema) {
-          extras += `<div style="margin-top:16px"><h4 style="color:var(--ultra-accent)">Schema.org (Multi-Type)</h4><pre style="background:#0a0a0a;padding:12px;border-radius:8px;overflow:auto;color:#0f0;font-size:11px;max-height:300px">${r.schema.replace(/</g,'&lt;')}</pre></div>`;
+          extras += `<div style="margin-top:16px"><h4 style="color:var(--ultra-accent)">Schema.org (Multi-Type)</h4><pre style="background:var(--surface)a0a0a;padding:12px;border-radius: 0;overflow:auto;color:#0f0;font-size:11px;max-height:300px">${r.schema.replace(/</g, '&lt;')}</pre></div>`;
         }
         document.getElementById('gen-content').innerHTML = contentHtml + extras;
 
@@ -875,9 +1147,9 @@
         faqsEl.innerHTML = '';
         if (r.implemented_fixes?.length) {
           const isDemo = r.backend === 'demo';
-          faqsEl.innerHTML = `<div style="background:${isDemo ? 'rgba(255,204,0,0.05)' : 'rgba(0,242,255,0.05)'};padding:15px;border-radius:12px;border:1px solid ${isDemo ? 'var(--yellow)' : 'var(--accent)'};margin-bottom:20px">
-            <h4 style="margin:0 0 10px;color:${isDemo ? 'var(--yellow)' : 'var(--accent)'}">${isDemo ? '⚠️ وضع تجريبي — أضف Groq API للمحتوى الحقيقي' : '⚡ إصلاحات GEO المفعلة'}</h4>
-            ${r.implemented_fixes.map(f => `<div style="font-size:13px;margin:2px 0">${isDemo ? 'ℹ️' : '✅'} ${f}</div>`).join('')}
+          faqsEl.innerHTML = `<div style="background:${isDemo ? 'rgba(255,204,0,0.05)' : 'rgba(0,242,255,0.05)'};padding:15px;border-radius: 0;border:1px solid ${isDemo ? 'var(--yellow)' : 'var(--accent)'};margin-bottom:20px">
+            <h4 style="margin:0 0 10px;color:${isDemo ? 'var(--yellow)' : 'var(--accent)'}">${isDemo ? ' وضع تجريبي — أضف Groq API للمحتوى الحقيقي' : '⚡ إصلاحات GEO المفعلة'}</h4>
+            ${r.implemented_fixes.map(f => `<div style="font-size:13px;margin:2px 0">${isDemo ? 'ℹ.' : '.'} ${f}</div>`).join('')}
           </div>`;
         }
         (r.faqs || []).forEach(f => {
@@ -889,9 +1161,9 @@
         applyStaggeredEntry(faqsEl);
         showSidebarResult('gen-result');
         set3DLoading(prefix, false);
-      } catch (e) { 
+      } catch (e) {
         set3DLoading(prefix, false);
-        document.getElementById('gen-status').textContent = 'Request failed: ' + e.message; 
+        document.getElementById('gen-status').textContent = 'Request failed: ' + e.message;
       }
     });
 
@@ -928,7 +1200,7 @@
       const schemaPre = document.querySelector('.code-implementation pre');
       const schema = schemaPre ? schemaPre.textContent : '';
 
-      return `--- GEO DEPLOYMENT PACKAGE ---\n\n# TITLE: ${title}\n\n## META DESCRIPTION:\n${meta}\n\n## CONTENT:\n${content}\n\n## SCHEMA.ORG (JSON-LD):\n${schema}\n\n## IMPLEMENTED GEO FIXES:\n${fixes}\n\n----------------------------\nGenerated by GEO Platform Analytics`;
+      return `--- GEO DEPLOYMENT PACKAGE ---\n\n# TITLE: ${title}\n\n## META DESCRIPTION:\n${meta}\n\n## CONTENT:\n${content}\n\n## SCHEMA.ORG (JSON-LD):\n${schema}\n\n## IMPLEMENTED GEO FIXES:\n${fixes}\n\n----------------------------\nGenerated by Moharek GEO Platform Analytics`;
     }
 
     // ── Research Integration ──────────────────────────────────────────────────
@@ -953,7 +1225,7 @@
         const x = 50 + (p.x / 2); // Convert -100..100 to 0..100%
         const y = 50 - (p.y / 2);
         const dot = document.createElement('div');
-        dot.style.cssText = `position:absolute; left:${x}%; top:${y}%; width:10px; height:10px; background:var(--accent); border-radius:50%; box-shadow:0 0 10px var(--accent); cursor:pointer;`;
+        dot.style.cssText = `position:absolute; left:${x}%; top:${y}%; width:10px; height:10px; background:var(--accent); border-radius: 0; box-shadow:0 0 10px var(--accent); cursor:pointer;`;
         dot.title = `${p.name} (${p.role})`;
 
         const label = document.createElement('div');
@@ -967,7 +1239,7 @@
       // Success Factors
       const successList = document.getElementById('success-factors-list');
       successList.innerHTML = (intel.success_factors || []).map(f => `
-        <div style="background:rgba(0,255,100,0.05); padding:10px; border-radius:8px; border-left:3px solid var(--green);">
+        <div style="background:rgba(0,255,100,0.05); padding:10px; border-radius: 0; border-left:3px solid var(--green);">
           <div style="font-weight:700; font-size:13px; color:var(--green);">${f.factor}</div>
           <div style="font-size:11px; color:var(--muted); margin-top:2px;">Impact: ${f.impact} • Used by ${f.competitors.join(', ')}</div>
         </div>
@@ -976,7 +1248,7 @@
       // Competitive Gaps
       const gapList = document.getElementById('competitive-gaps-list');
       gapList.innerHTML = (intel.competitive_gaps || []).map(g => `
-        <div style="background:rgba(255,200,0,0.05); padding:10px; border-radius:8px; border-left:3px solid var(--yellow);">
+        <div style="background:rgba(255,200,0,0.05); padding:10px; border-radius: 0; border-left:3px solid var(--yellow);">
           <div style="font-weight:700; font-size:13px; color:var(--yellow);">${g.gap}</div>
           <div style="font-size:11px; color:var(--muted); margin-top:2px;">${g.description}</div>
         </div>
@@ -1004,7 +1276,7 @@
           div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; pointer-events:none;">
               <div>
-                <div style="font-weight:700; color:#fff;">${job.org_name || job.url}</div>
+                <div style="font-weight:700; color:var(--text);">${job.org_name || job.url}</div>
                 <div style="font-size:11px; color:var(--muted);">${job.url} &nbsp;•&nbsp; Job #${job.id}</div>
               </div>
               <div class="badge badge-blue">✓ done</div>
@@ -1055,7 +1327,7 @@
               if (document.getElementById('sem-content')) document.getElementById('sem-content').value = pageContent;
             }
           }
-        } catch(e) { console.warn('Could not load audit pages', e); }
+        } catch (e) { console.warn('Could not load audit pages', e); }
 
         // ── Step 4: Fill UI fields immediately ────────────────────────────
         const pulseStatus = document.getElementById('pulse-status');
@@ -1082,8 +1354,8 @@
 
         // ── Step 6: Show success immediately, run heavy calls in background ─
         researchList.innerHTML = `
-          <div style="padding:15px; background:rgba(0,242,255,0.05); border:1px solid var(--accent); border-radius:12px; text-align:center;">
-            <div style="color:var(--accent); font-weight:700; font-size:14px; margin-bottom:8px;">✅ تم ربط البيانات بنجاح</div>
+          <div style="padding:15px; background:rgba(0,242,255,0.05); border:1px solid var(--accent); border-radius: 0; text-align:center;">
+            <div style="color:var(--accent); font-weight:700; font-size:14px; margin-bottom:8px;"> تم ربط البيانات بنجاح</div>
             <div style="font-size:12px; opacity:0.8; margin-bottom:5px;">${orgName}</div>
             <div style="font-size:11px; color:var(--green);">${keywords.length} كلمة مفتاحية • ${entityList.split(',').length} كيان • جارٍ تحميل التوصيات...</div>
           </div>`;
@@ -1105,19 +1377,36 @@
               const pageInsights = (recData.recommendations?.per_page || []).flatMap(p => p.suggestions || []).map(s => typeof s === 'object' ? (s.rewrite || JSON.stringify(s)) : s);
               const richInsights = [...actionInsights, ...pageInsights].slice(0, 20);
               localStorage.setItem('active_geo_insights', JSON.stringify(richInsights));
-              // update competitors field
-              const comps = (recData.recommendations?.actions || []).filter(a => a.competitor).map(a => a.competitor).slice(0,5).join(', ');
-              if (comps && document.getElementById('gen-competitors')) document.getElementById('gen-competitors').value = comps;
+
+              // ── Store enriched analysis data for getActiveCrawlData() ──
+              if (recData.geo_score) {
+                localStorage.setItem('active_geo_score', JSON.stringify(recData.geo_score));
+              }
+              // Store competitor domains
+              const ci = recData.competitor_insight || recData.recommendations?.competitor_insight || {};
+              const compDomains = (ci.top_competitors || []).map(c => c.domain || c.name || c).filter(Boolean).slice(0, 8);
+              if (compDomains.length) localStorage.setItem('active_geo_competitors', JSON.stringify(compDomains));
+              // Store industry
+              if (ci.industry) localStorage.setItem('active_geo_industry', ci.industry);
+              // Store local regions from geo_local
+              const geoLocal = recData.geo_local || {};
+              const localKws = (geoLocal.missing_local_keywords || []).slice(0, 5);
+              if (localKws.length) localStorage.setItem('active_geo_regions', JSON.stringify(localKws));
+
+              // update competitor suggestions field
+              if (compDomains.length && document.getElementById('gen-competitors')) {
+                document.getElementById('gen-competitors').value = compDomains.join('\n');
+              }
               renderStrategicRecs(recData.recommendations, recData.geo_score);
               // update banner
               const banner = researchList.querySelector('div');
-              if (banner) banner.querySelector('div:last-child').textContent = `${keywords.length} كلمة مفتاحية • ${actionInsights.length} توصية GEO • ${richInsights.length} رؤية ذكية`;
+              if (banner) banner.querySelector('div:last-child').textContent = `${keywords.length} كلمة مفتاحية • ${actionInsights.length} توصية GEO • ${compDomains.length} منافس مكتشف`;
             }
-          } catch(e) { console.warn('Background recommendations failed', e); }
+          } catch (e) { console.warn('Background recommendations failed', e); }
         })();
 
       } catch (e) {
-        researchList.innerHTML = `<div style="color:var(--red); padding:10px;">❌ خطأ في التحميل: ${e.message}</div>`;
+        researchList.innerHTML = `<div style="color:var(--red); padding:10px;"> خطأ في التحميل: ${e.message}</div>`;
       }
     }
 
@@ -1203,8 +1492,8 @@
       let bodyHtml = '';
 
       if (critical && critical.title) {
-        bodyHtml += `<div style="padding:10px;border-radius:8px;background:rgba(255,51,102,0.08);border-right:3px solid var(--red);margin-bottom:12px">
-          <div style="color:var(--red);font-weight:700;margin-bottom:4px">⚠️ ${critical.title}</div>
+        bodyHtml += `<div style="padding:10px;border-radius: 0;background:rgba(255,51,102,0.08);border-right:3px solid var(--red);margin-bottom:12px">
+          <div style="color:var(--red);font-weight:700;margin-bottom:4px"> ${critical.title}</div>
           <div style="font-size:12px;color:var(--muted)">${critical.why || ''}</div>
         </div>`;
       }
@@ -1214,7 +1503,7 @@
           const text = typeof a === 'object' ? (a.text || a.title || JSON.stringify(a)) : a;
           const priority = typeof a === 'object' ? (a.priority || '') : '';
           const pColor = priority === 'HIGH' ? 'var(--red)' : priority === 'MEDIUM' ? 'var(--yellow)' : 'var(--accent)';
-          return `<div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:6px">
+          return `<div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:rgba(255,255,255,0.02);border-radius: 0;margin-bottom:6px">
             <span style="color:${pColor};font-size:10px;font-weight:800;min-width:40px;padding-top:2px">${priority || '•'}</span>
             <span style="font-size:12px;line-height:1.5">${text}</span>
           </div>`;
@@ -1222,9 +1511,9 @@
       }
 
       if (topAdd && topAdd.items) {
-        bodyHtml += `<div style="margin-top:10px;padding:10px;background:rgba(124,58,237,0.08);border-radius:8px;border-right:3px solid #a78bfa">
-          <div style="color:#a78bfa;font-weight:700;font-size:12px;margin-bottom:8px">🚀 ${topAdd.title || 'Top Opportunities'}</div>
-          ${topAdd.items.slice(0,4).map(i => `<div style="font-size:11px;color:var(--muted);margin-bottom:3px">• ${i}</div>`).join('')}
+        bodyHtml += `<div style="margin-top:10px;padding:10px;background:rgba(124,58,237,0.08);border-radius: 0;border-right:3px solid #a78bfa">
+          <div style="color:#a78bfa;font-weight:700;font-size:12px;margin-bottom:8px"> ${topAdd.title || 'Top Opportunities'}</div>
+          ${topAdd.items.slice(0, 4).map(i => `<div style="font-size:11px;color:var(--muted);margin-bottom:3px">• ${i}</div>`).join('')}
         </div>`;
       }
 
@@ -1256,57 +1545,129 @@
       });
     }
 
-    window.triggerAutonomousFix = function(type, mode) {
+    window.triggerAutonomousFix = function (type, mode) {
       // Switch to correct tab
-      const tabMap = { 'faq': 'faqs', 'generate': 'generate', 'optimize': 'optimize', 'semantic': 'semantic' };
+      const tabMap = { 'faq': 'faqs', 'generate': 'generate', 'optimize': 'optimize', 'semantic': 'semantic', 'identity': 'identity' };
       switchTab(tabMap[type] || 'generate');
 
-      // Always pull fresh crawl data
-      const brand   = getActiveBrand();
-      const crawl   = getActiveCrawlData();
-      const topKw   = (crawl.keywords || [])[0] || brand;
-      const allKws  = (crawl.keywords || []).slice(0, 8).join('\n');
+      // Pull ALL available crawl + analysis data
+      const brand = getActiveBrand();
+      const crawl = getActiveCrawlData();
+      const topKw = (crawl.keywords || [])[0] || brand;
+      const allKws = (crawl.keywords || []).slice(0, 10).join(', ');
       const pageContent = crawl.page_content || '';
-      const headings    = (crawl.headings  || []).join(' | ');
+      const headings = (crawl.headings || []).join(' | ');
+      const industry = crawl.industry || localStorage.getItem('active_geo_industry') || '';
+      const competitors = crawl.competitors || JSON.parse(localStorage.getItem('active_geo_competitors') || '[]');
+      const geoScore = crawl.geo_score || JSON.parse(localStorage.getItem('active_geo_score') || 'null');
+      const insights = getActiveInsights();
+
+      // Determine best available backend
+      function bestBackend() {
+        const hasGroq = !!localStorage.getItem('geo_groq_key');
+        const hasOpenAI = !!localStorage.getItem('geo_openai_key');
+        if (hasGroq) return 'groq';
+        if (hasOpenAI) return 'openai';
+        // Let the backend use its configured .env keys
+        return 'groq'; 
+      }
+
+      // Build a rich context string for text areas
+      const richContext = [
+        pageContent,
+        headings ? `هيكل الموقع: ${headings}` : '',
+        allKws ? `أبرز الكلمات المفتاحية: ${allKws}` : '',
+        competitors.length ? `المنافسون المكتشفون: ${competitors.join(', ')}` : '',
+        geoScore ? `درجة GEO الحالية: ${geoScore.score || 0}%` : '',
+        insights.slice(0, 3).join(' | ')
+      ].filter(Boolean).join('\n\n').substring(0, 2000);
 
       setTimeout(() => {
         if (type === 'faq') {
-          // Topic = real keyword + brand
+          // ── FAQ: 7 questions, full audit context ──────────────────────
           const topicEl = document.getElementById('faq-topic');
-          if (topicEl) topicEl.value = `أسئلة شائعة حول ${topKw} - ${brand}`;
-          // Context = real page content
+          if (topicEl) topicEl.value = `أسئلة شائعة حول ${topKw} - ${brand}${industry ? ' (' + industry + ')' : ''}`;
+
           const ctxEl = document.getElementById('faq-context');
-          if (ctxEl) ctxEl.value = pageContent || headings;
-          // Auto-trigger
+          if (ctxEl) ctxEl.value = richContext || pageContent || headings;
+
+          const countEl = document.getElementById('faq-count');
+          if (countEl) countEl.value = '7';
+
+          const faqBackend = document.getElementById('faq-backend');
+          if (faqBackend) faqBackend.value = bestBackend();
+
           document.getElementById('faq-btn')?.click();
 
-        } else if (type === 'generate') {
-          const kwEl   = document.getElementById('gen-keyword');
+        } else if (type === 'generate' && mode === 'authority') {
+          // ── Authority: brand definition with full niche context ───────
+          const kwEl = document.getElementById('gen-keyword');
+          const nicheEl = document.getElementById('gen-niche');
           const compEl = document.getElementById('gen-competitors');
+          const genBackend = document.getElementById('gen-backend');
 
-          if (mode === 'authority') {
-            // Authority text: keyword = brand definition
-            if (kwEl) kwEl.value = `نص تعريفي سلطوي لـ ${brand} في مجال ${topKw}`;
-          } else if (mode === 'compare') {
-            // Competitor comparison: keyword = comparison query
-            if (kwEl) kwEl.value = `مقارنة ${brand} مع المنافسين في مجال ${topKw}`;
-          } else {
-            if (kwEl) kwEl.value = topKw;
+          if (kwEl) kwEl.value = `نص تعريفي سلطوي لـ ${brand} في مجال ${topKw}`;
+          // Fill industry/niche for richer prompt
+          if (nicheEl && industry) nicheEl.value = industry;
+          else if (nicheEl && allKws) nicheEl.value = allKws.split(',')[0].trim();
+          // Fill competitors so backend can contrast
+          if (compEl && competitors.length) compEl.value = competitors.slice(0, 5).join('\n');
+          else if (compEl && allKws) compEl.value = allKws;
+
+          if (genBackend) genBackend.value = bestBackend();
+          document.getElementById('gen-btn')?.click();
+
+        } else if (type === 'generate' && mode === 'compare') {
+          // ── Compare: keyword=comparison query, competitors=real domains ─
+          const kwEl = document.getElementById('gen-keyword');
+          const nicheEl = document.getElementById('gen-niche');
+          const compEl = document.getElementById('gen-competitors');
+          const genBackend = document.getElementById('gen-backend');
+
+          if (kwEl) kwEl.value = `مقارنة ${brand} مع المنافسين في مجال ${topKw}`;
+          if (nicheEl && industry) nicheEl.value = industry;
+          // Pass real competitor domains as the comparison targets
+          if (compEl) {
+            if (competitors.length) {
+              compEl.value = competitors.slice(0, 6).join('\n');
+            } else {
+              compEl.value = allKws; // fallback
+            }
           }
+          if (genBackend) genBackend.value = bestBackend();
+          document.getElementById('gen-btn')?.click();
 
-          // Fill competitors with real extracted keywords as context
-          if (compEl && allKws) compEl.value = allKws;
-          // Auto-trigger
+        } else if (type === 'generate') {
+          // ── Generic generate ──────────────────────────────────────────
+          const kwEl = document.getElementById('gen-keyword');
+          const compEl = document.getElementById('gen-competitors');
+          const genBackend = document.getElementById('gen-backend');
+          if (kwEl) kwEl.value = topKw;
+          if (compEl && competitors.length) compEl.value = competitors.slice(0, 5).join('\n');
+          if (genBackend) genBackend.value = bestBackend();
           document.getElementById('gen-btn')?.click();
 
         } else if (type === 'optimize') {
-          const kwEl      = document.getElementById('opt-keyword');
+          // ── Optimize: fill content + keyword + backend ─────────────────
+          const kwEl = document.getElementById('opt-keyword');
           const contentEl = document.getElementById('opt-content');
+          const optBackend = document.getElementById('opt-backend');
           if (kwEl) kwEl.value = topKw;
           if (contentEl && pageContent) contentEl.value = pageContent;
+          if (optBackend) optBackend.value = bestBackend();
           document.getElementById('opt-btn')?.click();
+        } else if (type === 'identity') {
+          // ── Identity: refresh context summary + trigger ────────────────
+          const brand = getActiveBrand();
+          const industry = localStorage.getItem('active_geo_industry') || 'Industry Niche';
+          const summaryEl = document.getElementById('identity-context-summary');
+          if (summaryEl) summaryEl.innerHTML = `بناء هوية لـ <strong>${brand}</strong> في قطاع <strong>${industry}</strong> بناءً على بيانات البحث الحالية.`;
+          
+          const idenBackend = document.getElementById('identity-backend');
+          if (idenBackend) idenBackend.value = bestBackend();
+          document.getElementById('identity-btn')?.click();
         }
-      }, 350);
+      }, 500); // 500ms gives the tab switch time to render
     };
 
     // ── Optimize Content ──────────────────────────────────────────────────────
@@ -1321,36 +1682,83 @@
         update3DProgress(prefix, 50, 'جارٍ معالجة التوجيهات...', 'إعادة صياغة الجمل لزيادة احتمالية الاقتباس');
         const resp = await fetch('/api/content/optimize', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            content, 
-            keyword, 
-            lang: document.getElementById('opt-lang').value, 
+          body: JSON.stringify({
+            content,
+            keyword,
+            lang: document.getElementById('opt-lang').value,
             target_site: getActiveSite(),
             research_insights: getActiveInsights(),
             crawl_data: getActiveCrawlData(),
-            prefer_backend: document.getElementById('opt-backend').value, 
-            api_keys: getApiKeys() 
+            prefer_backend: document.getElementById('opt-backend').value,
+            api_keys: getApiKeys()
           })
         });
         const data = await resp.json();
         if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
-        const scoreEl = document.getElementById('opt-score');
-        // Show score breakdown if available
-        const breakdown = r.score_breakdown || {};
-        const breakdownHtml = Object.keys(breakdown).length
-          ? `<div style="font-size:11px;color:var(--muted);margin-top:6px">${Object.entries(breakdown).map(([k,v]) => `${k}: ${v}/20`).join(' · ')}</div>`
-          : '';
-        scoreEl.innerHTML = `<span style="color:${scoreColor(r.score)}">${r.score}</span><div style="font-size:13px;color:var(--muted)">GEO Score</div>${breakdownHtml}`;
-        document.getElementById('opt-backend-tag').textContent = r.backend || '';
-        document.getElementById('opt-issues').innerHTML = (r.issues || []).map(i => `<div class="issue-item">⚠ ${i}</div>`).join('');
-        document.getElementById('opt-suggestions').innerHTML = (r.suggestions || []).map(s => `<div class="suggestion-item">✓ ${s}</div>`).join('');
         
+        // --- Populate Premium Display ---
+        const scoreValEl = document.getElementById('opt-score-val');
+        const scoreLabelEl = document.getElementById('opt-score-label');
+        const statsGrid = document.getElementById('opt-stats-grid');
+        
+        if (scoreValEl) {
+            scoreValEl.textContent = r.score;
+            scoreValEl.style.color = scoreColor(r.score);
+        }
+        
+        if (scoreLabelEl) {
+            const status = r.score > 80 ? 'EXCELLENT / متفوق' : (r.score > 50 ? 'STABLE / مستقر' : 'CRITICAL / ضعيف');
+            scoreLabelEl.textContent = status;
+            scoreLabelEl.style.background = r.score > 80 ? 'rgba(73,164,96,0.1)' : (r.score > 50 ? 'rgba(234,189,45,0.1)' : 'rgba(255,94,87,0.1)');
+            scoreLabelEl.style.color = scoreColor(r.score);
+        }
+
+        // Build Breakdown Stats
+        const breakdown = r.score_breakdown || {};
+        const labels = {
+            'direct_answer': 'Direct Answer',
+            'entities': 'Entities',
+            'intent': 'Intent Matching',
+            'proof': 'Evidence/Proof',
+            'schema': 'Schema Depth'
+        };
+        
+        if (statsGrid) {
+            statsGrid.innerHTML = Object.entries(breakdown).map(([k, v]) => `
+                <div style="padding:15px; border:1px solid var(--border); background:rgba(0,0,0,0.01);">
+                    <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">${labels[k] || k}</div>
+                    <div style="display:flex; align-items:baseline; gap:4px; margin-top:5px;">
+                        <span style="font-size:20px; font-weight:800; font-family:'Teko'; color:${v > 15 ? 'var(--green)' : 'var(--text)'}">${v}</span>
+                        <span style="font-size:10px; opacity:0.4;">/20</span>
+                    </div>
+                    <div style="width:100%; height:2px; background:rgba(0,0,0,0.05); margin-top:8px;">
+                        <div style="width:${(v/20)*100}%; height:100%; background:${scoreColor(v * 5)}"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        let bTag = r.backend || '';
+        if (r.backend === 'demo' && r.backend_errors) {
+            const errStr = Object.entries(r.backend_errors).map(([k,v]) => `${k}:${v}`).join(', ');
+            if (errStr) bTag += ` (Errors: ${errStr})`;
+        }
+        document.getElementById('opt-backend-tag').textContent = bTag;
+        
+        document.getElementById('opt-issues').innerHTML = (r.issues || []).map(i => `<div class="issue-item" style="border-radius:0; border-right:2px solid var(--red); background:rgba(0,0,0,0.01); font-size:13px; padding:10px;">⚠ ${i}</div>`).join('');
+        document.getElementById('opt-suggestions').innerHTML = (r.suggestions || []).map(s => `<div class="suggestion-item" style="border-radius:0; border-right:2px solid var(--green); background:rgba(0,0,0,0.01); font-size:13px; padding:10px;">✓ ${s}</div>`).join('');
+
         const fixesEl = document.getElementById('opt-implemented-fixes');
         if (fixesEl) {
-            fixesEl.innerHTML = (r.implemented_fixes || []).map(f => 
-                `<div style="margin-bottom:4px; color:var(--green)">⚡ ${f}</div>`
-            ).join('') || '<div style="color:var(--muted)">[جاري تعزيز المعايير الدلالية...]</div>';
+          fixesEl.innerHTML = (r.implemented_fixes || []).map(f =>
+            `<div style="margin-bottom:8px; line-height:1.2;">
+                <span style="color:#00ff8c;">[RESOLVED]</span> 
+                <span style="color:#ccc;">${new Date().toLocaleTimeString()}</span> 
+                <span style="color:#fff; font-weight:700;">${f}</span>
+            </div>`
+          ).join('') || '<div style="color:var(--muted)">[STRENGTHENING SEMANTIC SIGNALS...]</div>';
+          fixesEl.scrollTop = fixesEl.scrollHeight;
         }
 
         applyStaggeredEntry(document.getElementById('opt-issues'));
@@ -1358,7 +1766,7 @@
         document.getElementById('opt-content-out').innerHTML = mdToHtml(r.optimized_content || '');
         showSidebarResult('opt-result');
         set3DLoading(prefix, false);
-      } catch (e) { 
+      } catch (e) {
         set3DLoading(prefix, false);
         document.getElementById('opt-status').textContent = 'Request failed: ' + e.message;
       }
@@ -1390,7 +1798,13 @@
         const data = await resp.json();
         if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
         const r = data.result;
-        document.getElementById('faq-backend-tag').textContent = r.backend || '';
+        let bTag = r.backend || '';
+        if (r.backend === 'demo' && r.backend_errors) {
+            const errStr = Object.entries(r.backend_errors).map(([k,v]) => `${k}:${v}`).join(', ');
+            if (errStr) bTag += ` (Errors: ${errStr})`;
+        }
+        document.getElementById('faq-backend-tag').textContent = bTag;
+        
         const listEl = document.getElementById('faq-list');
         listEl.innerHTML = '';
         (r.faqs || []).forEach(f => {
@@ -1410,14 +1824,39 @@
             "acceptedAnswer": { "@type": "Answer", "text": f.answer }
           }))
         };
-        document.getElementById('faq-schema').textContent = JSON.stringify(schema, null, 2);
+        const schemaStr = JSON.stringify(schema, null, 2);
+        document.getElementById('faq-schema').textContent = schemaStr;
+        
+        // --- Added Copy Listeners ---
+        document.getElementById('faq-copy-schema-v2')?.addEventListener('click', () => {
+            copyToClipboard(schemaStr);
+            showToast('JSON-LD Schema Copied!');
+        });
+
         showSidebarResult('faq-result');
         set3DLoading(prefix, false);
-      } catch (e) { 
+      } catch (e) {
         set3DLoading(prefix, false);
-        document.getElementById('faq-status').textContent = 'Request failed: ' + e.message; 
+        document.getElementById('faq-status').textContent = 'Request failed: ' + e.message;
       }
     });
+
+    // --- Added Other Feature Buttons Listeners ---
+    document.getElementById('opt-copy-final')?.addEventListener('click', () => {
+        const content = document.getElementById('opt-content-out').innerText;
+        copyToClipboard(content);
+        showToast('Optimized content copied!');
+    });
+
+    // Handle Generator additions
+    const oldGenCopy = document.getElementById('gen-copy');
+    if (oldGenCopy) {
+        oldGenCopy.onclick = () => {
+            const content = document.getElementById('gen-content').innerText;
+            copyToClipboard(content);
+            showToast('Content copied!');
+        };
+    }
 
     document.getElementById('faq-copy-schema').addEventListener('click', () => {
       navigator.clipboard.writeText(document.getElementById('faq-schema').textContent);
@@ -1456,10 +1895,55 @@
 
         showSidebarResult('sem-result');
         set3DLoading(prefix, false);
-      } catch (e) { 
+      } catch (e) {
         set3DLoading(prefix, false);
-        document.getElementById('sem-status').textContent = 'Request failed: ' + e.message; 
+        document.getElementById('sem-status').textContent = 'Request failed: ' + e.message;
       }
+    });
+
+    // ── Brand Identity Generator ──────────────────────────────────────────────
+    document.getElementById('identity-btn').addEventListener('click', async () => {
+      const prefix = 'identity';
+      set3DLoading(prefix, true, 'جارٍ صياغة الهوية...', 'تحليل الكيانات المستخرجة وبناء السمعة الرقمية');
+      document.getElementById('identity-result').classList.add('hidden');
+      try {
+        update3DProgress(prefix, 50, 'جارٍ بناء السرد التوجيهي...', 'ربط أهداف العمل بمعايير الاقتباس في محركات الذكاء الاصطناعي');
+        const resp = await fetch('/api/content/identity', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            crawl_data: getActiveCrawlData(),
+            lang: document.getElementById('identity-lang').value,
+            prefer_backend: document.getElementById('identity-backend').value,
+            api_keys: getApiKeys()
+          })
+        });
+        const data = await resp.json();
+        if (!data.ok) { set3DLoading(prefix, false); document.getElementById(prefix + '-status').textContent = 'Error: ' + data.error; return; }
+        const r = data.result;
+        
+        document.getElementById('identity-backend-tag').textContent = r.backend || '';
+        document.getElementById('identity-hook').textContent = r.brand_hook || '';
+        document.getElementById('identity-voice').textContent = r.voice_tone || '';
+        document.getElementById('identity-proposition').textContent = r.entity_proposition || '';
+        document.getElementById('identity-geo').textContent = r.geo_positioning || '';
+        
+        const pillarsEl = document.getElementById('identity-pillars');
+        pillarsEl.innerHTML = (r.pillars || []).map(p => 
+          `<div style="padding:10px; background:rgba(0,255,234,0.05); border-left:3px solid var(--accent); font-size:13px;">${p}</div>`
+        ).join('');
+        
+        applyStaggeredEntry(pillarsEl);
+        showSidebarResult('identity-result');
+        set3DLoading(prefix, false);
+      } catch (e) {
+        set3DLoading(prefix, false);
+        document.getElementById('identity-status').textContent = 'Request failed: ' + e.message;
+      }
+    });
+
+    document.getElementById('identity-copy')?.addEventListener('click', () => {
+      const text = `Brand Identity:\n${document.getElementById('identity-hook').textContent}\n\nVoice: ${document.getElementById('identity-voice').textContent}\n\nProposition: ${document.getElementById('identity-proposition').textContent}`;
+      navigator.clipboard.writeText(text);
     });
     // ── Smart Task Integration ───────────────────────────────────────────────
     let activeTask = null;
@@ -1481,39 +1965,50 @@
           localStorage.removeItem('geo_ai_task');
           return;
         }
-        // Skip tasks with invalid/localhost URLs
-        const invalidUrl = !task.url || /0\.0\.0\.0|127\.0\.0\.1|localhost/.test(task.url);
-        if (invalidUrl) {
-          localStorage.removeItem('geo_ai_task');
-          return;
-        }
 
         activeTask = task;
         const banner = document.getElementById('smart-task-banner');
         const desc = document.getElementById('smart-task-desc');
         banner.classList.remove('hidden');
 
-        // Auto-switch tab
+        // Handle Specialized Task Types
+        if (task.type === 'rewrite') {
+          switchTab('optimize');
+          try {
+            const decoded = atob(task.taskId);
+            document.getElementById('opt-content').value = decoded;
+            document.getElementById('opt-keyword').value = "AI Visibility Fix";
+            desc.textContent = "⚡ AI Rewrite Loaded / تم تحميل إعادة الصياغة الذكية";
+          } catch(e) { console.error("Base64 decode failed", e); }
+          return; // Don't continue to standard job logic
+        }
+
+        if (task.type === 'page_optimize' && task.taskId) {
+           switchTab('optimize');
+           document.getElementById('opt-keyword').value = "Page Optimization";
+           desc.textContent = `⚡ Preparing optimization for: ${task.taskId}`;
+           // We could trigger a fetch of this URL content here if needed
+           return;
+        }
+
+        // Standard Tab Switching for other tasks
         let targetTab = 'generate';
         if (task.type === 'faq') targetTab = 'faqs';
         else if (task.type === 'optimize') targetTab = 'optimize';
         else if (task.type === 'semantic') targetTab = 'semantic';
-        
         switchTab(targetTab);
 
-        // Pre-fill context
+        // Pre-fill context labels
         desc.textContent = `Fixing: ${task.type.toUpperCase()} task for ${task.url}`;
 
         if (task.jobId) {
           desc.textContent += ` (Using Research Job #${task.jobId})`;
-          // Auto-inject job data
           try {
             const resp = await fetch(`/api/jobs/${task.jobId}`);
             const data = await resp.json();
             if (data.ok) {
               await injectJob(data.job);
-              
-              // Customization based on taskId
+
               if (task.taskId === 'fix_faq') {
                 document.getElementById('faq-topic').value = "FAQs for " + document.getElementById('gen-keyword').value;
               } else if (task.taskId === 'fix_def') {
@@ -1521,39 +2016,66 @@
               } else if (task.taskId === 'fix_comp') {
                 document.getElementById('gen-keyword').value = (document.getElementById('gen-keyword').value || '') + " vs Competitors";
               }
-              
-              // Show Analysis Reference in Sidebar
-              const refBody = document.getElementById('smart-analysis-body2');
+
+              // Show Analysis Reference
+              const refBody = document.getElementById('smart-analysis-body');
               const analysisResp = await fetch('/api/analyze', {
-                  method: 'POST', headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ job_id: task.jobId })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ job_id: task.jobId })
               });
               const analysisData = await analysisResp.json();
               if (analysisData.ok || analysisData.competitor_insight) {
-                  const ci = analysisData.competitor_insight || {};
-                  refBody.innerHTML = `
+                const ci = analysisData.competitor_insight || {};
+                refBody.innerHTML = `
                     <div style="margin-bottom:8px;"><strong style="color:var(--accent);">Industry:</strong> ${ci.industry || 'Unknown'}</div>
-                    <div style="margin-bottom:8px;"><strong style="color:var(--accent);">Top Competitors:</strong> ${(ci.top_competitors || []).map(c=>c.domain||c).join(', ')}</div>
+                    <div style="margin-bottom:8px;"><strong style="color:var(--accent);">Top Competitors:</strong> ${(ci.top_competitors || []).map(c => c.domain || c).join(', ')}</div>
                     <div><strong style="color:var(--accent);">Opportunity:</strong> ${analysisData.geo_score?.status || 'GEO Optimization Required'}</div>
                   `;
-                  document.getElementById('smart-analysis-ref2').classList.remove('hidden');
+                document.getElementById('smart-analysis-ref').classList.remove('hidden');
               }
 
               // AUTO-TRIGGER GENERATION
               setTimeout(() => {
-                  desc.textContent = "⚡ Auto-Generation Started / بدأ الإنتاج التلقائي...";
-                  const activeTab = document.querySelector('.tab.active').dataset.tab;
-                  document.getElementById(activeTab.substring(0,3) + '-btn').click();
+                desc.textContent = "⚡ Auto-Generation Started / بدأ الإنتاج التلقائي...";
+                const activeTab = document.querySelector('.tab.active').dataset.tab;
+                const btnPrefix = activeTab === 'faqs' ? 'faq' : 
+                                 activeTab === 'semantic' ? 'sem' : 
+                                 activeTab === 'optimize' ? 'opt' : 'gen';
+                document.getElementById(btnPrefix + '-btn')?.click();
               }, 1200);
             }
-          } catch (e) {
-            console.error("Failed to auto-inject job", e);
-          }
+          } catch (e) { console.error("Failed to auto-inject job", e); }
         }
-      } catch (err) {
-        console.error("Invalid task data", err);
-      }
+      } catch (err) { console.error("Invalid task data", err); }
     }
+
+    // ── Global Event Listeners for Premium UI ────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        // Identity Copy
+        document.getElementById('identity-copy')?.addEventListener('click', () => {
+            const hook = document.getElementById('identity-hook')?.innerText || "";
+            const voice = document.getElementById('identity-voice')?.innerText || "";
+            const prop = document.getElementById('identity-proposition')?.innerText || "";
+            const pillars = document.getElementById('identity-pillars')?.innerText || "";
+            const full = `BRAND IDENTITY PROFILE\n======================\n\nNARRATIVE HOOK:\n${hook}\n\nVOICE & TONE:\n${voice}\n\nBRAND PROPOSITION:\n${prop}\n\nSTRATEGIC PILLARS:\n${pillars}`;
+            copyToClipboard(full);
+            showToast('Full Brand Identity Profile Copied!');
+        });
+
+        // Optimizer Copy
+        document.getElementById('opt-copy-final')?.addEventListener('click', () => {
+            const content = document.getElementById('opt-content-out')?.innerText || "";
+            copyToClipboard(content);
+            showToast('Optimized Content Copied!');
+        });
+
+        // FAQ Schema Copy (v2)
+        document.getElementById('faq-copy-schema-v2')?.addEventListener('click', () => {
+            const schemaStr = document.getElementById('faq-schema')?.textContent || "";
+            copyToClipboard(schemaStr);
+            showToast('JSON-LD Schema Copied!');
+        });
+    });
 
     // Call on load
     checkIncomingTask();

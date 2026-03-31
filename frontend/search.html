@@ -4,12 +4,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>محرك تحليل البحث — منصة GEO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/theme.css" />
+  <title>محرك تحليل البحث — منصة محرك</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css?v=moharek2025" />
   <style>
     body {
-      font-family: 'Cairo', sans-serif;
+      font-family: 'Manrope', 'Cairo', sans-serif;
+      background: #fafbfb;
+      color: #1a202c;
+    }
+
+    :root {
+      --accent: #005a5a;
+      --accent-secondary: #a68a56;
+      --surface: #ffffff;
+      --surface-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #1a202c;
+      --muted: #64748b;
+      --red: #c21807;
+      --green: #0d9488;
+      --yellow: #b45309;
+      --ultra-accent: #002d2d;
     }
 
     .badge {
@@ -51,6 +67,7 @@
       font-family: 'Cairo';
       background: var(--accent-grad);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
@@ -65,7 +82,7 @@
       padding: 15px;
       border-right: 4px solid var(--accent);
       background: var(--surface-hover);
-      border-radius: 12px 0 0 12px;
+      border-radius: 0 0 0 12px;
       margin-bottom: 12px;
     }
 
@@ -80,19 +97,19 @@
 </head>
 
 <body>
+  
   <nav>
-    <div class="nav-logo">GEO<span>.</span>AI</div>
+    <a href="/" class="nav-logo">MOHAREK<span>.</span>GEO</a>
     <div class="nav-links">
-      <a href="/jobs.html">المهام</a>
       <a href="/recommendations.html">التوصيات</a>
-      <a href="/search.html">تحليل البحث</a>
+      <a href="/search.html" class="active">الذكاء</a>
       <a href="/content_v2.html">المحتوى</a>
       <a href="/ads.html">الإعلانات</a>
-      <a href="/geo-toolkit.html">خدمات GEO</a>
-      <a href="/competitor-intel.html">المنافسون</a>
+      <a href="/geo-toolkit.html">الخدمات</a>
     </div>
-    <a href="/" class="nav-cta" id="navCta">الرئيسية</a>
+    <a href="/" class="nav-cta">الرئيسية</a>
   </nav>
+
   <div class="wrap" style="max-width:1200px; padding-top: 100px;">
 
     <div class="stagger-item" style="animation-delay:0.2s">
@@ -100,15 +117,15 @@
       <p style="color:var(--muted);margin-bottom:30px;font-size:18px;">تحليل دلالي عميق لتحقيق نمو عضوي عالي الحجم.</p>
     </div>
 
-    <div class="panel stagger-item" style="animation-delay:0.3s">
+    <div class="panel stagger-item" style="animation-delay:0.3s; background:var(--surface); border:1px solid var(--border); box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border-radius:12px; padding:30px;">
       <div class="config-panel">
         <input id="siUrl" placeholder="https://example.com" value="https://abayanoir.com"
-          style="flex:1;min-width:300px;" />
-        <input id="siPages" placeholder="عدد الصفحات" value="2" style="width:100px;" />
-        <button id="runIntelligence" class="btn" style="padding:14px 24px;">تشغيل التحليل</button>
-        <button id="exportCSV" class="btn" style="background:var(--green);display:none;">تصدير CSV</button>
+          style="flex:1;min-width:300px; padding:12px 20px; border:1px solid var(--border); border-radius:8px; font-family:'Manrope', sans-serif;" />
+        <input id="siPages" placeholder="صفحات" value="1" style="width:80px; padding:12px 10px; border:1px solid var(--border); border-radius:8px; text-align:center;" />
+        <button id="runIntelligence" class="btn btn-primary" style="padding:12px 30px; border-radius:8px; font-weight:700;">تشغيل التحليل الذكي</button>
+        <button id="exportCSV" class="btn" style="background:var(--green); color:#fff; display:none; border-radius:8px;">تصدير CSV</button>
       </div>
-      <div id="siStatus" style="font-size:14px;min-height:20px;"></div>
+      <div id="siStatus" style="font-size:14px; margin-top:15px; min-height:20px; font-weight:600; color:var(--accent);"></div>
     </div>
 
     <div id="resultsContent" style="display:none">
@@ -222,11 +239,10 @@
 
       <div id="rawCard" class="stagger-item" style="margin-top:40px;opacity:0.5;">
         <button onclick="document.getElementById('rawDataWrap').style.display='block';this.style.display='none'"
-          class="btn" style="background:transparent;border:1px solid var(--border);font-size:12px;">عرض البيانات
-          الخام</button>
+          class="btn" style="background:transparent;border:1px solid var(--border);font-size:12px;color:var(--text);">عرض البيانات الخام</button>
         <div id="rawDataWrap" style="display:none;margin-top:10px;">
           <pre id="rawData"
-            style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:20px;border-radius:12px;font-size:12px;overflow-x:auto;"></pre>
+            style="background:#f5f5f5;border:1px solid var(--border);padding:20px;border-radius:0;font-size:12px;overflow-x:auto;color:var(--text);"></pre>
         </div>
       </div>
     </div>
@@ -250,7 +266,7 @@
           row.insertCell(4).textContent = kw.cpc ? '$' + kw.cpc.toFixed(2) : '—';
           const opp = kw.opportunity_score || 0;
           const col = opp > 70 ? 'var(--green)' : opp > 40 ? 'var(--yellow)' : 'var(--red)';
-          row.insertCell(5).innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="height:100%;width:${opp}%;background:${col}"></div></div><span style="color:${col};font-weight:800;font-size:11px">${opp}%</span></div>`;
+          row.insertCell(5).innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(0,0,0,0.05);border-radius:0;overflow:hidden"><div style="height:100%;width:${opp}%;background:${col}"></div></div><span style="color:${col};font-weight:800;font-size:11px">${opp}%</span></div>`;
         });
       }
 
@@ -291,7 +307,7 @@
         // ── Topic Clusters ─────────────────────────────────────────────
         if (report.topic_clusters) {
           document.getElementById('clustersList').innerHTML = Object.entries(report.topic_clusters).slice(0, 6).map(([topic, data]) =>
-            `<div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.05)">
+            `<div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,0.05)">
               <div style="color:var(--accent);font-weight:700;font-size:12px;margin-bottom:4px">${topic}</div>
               <div style="color:var(--muted);font-size:13px">${(data.keywords || []).slice(0, 6).map(k => k.kw || k).join('، ')}</div>
             </div>`).join('') || '<div style="color:var(--muted)">بيانات غير كافية</div>';
@@ -301,7 +317,7 @@
         if (report.intent_analysis?.distribution) {
           document.getElementById('intentDist').innerHTML = Object.entries(report.intent_analysis.distribution).map(([k, v]) =>
             `<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${k}</span><span style="color:var(--accent);font-weight:700">${v}%</span></div>
-            <div style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden"><div style="height:100%;width:${v}%;background:var(--accent-grad)"></div></div></div>`).join('');
+            <div style="height:6px;background:rgba(0,0,0,0.05);border-radius:0;overflow:hidden"><div style="height:100%;width:${v}%;background:var(--accent-grad)"></div></div></div>`).join('');
         }
 
         // ── Content Gaps ───────────────────────────────────────────────
@@ -337,22 +353,22 @@
                 <span style="font-weight:700">درجة GEO المحلي</span>
                 <span style="color:${scoreColor};font-size:22px;font-weight:900">${geo.geo_score}%</span>
               </div>
-              <div style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden">
+              <div style="height:6px;background:rgba(0,0,0,0.05);border-radius:0;overflow:hidden">
                 <div style="height:100%;width:${geo.geo_score}%;background:${scoreColor}"></div>
               </div>
             </div>
-            <div style="margin-bottom:12px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border-right:3px solid ${scoreColor}">
+            <div style="margin-bottom:12px;padding:10px;border-radius:0;background:rgba(0,0,0,0.02);border-right:3px solid ${scoreColor}">
               ${geo.verdict}
             </div>
             <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
               <span style="font-size:12px;padding:4px 10px;border-radius:6px;background:${geo.has_google_maps ? 'rgba(0,255,149,0.1)' : 'rgba(255,51,102,0.1)'};color:${geo.has_google_maps ? 'var(--green)' : 'var(--red)'};border:1px solid currentColor">
-                ${geo.has_google_maps ? '✅' : '❌'} Google Maps
+                ${geo.has_google_maps ? '.' : '.'} Google Maps
               </span>
               <span style="font-size:12px;padding:4px 10px;border-radius:6px;background:${geo.has_local_schema ? 'rgba(0,255,149,0.1)' : 'rgba(255,51,102,0.1)'};color:${geo.has_local_schema ? 'var(--green)' : 'var(--red)'};border:1px solid currentColor">
-                ${geo.has_local_schema ? '✅' : '❌'} LocalBusiness Schema
+                ${geo.has_local_schema ? '.' : '.'} LocalBusiness Schema
               </span>
               <span style="font-size:12px;padding:4px 10px;border-radius:6px;background:${geo.has_local_keywords ? 'rgba(0,255,149,0.1)' : 'rgba(255,51,102,0.1)'};color:${geo.has_local_keywords ? 'var(--green)' : 'var(--red)'};border:1px solid currentColor">
-                ${geo.has_local_keywords ? '✅' : '❌'} كلمات محلية
+                ${geo.has_local_keywords ? '.' : '.'} كلمات محلية
               </span>
             </div>
             ${geo.missing_local_keywords?.length ? `
@@ -367,17 +383,17 @@
         if (kq) {
           const verdictColor = kq.strong_count > kq.weak_count ? 'var(--green)' : 'var(--red)';
           document.getElementById('kwQualityContent').innerHTML = `
-            <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:14px;border-right:3px solid ${verdictColor}">
+            <div style="padding:10px;border-radius:0;background:rgba(0,0,0,0.02);margin-bottom:14px;border-right:3px solid ${verdictColor}">
               ${kq.verdict}
             </div>
             <div style="display:flex;flex-direction:column;gap:8px">
               ${(kq.scored_keywords || []).slice(0,10).map(k => {
                 const col = k.quality_label === 'Strong' ? 'var(--green)' : k.quality_label === 'Medium' ? 'var(--yellow)' : 'var(--red)';
-                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:6px">
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(0,0,0,0.02);border-radius:0">
                   <span style="font-size:13px">${k.kw}</span>
                   <div style="display:flex;align-items:center;gap:8px">
                     ${k.volume ? `<span style="font-size:11px;color:var(--muted)">${k.volume >= 1000 ? (k.volume/1000).toFixed(1)+'K' : k.volume} بحث</span>` : ''}
-                    <span style="font-size:11px;font-weight:700;color:${col};padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.05)">${k.quality_label}</span>
+                    <span style="font-size:11px;font-weight:700;color:${col};padding:2px 8px;border-radius:0;background:rgba(0,0,0,0.05)">${k.quality_label}</span>
                   </div>
                 </div>`;
               }).join('')}
@@ -387,7 +403,7 @@
         // ── Entity Map ─────────────────────────────────────────────────
         if (report.entities && Object.keys(report.entities).length) {
           document.getElementById('entityGraph').innerHTML = Object.entries(report.entities).map(([k, v]) =>
-            `<div style="padding:12px;background:rgba(255,255,255,0.02);border-right:2px solid var(--accent);border-radius:4px">
+            `<div style="padding:12px;background:rgba(0,0,0,0.02);border-right:2px solid var(--accent);border-radius:0">
               <div style="font-size:10px;color:var(--muted);margin-bottom:4px">${k}</div>
               <div style="font-size:13px;font-weight:600">${Array.isArray(v) ? v.slice(0,3).join('، ') : v}</div>
             </div>`).join('');
@@ -401,7 +417,7 @@
           document.getElementById('compResults').innerHTML = !comp.found
             ? '<div style="color:var(--muted)">لم يتم اكتشاف منافسين خارجيين.</div>'
             : (comp.list || []).slice(0, 6).map(c =>
-                `<div style="display:flex;justify-content:space-between;margin-bottom:10px;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px">
+                `<div style="display:flex;justify-content:space-between;margin-bottom:10px;padding:12px;background:rgba(0,0,0,0.02);border-radius:0">
                   <span style="font-weight:600">${c.domain}</span>
                   <span style="color:var(--accent)">${c.mentions} إشارة</span>
                 </div>`).join('');
@@ -426,27 +442,36 @@
       // ── Run Analysis ───────────────────────────────────────────────────
       document.getElementById('runIntelligence').addEventListener('click', async () => {
         const url = document.getElementById('siUrl').value.trim();
-        const pages = parseInt(document.getElementById('siPages').value || '2') || 2;
+        const pages = parseInt(document.getElementById('siPages').value || '1') || 1;
         const status = document.getElementById('siStatus');
         const resultsWrap = document.getElementById('resultsContent');
         if (!url) { status.innerHTML = '<span style="color:var(--red)">أدخل رابط الموقع أولاً</span>'; return; }
-        status.innerHTML = '<span class="shine-text"> جارٍ تحليل البيانات...</span>';
+        status.innerHTML = '<div class="shine-text" style="display:flex; align-items:center; gap:10px;"><div class="spinner"></div> جاري تشغيل وحدة الاستخبارات وتحليل المنافسين...</div>';
         resultsWrap.style.display = 'none';
         document.getElementById('exportCSV').style.display = 'none';
         try {
-          const keys = JSON.parse(localStorage.getItem('geo_keys') || '{}');
+          // Standardize keys with recommendations.html
+          const api_keys = { 
+            groq: localStorage.getItem('geo_groq_key'), 
+            openai: localStorage.getItem('geo_openai_key'), 
+            perplexity: localStorage.getItem('geo_perplexity_key'),
+            serpapi: localStorage.getItem('geo_serpapi_key'),
+            dataforseo_login: localStorage.getItem('geo_dataforseo_login'),
+            dataforseo_password: localStorage.getItem('geo_dataforseo_password')
+          };
+
           const r = await fetch('/api/search/intelligence', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url, max_pages: pages, api_keys: keys })
+            body: JSON.stringify({ url, max_pages: pages, api_keys })
           });
           const j = await r.json();
-          if (!j.ok) { status.innerHTML = `<span style="color:var(--red)"> خطأ: ${j.error || JSON.stringify(j)}</span>`; return; }
-          status.innerHTML = '<span style="color:var(--green)"> اكتمل التحليل.</span>';
+          if (!j.ok) { status.innerHTML = `<span style="color:var(--red)"> خطأ في النظام: ${j.error || JSON.stringify(j)}</span>`; return; }
+          status.innerHTML = '<span style="color:var(--green)"> اكتملت عملية الاستخبارات بنجاح.</span>';
           resultsWrap.style.display = 'block';
           renderReport(j.report, pages);
         } catch (e) {
-          status.innerHTML = `<span style="color:var(--red)"> فشل الطلب: ${e.message}</span>`;
+          status.innerHTML = `<span style="color:var(--red)"> فشل الاتصال: ${e.message}</span>`;
         }
       });
 

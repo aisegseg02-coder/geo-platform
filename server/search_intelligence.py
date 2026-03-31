@@ -4,6 +4,8 @@ from server.keyword_engine import extract_keywords_from_audit
 from server.keyword_analytics import analyze_keywords, clean_keyword, is_valid_keyword, cluster_by_topic
 from server.competitor_analysis import detect_competitors, get_competitor_summary
 from server.dataforseo_client import enrich_keywords
+from server.geo_services import _serp_api_search, _zenserp_search, _llm
+import os
 try:
     from . import ai_analysis
 except ImportError:
@@ -180,9 +182,45 @@ def calculate_quality_score_ai(analytics: Dict, pages: List[Dict], api_keys: dic
     return calculate_quality_score(analytics)
 
 def simulate_serp_intelligence_ai(analytics: Dict, url: str, api_keys: dict = None) -> List[Dict]:
-    """Generate SERP landscape using AI with content type and intent context."""
+    """Fetch real SERP landscape or use AI to estimate it."""
     primary_kw = analytics['top_keywords'][0]['kw'] if analytics.get('top_keywords') else 'digital marketing'
+    api_keys = api_keys or {}
+    
+    # 1. Try real SerpApi
+    serp_data = _serp_api_search(primary_kw, api_key=api_keys.get('serpapi'))
+    if serp_data and serp_data.get('organic_results'):
+        results = []
+        for i, res in enumerate(serp_data['organic_results'][:5], 1):
+            results.append({
+                'rank': i,
+                'domain': res.get('displayed_link', '').split('/')[0],
+                'dr': 0, # Placeholder as we'd need another API for DR
+                'backlinks': 'N/A',
+                'length': 0,
+                'content_type': 'Website',
+                'intent': 'N/A',
+                'why_ranks': res.get('snippet', '')[:100]
+            })
+        return results
 
+    # 2. Try real ZenSerp
+    zen_data = _zenserp_search(primary_kw, api_key=api_keys.get('zenserp'))
+    if zen_data and zen_data.get('organic'):
+        results = []
+        for i, res in enumerate(zen_data['organic'][:5], 1):
+            results.append({
+                'rank': i,
+                'domain': res.get('destination', '').split('/')[0],
+                'dr': 0,
+                'backlinks': 'N/A',
+                'length': 0,
+                'content_type': 'Website',
+                'intent': 'N/A',
+                'why_ranks': res.get('description', '')[:100]
+            })
+        return results
+
+    # 3. AI Estimation (Better than hardcoded mock)
     if ai_analysis and (api_keys or {}):
         prompt = (
             f"Generate 5 realistic Google SERP results for the keyword '{primary_kw}'. "
@@ -202,20 +240,8 @@ def simulate_serp_intelligence_ai(analytics: Dict, url: str, api_keys: dict = No
         if res and res.get('result') and isinstance(res['result'], list):
             return res['result']
 
-    # Honest fallback — clearly marked as estimated
-    domain = url.split('//')[-1].split('/')[0] if url and '//' in url else 'your-site.com'
-    return [
-        {'rank':1,'domain':'wikipedia.org','dr':98,'backlinks':'50k+','length':4500,
-         'content_type':'encyclopedia','intent':'Informational','why_ranks':'Highest authority + comprehensive coverage'},
-        {'rank':2,'domain':'neilpatel.com','dr':90,'backlinks':'12k','length':3200,
-         'content_type':'guide','intent':'Informational','why_ranks':'Deep long-form guide with strong backlinks'},
-        {'rank':3,'domain':'ahrefs.com','dr':89,'backlinks':'8k','length':2800,
-         'content_type':'tool/blog','intent':'Commercial','why_ranks':'Tool + data-driven content'},
-        {'rank':4,'domain':'moz.com','dr':87,'backlinks':'6k','length':2400,
-         'content_type':'guide','intent':'Informational','why_ranks':'Trusted SEO authority'},
-        {'rank':5,'domain':domain,'dr':0,'backlinks':'0','length':0,
-         'content_type':'your site','intent':'Unknown','why_ranks':'⚠️ Not ranking yet — this is your opportunity gap'},
-    ]
+    # Final fallback if all else fails
+    return []
 
 def get_market_intelligence_ai(competitors: List[Dict], summary: Dict, analytics: Dict, api_keys: dict = None) -> Dict:
     """

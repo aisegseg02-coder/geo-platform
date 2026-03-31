@@ -46,17 +46,22 @@ def init_db():
             cur.execute('ALTER TABLE jobs ADD COLUMN company_id INTEGER')
         except Exception:
             pass
+    if 'industry_override' not in cols:
+        try:
+            cur.execute('ALTER TABLE jobs ADD COLUMN industry_override TEXT')
+        except Exception:
+            pass
     c.commit()
     c.close()
 
 
-def enqueue_job(url, org_name, org_url, max_pages=3, runs=1, user_id=None, company_id=None):
+def enqueue_job(url, org_name, org_url, max_pages=3, runs=1, user_id=None, company_id=None, industry_override=None):
     init_db()
     now = datetime.datetime.utcnow()
     c = _conn()
     cur = c.cursor()
-    cur.execute('''INSERT INTO jobs (url,org_name,org_url,max_pages,runs,status,progress,created_at,updated_at,user_id,company_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
-                (url, org_name, org_url, max_pages, runs, 'pending', json.dumps({}), now, now, user_id, company_id))
+    cur.execute('''INSERT INTO jobs (url,org_name,org_url,max_pages,runs,status,progress,created_at,updated_at,user_id,company_id,industry_override) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)''',
+                (url, org_name, org_url, max_pages, runs, 'pending', json.dumps({}), now, now, user_id, company_id, industry_override))
     jid = cur.lastrowid
     c.commit()
     c.close()

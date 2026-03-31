@@ -1,16 +1,16 @@
 ---
-title: GEO Platform
-emoji: 🌍
-colorFrom: blue
-colorTo: purple
+title: Moharek GEO Platform
+emoji: 🚀
+colorFrom: green
+colorTo: blue
 sdk: docker
 app_port: 7860
 pinned: false
 ---
 
-# GEO Platform
+# Moharek GEO Platform
 
-AI-powered Generative Engine Optimization platform. Crawls websites, audits content, scores AI visibility, and generates SEO recommendations.
+منصة محرك لتحسين محركات البحث بالذكاء الاصطناعي - AI-powered Generative Engine Optimization platform by Moharek. Crawls websites, audits content, scores AI visibility, and generates SEO recommendations.
 
 ## Features
 - Website crawler & content auditor

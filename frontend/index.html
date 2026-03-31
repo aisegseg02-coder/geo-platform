@@ -1,215 +1,739 @@
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>منصة GEO — محرك رؤية الذكاء الاصطناعي</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/theme.css" />
+  <title>منصة محرك GEO — تحسين محركات البحث بالذكاء الاصطناعي</title>
+  <link rel="icon" type="image/svg+xml" href="/moharek-favicon.svg" />
+  <link rel="apple-touch-icon" href="/moharek-favicon.svg" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=Teko:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css?v=moharek2025" />
   <style>
+    :root {
+      --ai-glow: rgba(0, 90, 90, 0.1);
+      --ai-accent: #CB9B51;
+    }
+
+    @keyframes card-scan {
+      0% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+    }
+
+    .ai-card {
+      position: relative;
+      overflow: hidden;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-right: 4px solid var(--accent);
+      padding: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .ai-card:hover {
+      border-right-color: var(--ai-accent);
+      transform: translateX(-4px);
+      box-shadow: 0 8px 24px rgba(0, 90, 90, 0.08);
+    }
+
+    .ai-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, transparent, var(--ai-glow), transparent);
+      height: 100%;
+      animation: card-scan 4s infinite linear;
+      pointer-events: none;
+    }
+
     /* ── NAV ── */
     .top-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 60px;
-      background: rgba(2,4,8,0.8);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0,242,255,0.08);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      background: var(--ultra-accent);
+      border-bottom: 1px solid var(--accent);
     }
-    .nav-logo { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 900; color: #fff; text-decoration: none; }
-    .nav-logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 32px; align-items: center; }
-    .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 15px; font-weight: 600; transition: color 0.2s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-logo {
+      font-family: 'Teko', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .nav-logo span {
+      color: var(--accent-secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--accent);
+    }
+
     .nav-cta {
-      background: var(--accent-grad); color: #000 !important; font-weight: 800 !important;
-      padding: 10px 24px; border-radius: 50px;
-      box-shadow: 0 4px 15px rgba(0,242,255,0.2);
-      transition: all 0.2s !important;
+      background: transparent;
+      color: var(--accent-secondary) !important;
+      font-weight: 600 !important;
+      font-family: 'Manrope', sans-serif;
+      padding: 10px 24px;
+      border-radius: 0;
+      border: 1px solid var(--accent-secondary);
+      text-transform: uppercase;
+      transition: all 0.3s !important;
     }
-    .nav-cta:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,242,255,0.3) !important; }
+
+    .nav-cta:hover {
+      background: var(--accent-secondary);
+      color: var(--ultra-accent) !important;
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 1001;
+    }
+
+    .mobile-menu-toggle span {
+      width: 25px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .mobile-menu-toggle.active span:nth-child(1) {
+      transform: rotate(45deg) translate(8px, 8px);
+    }
+
+    .mobile-menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .mobile-menu-toggle.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -7px);
+    }
 
     /* ── HERO ── */
     .hero-section {
       min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       padding: 120px 20px 80px;
       position: relative;
     }
+
     .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(0,242,255,0.08); border: 1px solid rgba(0,242,255,0.2);
-      color: var(--accent); font-size: 13px; font-weight: 600;
-      padding: 6px 16px; border-radius: 50px; margin-bottom: 32px;
-      letter-spacing: 0.05em; text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 0;
+      margin-bottom: 32px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
-    .hero-badge::before { content: '●'; font-size: 8px; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .hero-badge::before {
+      content: '●';
+      font-size: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
     .hero-title {
-      font-family: 'Outfit', sans-serif; font-size: clamp(48px, 7vw, 96px);
-      font-weight: 900; line-height: 1.0; letter-spacing: -0.04em;
+      font-family: 'Teko', sans-serif;
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 600;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: var(--ultra-accent);
       margin: 0 0 24px;
     }
+
     .hero-sub {
-      font-size: clamp(16px, 2vw, 20px); color: var(--muted);
-      max-width: 600px; margin: 0 auto 48px; line-height: 1.7;
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
     }
-    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .btn-hero {
-      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px;
-      padding: 16px 36px; border-radius: 50px; cursor: pointer;
-      text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
-      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+      font-family: 'Manrope', 'Cairo', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 16px 36px;
+      border-radius: 0;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
+
     .btn-hero-primary {
-      background: var(--accent-grad); color: #000; border: none;
-      box-shadow: 0 8px 30px rgba(0,242,255,0.3);
+      background: var(--accent);
+      color: #ffffff;
+      border: 1px solid var(--accent);
     }
-    .btn-hero-primary:hover { transform: translateY(-4px); box-shadow: 0 16px 50px rgba(0,242,255,0.5); }
+
+    .btn-hero-primary:hover {
+      transform: translateY(-4px);
+      background: var(--ultra-accent);
+      border-color: var(--ultra-accent);
+    }
+
     .btn-hero-secondary {
-      background: transparent; color: var(--text);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
     }
-    .btn-hero-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-4px); }
+
+    .btn-hero-secondary:hover {
+      background: var(--accent);
+      color: #ffffff;
+      transform: translateY(-4px);
+    }
 
     /* ── STATS BAR ── */
     .stats-bar {
-      display: flex; gap: 48px; justify-content: center; flex-wrap: wrap;
-      margin-top: 72px; padding-top: 48px;
-      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      gap: 48px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 72px;
+      padding-top: 48px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
-    .stat { text-align: center; }
-    .stat-num { font-family: 'Outfit', sans-serif; font-size: 36px; font-weight: 900; color: var(--accent); }
-    .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Teko', sans-serif;
+      font-size: 42px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
 
     /* ── SECTIONS ── */
-    .section { padding: 100px 0; }
+    .section {
+      padding: 100px 0;
+    }
+
     .section-label {
-      font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
     }
+
     .section-title {
-      font-family: 'Outfit', sans-serif; font-size: clamp(32px, 4vw, 52px);
-      font-weight: 900; letter-spacing: -0.03em; margin: 0 0 16px;
+      font-family: 'Teko', sans-serif;
+      font-size: clamp(32px, 4vw, 52px);
+      color: var(--ultra-accent);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+      text-transform: uppercase;
     }
-    .section-sub { color: var(--muted); font-size: 17px; max-width: 560px; line-height: 1.7; }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 560px;
+      line-height: 1.7;
+    }
 
     /* ── SERVICE CARDS ── */
     .services-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px; margin-top: 56px;
+      gap: 24px;
+      margin-top: 56px;
     }
+
     .service-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: 0;
       padding: 36px;
       cursor: pointer;
       text-decoration: none;
       display: block;
       position: relative;
       overflow: hidden;
-      transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       backdrop-filter: blur(20px);
     }
+
     .service-card::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
       background: var(--accent-grad);
-      opacity: 0; transition: opacity 0.4s;
+      opacity: 0;
+      transition: opacity 0.4s;
     }
+
     .service-card:hover {
-      border-color: rgba(0,242,255,0.3);
+      border-color: var(--accent-secondary);
       transform: translateY(-8px);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 40px rgba(0,242,255,0.08);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     }
-    .service-card:hover::before { opacity: 1; }
+
+    .service-card:hover::before {
+      opacity: 1;
+    }
+
     .card-icon {
-      width: 56px; height: 56px; border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; margin-bottom: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 24px;
     }
+
     .card-title {
-      font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800;
-      margin: 0 0 10px; color: var(--text);
+      font-family: 'Teko', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin: 0 0 10px;
+      color: var(--ultra-accent);
     }
-    .card-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin: 0 0 24px; }
+
+    .card-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0 0 24px;
+    }
+
     .card-arrow {
-      font-size: 13px; font-weight: 700; color: var(--accent);
-      display: flex; align-items: center; gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
       transition: gap 0.3s;
     }
-    .service-card:hover .card-arrow { gap: 12px; }
+
+    .service-card:hover .card-arrow {
+      gap: 12px;
+    }
 
     /* ── ANALYZE PANEL ── */
-    .analyze-section { padding: 100px 0; }
+    .analyze-section {
+      padding: 100px 0;
+    }
+
     .analyze-box {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 32px;
       padding: 56px;
       backdrop-filter: blur(20px);
-      position: relative; overflow: hidden;
+      position: relative;
+      overflow: hidden;
     }
+
     .analyze-box::before {
       content: '';
-      position: absolute; top: -1px; left: 10%; right: 10%; height: 2px;
+      position: absolute;
+      top: -1px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
       background: var(--accent-grad);
     }
-    .analyze-form { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+
+    .analyze-form {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+
     .analyze-form input {
-      flex: 1; min-width: 200px;
-      background: rgba(0,0,0,0.4); border: 1px solid var(--border);
-      color: white; padding: 16px 22px; border-radius: 16px;
-      font-size: 15px; transition: all 0.3s;
+      flex: 1;
+      min-width: 200px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 16px 22px;
+      border-radius: 16px;
+      font-size: 15px;
+      transition: all 0.3s;
     }
-    .analyze-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 20px rgba(0,242,255,0.1); }
+
+    .analyze-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+    }
+
     .btn-analyze {
-      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px;
-      padding: 16px 32px; border-radius: 16px; cursor: pointer; border: none;
-      background: var(--accent-grad); color: #000;
-      box-shadow: 0 8px 25px rgba(0,242,255,0.3);
-      transition: all 0.3s; white-space: nowrap;
+      font-family: 'Manrope', 'Cairo', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      padding: 16px 32px;
+      border-radius: 0;
+      cursor: pointer;
+      border: none;
+      background: var(--accent);
+      color: #ffffff;
+      transition: all 0.3s;
+      white-space: nowrap;
     }
-    .btn-analyze:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,242,255,0.5); }
-    #status { margin-top: 16px; color: var(--muted); font-size: 14px; }
-    #status a { color: var(--accent); }
+
+    .btn-analyze:hover {
+      transform: translateY(-3px);
+      background: var(--ultra-accent);
+    }
+
+    #status {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    #status a {
+      color: var(--accent);
+    }
 
     /* ── RESULTS ── */
-    .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
-    .result-panel {
-      background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-      border-radius: 20px; padding: 28px;
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
     }
-    .result-panel h4 { font-family: 'Outfit', sans-serif; margin: 0 0 16px; font-size: 16px; }
-    #geoScore { font-size: 15px; margin-bottom: 12px; }
-    #results { font-size: 14px; color: var(--muted); }
-    pre#raw { font-size: 12px; color: var(--muted); overflow: auto; max-height: 300px; margin: 0; }
+
+    .result-panel {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+    }
+
+    .result-panel h4 {
+      font-family: 'Teko', sans-serif;
+      margin: 0 0 16px;
+      font-size: 16px;
+    }
+
+    #geoScore {
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    #results {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    pre#raw {
+      font-size: 12px;
+      color: var(--muted);
+      overflow: auto;
+      max-height: 300px;
+      margin: 0;
+    }
 
     /* ── FOOTER ── */
     .footer {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding: 48px 0; text-align: center;
-      color: var(--muted); font-size: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 48px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
     }
-    .footer a { color: var(--accent); text-decoration: none; }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ── LOADING STATES ── */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(73, 164, 96, 0.3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-text {
+      height: 16px;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-title {
+      height: 24px;
+      width: 60%;
+      margin-bottom: 12px;
+    }
+
+    .skeleton-card {
+      height: 120px;
+      margin-bottom: 16px;
+    }
+
+    /* ── TOAST NOTIFICATIONS ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      min-width: 300px;
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      z-index: 9999;
+      animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast.success {
+      border-left: 4px solid var(--accent);
+    }
+
+    .toast.error {
+      border-left: 4px solid #FF0000;
+    }
+
+    .toast.info {
+      border-left: 4px solid #4D86DA;
+    }
+
+    .toast-icon {
+      font-size: 24px;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .toast-message {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .toast-close {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .toast-close:hover {
+      opacity: 1;
+    }
+
+    @keyframes slideInUp {
+      from {
+        transform: translateY(100px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
 
     @media(max-width: 768px) {
-      .top-nav { padding: 16px 24px; }
-      .nav-links { display: none; }
-      .analyze-box { padding: 32px 24px; }
-      .results-grid { grid-template-columns: 1fr; }
-      .stats-bar { gap: 32px; }
+      .top-nav {
+        padding: 16px 24px;
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: rgba(2, 4, 8, 0.98);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        padding: 24px;
+        gap: 20px;
+        border-bottom: 1px solid rgba(0, 242, 255, 0.08);
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .nav-links a {
+        font-size: 18px;
+        padding: 12px 0;
+      }
+
+      .analyze-box {
+        padding: 32px 24px;
+      }
+
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        gap: 32px;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- NAV -->
   <nav class="top-nav">
-    <a href="#" class="nav-logo">GEO<span>.</span></a>
-    <div class="nav-links">
+    <a href="#" class="nav-logo">محرك<span>.</span></a>
+    <div class="mobile-menu-toggle" id="mobileMenuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="nav-links" id="navLinks">
       <a href="#services">الخدمات</a>
       <a href="#analyze">التحليل</a>
       <a href="/jobs.html">المهام</a>
@@ -223,86 +747,114 @@
 
     <!-- HERO -->
     <section class="hero-section">
-      <div class="hero-badge">منصة GEO المدعومة بالذكاء الاصطناعي</div>
+      <div class="hero-badge">منصة محرك لتحسين محركات البحث</div>
       <h1 class="hero-title">
-        <span class="shine-text">هيمن على</span><br>رؤية البحث الذكي
+        <span class="shine-text">الأفضل في</span><br>تحسين محركات البحث
       </h1>
       <p class="hero-sub">
-        زحف المواقع، تدقيق المحتوى، قياس رؤية الذكاء الاصطناعي، وتوليد توصيات SEO - كل ذلك في منصة واحدة.
+        يمكنك الآن استقطاب آلاف العملاء الحقيقيين إلى موقعك من خلال خطط محرك التسويقية.
       </p>
       <div class="hero-actions">
-        <a href="#analyze" class="btn-hero btn-hero-primary">🚀 تحليل موقع</a>
+        <a href="#analyze" class="btn-hero btn-hero-primary"> تحليل موقع</a>
         <a href="#services" class="btn-hero btn-hero-secondary">استكشف الخدمات ←</a>
       </div>
 
       <div class="stats-bar">
-        <div class="stat"><div class="stat-num">10x</div><div class="stat-label">تعزيز رؤية الذكاء الاصطناعي</div></div>
-        <div class="stat"><div class="stat-num">50+</div><div class="stat-label">إشارة GEO مرصودة</div></div>
-        <div class="stat"><div class="stat-num">100%</div><div class="stat-label">تدقيقات مؤتمتة</div></div>
-        <div class="stat"><div class="stat-num">∞</div><div class="stat-label">توليد المحتوى</div></div>
+        <div class="stat">
+          <div class="stat-num">10x</div>
+          <div class="stat-label">تعزيز رؤية الذكاء الاصطناعي</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">50+</div>
+          <div class="stat-label">إشارة GEO مرصودة</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">تدقيقات مؤتمتة</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">توليد المحتوى</div>
+        </div>
       </div>
     </section>
 
     <!-- SERVICES -->
     <section class="section" id="services">
       <div class="section-label">ماذا نقدم</div>
-      <h2 class="section-title">كل ما تحتاجه لـ<br><span class="shine-text">سيادة البحث الذكي</span></h2>
-      <p class="section-sub">مجموعة أدوات GEO متكاملة - من الزحف إلى توليد المحتوى.</p>
+      <h2 class="section-title">كل ما تحتاجه لـ<br><span class="shine-text">نجاح موقعك</span></h2>
+      <p class="section-sub">مجموعة أدوات محرك متكاملة - من الزحف إلى توليد المحتوى.</p>
 
       <div class="services-grid">
 
         <a href="#analyze" class="service-card stagger-item" style="animation-delay:0.05s">
           <div class="card-title">زاحف المواقع</div>
-          <div class="card-desc">زحف عميق لأي موقع واستخراج المحتوى المنظم، العناوين، البيانات الوصفية، وإشارات الصفحات لتحليل الذكاء الاصطناعي.</div>
+          <div class="card-desc">زحف عميق لأي موقع واستخراج المحتوى المنظم، العناوين، البيانات الوصفية، وإشارات الصفحات
+            لتحليل الذكاء الاصطناعي.</div>
           <div class="card-arrow">ابدأ الزحف ←</div>
         </a>
 
         <a href="#analyze" class="service-card stagger-item" style="animation-delay:0.1s">
           <div class="card-title">نتائج GEO</div>
-          <div class="card-desc">احصل على درجة رؤية للذكاء الاصطناعي من 0 إلى 100 بناءً على أكثر من 50 إشارة تشمل المخططات وجودة المحتوى وتغطية الكيانات.</div>
+          <div class="card-desc">احصل على درجة رؤية للذكاء الاصطناعي من 0 إلى 100 بناءً على أكثر من 50 إشارة تشمل
+            المخططات وجودة المحتوى وتغطية الكيانات.</div>
           <div class="card-arrow">قيم موقعي ←</div>
         </a>
 
         <a href="/search.html" class="service-card stagger-item" style="animation-delay:0.15s">
           <div class="card-title">ذكاء البحث</div>
-          <div class="card-desc">استخرج الكلمات الرئيسية عالية القيمة، وحلل نية البحث، وأثرِها ببيانات الحجم والتكلفة لكل نقرة من DataForSEO.</div>
+          <div class="card-desc">استخرج الكلمات الرئيسية عالية القيمة، وحلل نية البحث، وأثرِها ببيانات الحجم والتكلفة
+            لكل نقرة من DataForSEO.</div>
           <div class="card-arrow">استكشف الكلمات ←</div>
         </a>
 
         <a href="/content" class="service-card stagger-item" style="animation-delay:0.2s">
           <div class="card-title">توليد المحتوى بالذكاء الاصطناعي</div>
-          <div class="card-desc">ولد محتوى محسناً، وأوصافاً تعريفية، وبيانات منظمة باستخدام Groq أو OpenAI - مصمم لمحركات بحث الذكاء الاصطناعي.</div>
+          <div class="card-desc">ولد محتوى محسناً، وأوصافاً تعريفية، وبيانات منظمة باستخدام Groq أو OpenAI - مصمم
+            لمحركات بحث الذكاء الاصطناعي.</div>
           <div class="card-arrow">ولد المحتوى ←</div>
         </a>
 
         <a href="/recommendations.html" class="service-card stagger-item" style="animation-delay:0.25s">
           <div class="card-title">توصيات GEO</div>
-          <div class="card-desc">توصيات عملية وذات أولوية لإصلاح المشكلات الحرجة وتحسين ترتيبك في بحث الذكاء الاصطناعي بسرعة.</div>
+          <div class="card-desc">توصيات عملية وذات أولوية لإصلاح المشكلات الحرجة وتحسين ترتيبك في بحث الذكاء الاصطناعي
+            بسرعة.</div>
           <div class="card-arrow">عرض التوصيات ←</div>
         </a>
 
         <a href="/ads.html" class="service-card stagger-item" style="animation-delay:0.3s">
           <div class="card-title">مدير الإعلانات المدفوعة</div>
-          <div class="card-desc">إدارة وتحسين حملات الإعلانات المدفوعة جنباً إلى جنب مع استراتيجية GEO العضوية من لوحة تحكم موحدة.</div>
+          <div class="card-desc">إدارة وتحسين حملات الإعلانات المدفوعة جنباً إلى جنب مع استراتيجية GEO العضوية من لوحة
+            تحكم موحدة.</div>
           <div class="card-arrow">افتح لوحة التحكم ←</div>
         </a>
 
         <a href="#analyze" class="service-card stagger-item" style="animation-delay:0.35s">
           <div class="card-title">مخطط JSON-LD</div>
-          <div class="card-desc">توليد تلقائي لبيانات المخطط المنظم (Organization, Article, FAQ) لتعظيم التعرف على الكيانات بواسطة نماذج الذكاء الاصطناعي.</div>
+          <div class="card-desc">توليد تلقائي لبيانات المخطط المنظم (Organization, Article, FAQ) لتعظيم التعرف على
+            الكيانات بواسطة نماذج الذكاء الاصطناعي.</div>
           <div class="card-arrow">ولد المخطط ←</div>
         </a>
 
         <a href="/jobs.html" class="service-card stagger-item" style="animation-delay:0.4s">
           <div class="card-title">المهام والسجل</div>
-          <div class="card-desc">تتبع جميع مهام الزحف، واعرض النتائج التاريخية، وقارن درجات GEO بمرور الوقت، وصدر التقارير كملفات PDF أو CSV.</div>
+          <div class="card-desc">تتبع جميع مهام الزحف، واعرض النتائج التاريخية، وقارن درجات GEO بمرور الوقت، وصدر
+            التقارير كملفات PDF أو CSV.</div>
           <div class="card-arrow">عرض المهام ←</div>
         </a>
 
         <a href="/competitor-intel.html" class="service-card stagger-item" style="animation-delay:0.45s">
           <div class="card-title">محلل المنافسين الذكي</div>
-          <div class="card-desc">اكتشف منافسيك الحقيقيين في منطقتك مع مقارنة أداء السرعة والسيو وتحليل استراتيجي بالذكاء الاصطناعي لكل منافس.</div>
+          <div class="card-desc">اكتشف منافسيك الحقيقيين في منطقتك مع مقارنة أداء السرعة والسيو وتحليل استراتيجي بالذكاء
+            الاصطناعي لكل منافس.</div>
           <div class="card-arrow">تحليل المنافسين ←</div>
+        </a>
+
+        <a href="/simulator.html" class="service-card stagger-item" style="animation-delay:0.5s">
+          <div class="card-title">محاكي الظهور في AI</div>
+          <div class="card-desc">اختبر تأثير محتواك على رؤية الذكاء الاصطناعي قبل نشره. أدخل النص وسيقوم المحرك بتقدير
+            كيفية فهم نماذج AI لعلامتك.</div>
+          <div class="card-arrow">افتح المحاكي 🧪 ←</div>
         </a>
 
       </div>
@@ -313,39 +865,211 @@
       <div class="analyze-box stagger-item">
         <div class="section-label">ابدأ الآن</div>
         <h2 class="section-title" style="margin-bottom:8px">حلل موقعك الإلكتروني</h2>
-        <p style="color:var(--muted);font-size:15px;margin:0">أدخل رابطاً لزحفه وتدقيقه وقياس رؤية الذكاء الاصطناعي في دقائق.</p>
+        <p style="color:var(--muted);font-size:15px;margin:0">أدخل رابطاً لزحفه وتدقيقه وقياس رؤية الذكاء الاصطناعي في
+          دقائق.</p>
 
         <form class="analyze-form" id="crawlForm">
           <input id="url" placeholder="https://example.com" required />
           <input id="orgName" placeholder="اسم الشركة" required />
           <input id="orgUrl" placeholder="رابط الشركة (اختياري)" />
           <input id="runs" placeholder="التكرار (1)" style="max-width:110px" />
-          <button type="submit" class="btn-analyze"> ابدأ التحليل</button>
+          <select id="industryOverride" style="max-width:200px">
+            <option value="">تحديد الصناعة تلقائياً</option>
+            <option value="التسويق الرقمي والإعلانات">التسويق الرقمي</option>
+            <option value="التجارة الإلكترونية">التجارة الإلكترونية</option>
+            <option value="التقنية والبرمجيات">التقنية والبرمجيات</option>
+            <option value="الاستشارات والخدمات المهنية">الاستشارات</option>
+            <option value="التعليم والتدريب">التعليم</option>
+            <option value="الصحة والطب">الصحة</option>
+            <option value="العقارات">العقارات</option>
+            <option value="المطاعم والضيافة">المطاعم</option>
+          </select>
+          <button type="button" id="startAnalysisBtn" class="btn-analyze"> ابدأ التحليل</button>
         </form>
         <div id="status"></div>
 
         <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
           <button id="keywordsBtn" class="btn" style="font-size:13px;padding:10px 20px">⚡ كلمات سريعة</button>
-          <button id="analyzeBtn" class="btn" style="font-size:13px;padding:10px 20px"> تشغيل الذكاء</button>
+          <button id="analyzeBtn" class="btn" style="font-size:13px;padding:10px 20px;opacity:0.5;cursor:not-allowed" disabled> تشغيل الذكاء</button>
           <span id="analyzeStatus" style="color:var(--muted);font-size:13px;align-self:center"></span>
         </div>
         <div id="keywordsOut" style="margin-top:8px;color:var(--muted);font-size:13px"></div>
 
         <div class="results-grid" id="resultsGrid" style="display:none">
-          <div class="result-panel">
-            <h4> نتيجة GEO</h4>
-            <div id="geoScore">—</div>
-            <div id="results" style="margin-top:12px">لا توجد نتائج بعد.</div>
-          </div>
-          <div class="result-panel">
-            <h4> رؤى المنافسين</h4>
-            <div id="competitorInsight" style="margin-top:12px">
-              <div style="color:var(--muted); font-size:13px;">ابدأ التحليل لرؤية المنافسين وتوزيع الحركة.</div>
+          <div class="result-panel" style="max-width:700px;margin:0 auto;">
+            <!-- Hero Result -->
+            <div style="text-align:center;padding:32px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+              <div
+                style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">
+                نتيجة GEO</div>
+              <div id="geoScoreDisplay" style="font-size:64px;font-weight:900;line-height:1;margin-bottom:12px;">—</div>
+              <div id="geoStatusText" style="font-size:15px;color:var(--muted);margin-bottom:20px;">—</div>
+              <div id="geoComparison"
+                style="display:none;font-size:14px;padding:12px 20px;background:rgba(255,255,255,0.05);border-radius:12px;margin:0 auto;max-width:400px;">
+              </div>
             </div>
-          </div>
-          <div class="result-panel">
-            <h4> التدقيق الخام</h4>
-            <pre id="raw">—</pre>
+
+            <!-- Smart Insight -->
+            <div id="smartInsightSection"
+              style="padding:24px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:none;">
+              <h4 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" />
+                </svg>
+                نظرة تحليلية ذكية
+              </h4>
+              <div id="insightText" style="font-size:14px;color:white;line-height:1.6;margin-bottom:16px;"></div>
+
+              <div id="rootCauseBox"
+                style="background:rgba(239,68,68,0.1);border-radius:12px;padding:16px;margin-bottom:16px;display:none;">
+                <div style="font-size:12px;font-weight:700;color:#ef4444;margin-bottom:8px;text-transform:uppercase;">
+                  أسباب ضعف الأداء</div>
+                <div id="rootCauseList" style="font-size:13px;color:#ef4444;line-height:1.6;"></div>
+              </div>
+            </div>
+
+            <!--  NEXT-GEN AI INSIGHTS (NEW) -->
+            <div id="nextGenSection"
+              style="padding:24px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:none;">
+              <h4 style="margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--ultra-accent);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                  </path>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                  <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                رؤية الذكاء الاصطناعي المتقدمة (AI Visibility Plus)
+              </h4>
+
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;">
+                <!-- Sentiment -->
+                <div class="ai-card">
+                  <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;"> تحليل
+                    المشاعر</div>
+                  <div id="sentimentScoreOut" style="font-size:24px;font-weight:900;margin-bottom:4px;">—</div>
+                  <div id="sentimentLabelOut" style="font-size:12px;color:var(--muted);">—</div>
+                </div>
+
+                <!-- Shopping -->
+                <div class="ai-card">
+                  <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;"> رصد التسوق
+                    AI</div>
+                  <div id="shoppingPriceOut" style="font-size:18px;font-weight:700;margin-bottom:4px;">—</div>
+                  <div id="shoppingRatingOut" style="font-size:12px;color:var(--muted);">—</div>
+                </div>
+
+                <!-- Context -->
+                <div class="ai-card">
+                  <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;"> سياق
+                    الظهور</div>
+                  <div id="contextTypeOut" style="font-size:16px;font-weight:700;margin-bottom:4px;">—</div>
+                  <div id="contextTriggerOut"
+                    style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    —</div>
+                </div>
+              </div>
+
+              <div id="recommendationTip"
+                style="margin-top:16px;padding:12px 16px;background:rgba(var(--ultra-accent-rgb), 0.1);border-radius:12px;font-size:13px;color:var(--ultra-accent);border:1px dashed var(--ultra-accent);">
+                💡 <b>نصيحة نموذج AI:</b> <span id="aiTipText">—</span>
+              </div>
+            </div>
+
+            <!-- Quick Signals -->
+            <div id="quickSignals" style="padding:24px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:none;">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+                <div style="text-align:center;">
+                  <div
+                    style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">
+                    SEO Rank</div>
+                  <div id="seoRankSignal" style="font-size:32px;font-weight:900;">—</div>
+                </div>
+                <div style="text-align:center;">
+                  <div
+                    style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">
+                    AI Visibility</div>
+                  <div id="aiVisSignal" style="font-size:32px;font-weight:900;">—</div>
+                </div>
+                <div style="text-align:center;">
+                  <div
+                    style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">
+                    Traffic</div>
+                  <div id="trafficSignal" style="font-size:32px;font-weight:900;">—</div>
+                </div>
+              </div>
+              <div id="avgRankDisplay" style="text-align:center;margin-top:16px;font-size:12px;color:var(--accent);">
+              </div>
+            </div>
+
+            <!-- Smart Insight -->
+            <div id="smartInsightSection"
+              style="padding:24px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:none;">
+              <div
+                style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;font-weight:700;">
+                تحليل ذكي</div>
+              <div id="insightText" style="font-size:14px;line-height:1.8;color:var(--text);margin-bottom:16px;"></div>
+              <div id="rootCauseBox"
+                style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;border-left:3px solid var(--accent);display:none;">
+                <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:10px;"> الأسباب الرئيسية:
+                </div>
+                <div id="rootCauseList" style="font-size:13px;color:var(--muted);line-height:1.8;"></div>
+              </div>
+            </div>
+
+            <!-- Top Competitor -->
+            <div id="topCompetitorSection"
+              style="padding:24px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:none;">
+              <div
+                style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">
+                أقوى منافس</div>
+              <div
+                style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.08);">
+                <div style="flex:1;">
+                  <div id="topCompName" style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">—
+                  </div>
+                  <div id="topCompDomain" style="font-size:12px;color:var(--muted);">—</div>
+                </div>
+                <div id="topCompScore" style="text-align:right;">
+                  <div style="font-size:24px;font-weight:900;color:var(--accent);">—</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:2px;">Overlap Score</div>
+                </div>
+              </div>
+              <button onclick="window.location.href='/competitor-intel.html'"
+                style="width:100%;margin-top:14px;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                → عرض تحليل كامل للمنافسين
+              </button>
+            </div>
+
+            <!-- Industry & Traffic Info -->
+            <div id="industrySection"
+              style="padding:24px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <div
+                    style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">
+                    الصناعة</div>
+                  <div id="industryName" style="font-size:14px;font-weight:600;color:var(--text);">—</div>
+                </div>
+                <div>
+                  <div
+                    style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">
+                    الزيارات الشهرية</div>
+                  <div id="monthlyVisits" style="font-size:14px;font-weight:600;color:var(--text);">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="padding:24px 0;text-align:center;">
+              <button onclick="window.location.href='/recommendations.html'"
+                style="width:100%;padding:16px;background:linear-gradient(135deg,#49A460,#4D86DA);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 25px rgba(73,164,96,0.3);transition:all 0.3s;margin-bottom:12px;">
+                عرض التقرير الكامل
+              </button>
+              <div style="font-size:12px;color:var(--muted);">أو <a href="/content"
+                  style="color:var(--accent);text-decoration:underline;font-weight:600;">⚡ تحسين موقعي الآن</a></div>
+            </div>
           </div>
         </div>
       </div>
@@ -356,34 +1080,129 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="wrap" style="padding:0">
-      <p>© 2025 منصة GEO — محرك رؤية الذكاء الاصطناعي &nbsp;·&nbsp; <a href="/jobs.html">المهام</a> &nbsp;·&nbsp; <a href="/ads.html">الدعاية</a> &nbsp;·&nbsp; <a href="/content">المحتوى</a></p>
+      <p>© 2025 منصة محرك — تحسين محركات البحث بالذكاء الاصطناعي &nbsp;·&nbsp; <a href="/jobs.html">المهام</a>
+        &nbsp;·&nbsp; <a href="/ads.html">الدعاية</a> &nbsp;·&nbsp; <a href="/content">المحتوى</a></p>
     </div>
   </footer>
 
   <script>
     let _lastJobId = null;
+    let _jobInterval = null;
+    let _loadResultsInterval = null;
 
-    document.getElementById('crawlForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // Restore last job from localStorage on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedJobId = localStorage.getItem('lastJobId');
+      if (savedJobId) {
+        _lastJobId = parseInt(savedJobId);
+        console.log('Restored job ID:', _lastJobId);
+        // Check if job is completed
+        checkJobStatus();
+      }
+    });
+
+    // Toast notification system
+    function showToast(title, message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icons = { success: '.', error: '.', info: 'ℹ.' };
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || icons.info}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close" onclick="this.parentElement.remove()">×</div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    document.getElementById('startAnalysisBtn').addEventListener('click', async (e) => {
       const statusEl = document.getElementById('status');
       const url = document.getElementById('url').value;
       const orgName = document.getElementById('orgName').value;
       const orgUrl = document.getElementById('orgUrl').value || url;
       const runs = parseInt(document.getElementById('runs').value || '1') || 1;
-      statusEl.innerHTML = '⏳ Starting crawl...';
+      const industryOverride = document.getElementById('industryOverride').value;
+
+      statusEl.innerHTML = '<span class="loading-spinner"></span> جاري بدء الزحف...';
       try {
+        const payload = {
+          url,
+          org_name: orgName,
+          org_url: orgUrl,
+          max_pages: 3,
+          runs
+        };
+
+        // Add industry override if selected
+        if (industryOverride) {
+          payload.industry_override = industryOverride;
+        }
+
         const resp = await fetch('/api/jobs', {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ url, org_name: orgName, org_url: orgUrl, max_pages: 3, runs })
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
         const data = await resp.json();
-        if (!data.ok) { statusEl.textContent = 'Error: ' + (data.error || JSON.stringify(data)); return; }
+        if (!data.ok) {
+          showToast("فشل الزحف", data.error || "حدث خطأ غير متوقع", "error");
+          statusEl.innerHTML = '<span style="color:#FF0000"> خطأ: ' + (data.error || JSON.stringify(data)) + '</span>';
+          return;
+        }
         _lastJobId = data.job_id;
-        statusEl.innerHTML = ` تم إرسال المهمة <strong>${data.job_id}</strong> — <a href='/jobs.html'>عرض التقدم ←</a>`;
-      } catch (err) {
-        statusEl.textContent = 'Request failed: ' + err.message;
+        showToast("تم بنجاح", `تم إرسال المهمة #${data.job_id}`, "success");
+        statusEl.innerHTML = `<span style="color:var(--accent)"> تم إرسال المهمة <strong>${data.job_id}</strong></span> — <span id="jobStatusMsg">جاري التحقق...</span>`;
+        
+        localStorage.setItem('lastJobId', data.job_id);
+        localStorage.setItem('lastJobUrl', url);
+        localStorage.setItem('lastJobOrgName', orgName);
+        
+        // Start Polling
+        startPolling();
+        maybeStartResultsPolling();
+      } catch (error) {
+        const errorMsg = error && error.message ? error.message : 'حدث خطأ غير متوقع';
+        showToast("خطأ في الاتصال", errorMsg, "error");
+        statusEl.innerHTML = '<span style="color:#FF0000"> فشل الاتصال: ' + errorMsg + '</span>';
       }
     });
+
+    function startPolling() {
+      if (_jobInterval) clearInterval(_jobInterval);
+      document.getElementById('analyzeBtn').disabled = true;
+      _jobInterval = setInterval(checkJobStatus, 2000);
+    }
+
+    async function checkJobStatus() {
+      if (!_lastJobId) return;
+      try {
+        const res = await fetch(`/api/jobs/${_lastJobId}`);
+        const data = await res.json();
+        if (data.ok && data.job) {
+          const p = data.job.progress || {};
+          const msgEl = document.getElementById('jobStatusMsg');
+          if (msgEl) msgEl.textContent = `${p.stage || 'جاري المعالجة'} (${p.percent || 0}%)`;
+          
+          if (p.percent === 100 || data.job.status === 'completed') {
+            clearInterval(_jobInterval);
+            if (msgEl) msgEl.innerHTML = '<span style="color:#10b981">✓ تم بنجاح! جاهز لتشغيل الذكاء.</span>';
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('analyzeBtn').style.opacity = '1';
+            document.getElementById('analyzeBtn').style.cursor = 'pointer';
+            loadResults();
+          }
+          if (p.stage === 'error') {
+            clearInterval(_jobInterval);
+            if (msgEl) msgEl.innerHTML = `<span style="color:#ef4444">خطأ: ${p.error}</span>`;
+          }
+        }
+      } catch (e) {
+        console.error("Polling error:", e);
+      }
+    }
 
     async function loadResults() {
       try {
@@ -397,141 +1216,205 @@
           j.audit.audits.forEach(a => {
             const d = document.createElement('div');
             d.style.cssText = 'margin-bottom:10px;font-size:13px';
-            d.innerHTML = `<strong>${a.title||a.url}</strong><div style="color:var(--muted)">Headings OK: ${a.headings_ok} · Paras: ${a.density.paras} · Avg words: ${Math.round(a.density.avg_words)}</div>`;
+            d.innerHTML = `<strong>${a.title || a.url}</strong><div style="color:var(--muted)">Headings OK: ${a.headings_ok} · Paras: ${a.density.paras} · Avg words: ${Math.round(a.density.avg_words)}</div>`;
             resultsEl.appendChild(d);
           });
         }
         rawEl.textContent = JSON.stringify(j, null, 2);
-      } catch(e) {}
+      } catch (e) { }
     }
 
     document.getElementById('analyzeBtn').addEventListener('click', async () => {
       const s = document.getElementById('analyzeStatus');
-      s.textContent = '⏳ Running intelligence...';
+      const resultsGrid = document.getElementById('resultsGrid');
+
+      if (!_lastJobId) {
+        s.innerHTML = '<span style="color:#FF0000"> ابدأ الزحف أولاً</span>';
+        return;
+      }
+
+      s.innerHTML = '<span class="loading-spinner"></span> جاري تشغيل الذكاء...';
+      resultsGrid.style.display = 'grid';
+
       try {
-        const r = await fetch('/api/analyze', { method: 'POST' });
+        const r = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_id: _lastJobId })
+        });
         const j = await r.json();
-        if (!j.ok) { s.textContent = 'Error: '+(j.error||JSON.stringify(j)); return; }
-        s.textContent = ' Done.';
-        document.getElementById('resultsGrid').style.display = 'grid';
-        if (j.geo_score) {
-          const g = j.geo_score;
-          const v2 = g.v2 || { score: g.score, breakdown: { seo_rank: 0, ai_visibility: g.score, traffic: 0 }};
-          const color = v2.score >= 75 ? '#10b981' : v2.score >= 40 ? '#f59e0b' : '#ef4444';
-          
-          let breakdownHtml = '';
-          if (g.v2) {
-            breakdownHtml = `
-              <div style="margin-top:15px; background:rgba(0,0,0,0.2); border-radius:8px; padding:10px;">
-                <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">تفاصيل نقاط الرؤية (40/40/20):</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center;">
-                  <div>
-                    <div style="font-size:14px; font-weight:800; color:#3b82f6;">${v2.breakdown.seo_rank}%</div>
-                    <div style="font-size:9px; color:var(--muted);">SEO Rank</div>
-                  </div>
-                  <div>
-                    <div style="font-size:14px; font-weight:800; color:#7c3aed;">${v2.breakdown.ai_visibility}%</div>
-                    <div style="font-size:9px; color:var(--muted);">AI Mentions</div>
-                  </div>
-                  <div>
-                    <div style="font-size:14px; font-weight:800; color:#10b981;">${v2.breakdown.traffic}%</div>
-                    <div style="font-size:9px; color:var(--muted);">Traffic</div>
-                  </div>
-                </div>
-                <div style="font-size:10px; color:var(--accent); margin-top:8px; text-align:center;">
-                  متوسط الترتيب: ${v2.avg_rank || 'N/A'}
-                </div>
-              </div>
-            `;
-          }
+        if (!j.ok) {
+          s.innerHTML = '<span style="color:#FF0000"> خطأ: ' + (j.error || JSON.stringify(j)) + '</span>';
+          return;
+        }
+        s.innerHTML = '<span style="color:var(--accent)"> تم بنجاح</span>';
 
-          document.getElementById('geoScore').innerHTML =
-            `الدرجة الكلية: <strong style="color:${color};font-size:28px">${v2.score}%</strong>
-             <div style="color:var(--muted);font-size:13px;margin-top:6px">الحالة: ${g.status}</div>
-             ${breakdownHtml}`;
+        const g = j.geo_score || {};
+        const v2 = g.v2 || { score: g.score || 0, breakdown: { seo_rank: 0, ai_visibility: 0, traffic: 0 } };
+        const ci = j.competitor_insight || {};
+        const audit = j.audit || {};
+        const pages = audit.pages || [];
+
+        const safeSet = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+        const safeSetText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+        const safeSetStyle = (id, prop, value) => { const el = document.getElementById(id); if (el) el.style[prop] = value; };
+
+        const score = v2.score || 0;
+        const color = score >= 75 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444';
+        const emoji = score >= 75 ? '.' : score >= 40 ? '.' : '.';
+        const status = g.status || (score >= 75 ? 'Excellent' : score >= 40 ? 'Good' : 'Needs Work');
+
+        safeSet('geoScoreDisplay', `<span style="color:${color}">${score}%</span>`);
+        safeSet('geoStatusText', `${emoji} ${status}`);
+        safeSetStyle('geoStatusText', 'color', color);
+
+        if (ci.top_competitors && ci.top_competitors.length > 0) {
+          const topScore = ci.top_competitors[0].overlap_score || 0;
+          if (topScore > 0 && topScore > score) {
+            const diff = topScore - score;
+            if (diff > 10) {
+              safeSetStyle('geoComparison', 'display', 'block');
+              safeSet('geoComparison', ` أقل من أفضل منافس بـ ${diff}%`);
+            }
+          }
         }
 
-        if (j.competitor_insight && (j.competitor_insight.industry || j.competitor_insight.monthly_visits || j.competitor_insight.top_competitors)) {
-          const ci = j.competitor_insight;
-          let html = `<div style="margin-bottom:15px;">
-            <div style="font-size:12px; color:var(--accent); font-weight:700;">الصناعة: ${ci.industry}</div>
-            <div style="font-size:18px; font-weight:800; color:#fff; margin-top:4px;">${ci.monthly_visits} زيارة شهرياً</div>
-            <div style="font-size:11px; color:var(--muted);">(تقديرات مبنية على بيانات حقيقية)</div>
-          </div>`;
+        if (v2.breakdown) {
+          safeSetStyle('quickSignals', 'display', 'block');
+          const seoScore = v2.breakdown.seo_rank || 0;
+          const aiScore = v2.breakdown.ai_visibility || 0;
+          const trafficScore = v2.breakdown.traffic || 0;
+          const getColor = (val) => val >= 60 ? '#10b981' : val >= 30 ? '#f59e0b' : '#ef4444';
 
-          // Traffic Sources
-          html += `<div style="margin-bottom:20px;">
-            <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">مصادر الزوار (Traffic Sources):</div>
-            <div style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--surface2);">
-              <div style="width:${ci.traffic_sources.search}%; background:#7c3aed;" title="Search"></div>
-              <div style="width:${ci.traffic_sources.direct}%; background:#3b82f6;" title="Direct"></div>
-              <div style="width:${ci.traffic_sources.social}%; background:#10b981;" title="Social"></div>
-              <div style="width:${ci.traffic_sources.referral}%; background:#f59e0b;" title="Referral"></div>
-            </div>
-          </div>`;
+          safeSet('seoRankSignal', `${seoScore}%`);
+          safeSetStyle('seoRankSignal', 'color', getColor(seoScore));
+          safeSet('aiVisSignal', `${aiScore}%`);
+          safeSetStyle('aiVisSignal', 'color', getColor(aiScore));
+          safeSet('trafficSignal', `${trafficScore}%`);
+          safeSetStyle('trafficSignal', 'color', getColor(trafficScore));
 
-          // Top Competitors
-          if (ci.top_competitors && ci.top_competitors.length > 0) {
-            html += `<div style="font-size:11px; color:var(--muted); margin-bottom:10px;">أهم المنافسين (Top Competitors):</div>`;
-            ci.top_competitors.forEach(c => {
-              const overlap = c.overlap_score || c.similarity || 0;
-              html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:6px; margin-bottom:6px; border:1px solid rgba(255,255,255,0.05);">
-                <div>
-                  <div style="font-size:13px; font-weight:600; color:#fff;">${c.name}</div>
-                  <div style="font-size:10px; color:var(--muted);">${c.domain}</div>
-                </div>
-                <div style="text-align:right;">
-                  <div style="font-size:12px; font-weight:800; color:var(--accent);">${overlap}%</div>
-                  <div style="font-size:9px; color:var(--muted);">Overlap Score</div>
-                </div>
-              </div>`;
-            });
-          }
-
-          // Regional Split
-          if (ci.regional_split && ci.regional_split.length > 0) {
-            html += `<div style="margin-top:20px;">
-              <div style="font-size:11px; color:var(--muted); margin-bottom:10px;">التوزيع الجغرافي (Regional Split):</div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">`;
-            ci.regional_split.forEach(r => {
-              html += `<div style="font-size:11px; color:#ddd; display:flex; justify-content:space-between;">
-                <span>${r.country}</span>
-                <span style="color:var(--accent);">${r.share}%</span>
-              </div>`;
-            });
-            html += `</div></div>`;
-          }
-
-          // Real Rankings
-          if (ci.seo_rankings && ci.seo_rankings.length > 0) {
-            html += `<div style="margin-top:20px;">
-              <div style="font-size:11px; color:var(--muted); margin-bottom:10px;">نتائج البحث الحقيقية (Real Ranking):</div>`;
-            ci.seo_rankings.forEach(r => {
-                html += `<div style="font-size:11px; margin-bottom:4px; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                  <span style="color:var(--accent); font-weight:bold;">#${r.rank}</span> · ${r.query}
-                </div>`;
-            });
-            html += `</div>`;
-          }
-
-          document.getElementById('competitorInsight').innerHTML = html;
+          if (v2.avg_rank) safeSet('avgRankDisplay', `متوسط الترتيب: #${v2.avg_rank}`);
         }
 
-        document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
-      } catch(e) { s.textContent = 'Request failed: ' + e.message; }
+        let rootCauses = [];
+        let avgWords = 0;
+        if (pages.length > 0) {
+          let totalWords = 0;
+          let totalParas = 0;
+          pages.forEach(p => {
+            if (p.paragraphs && Array.isArray(p.paragraphs)) {
+              p.paragraphs.forEach(para => {
+                if (typeof para === 'string') {
+                  totalWords += para.split(/\s+/).filter(w => w.length > 0).length;
+                  totalParas++;
+                }
+              });
+            }
+          });
+          avgWords = totalParas > 0 ? Math.round(totalWords / totalParas) : 0;
+        }
+        const hasSchema = pages.some(p => p.schema_org || p.structured_data);
+
+        if (avgWords < 300) rootCauses.push(`• ضعف المحتوى (متوسط ${avgWords} كلمة)`);
+        if (!hasSchema) rootCauses.push('• عدم وجود Structured Data');
+        if (v2.breakdown.seo_rank < 30) rootCauses.push('• ضعف SEO');
+        if (v2.breakdown.ai_visibility === 0) rootCauses.push('• عدم الظهور في AI Search');
+
+        if (rootCauses.length > 0) {
+          safeSetStyle('smartInsightSection', 'display', 'block');
+          let insightMsg = score < 40 ? 'موقعك يحتاج تحسينات جوهرية' : 'موقعك في مسار جيد';
+          safeSet('insightText', insightMsg);
+          safeSetStyle('rootCauseBox', 'display', 'block');
+          safeSet('rootCauseList', rootCauses.join('<br>'));
+        }
+
+        if (ci.top_competitors && ci.top_competitors.length > 0) {
+          safeSetStyle('topCompetitorSection', 'display', 'block');
+          const top = ci.top_competitors[0];
+          safeSetText('topCompName', top.name || top.domain || 'غير متوفر');
+          safeSetText('topCompDomain', top.domain || '');
+          const overlapScore = top.overlap_score || 0;
+          safeSet('topCompScore', `<div style="font-size:24px;font-weight:900;color:var(--accent);">${overlapScore > 0 ? overlapScore + '%' : 'غير محسوب'}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Overlap Score</div>`);
+        } else {
+          safeSetStyle('topCompetitorSection', 'display', 'none');
+        }
+
+        if (ci.industry || ci.monthly_visits) {
+          const hasRealData = ci.data_quality === 'real';
+          if (hasRealData || ci.industry) {
+            safeSetStyle('industrySection', 'display', 'block');
+            safeSetText('industryName', ci.industry || 'غير محدد');
+            safeSetText('monthlyVisits', ci.monthly_visits || 'غير متوفر');
+          } else {
+            safeSetStyle('industrySection', 'display', 'none');
+          }
+        } else {
+          safeSetStyle('industrySection', 'display', 'none');
+        }
+
+        //  POPULATE NEXT-GEN AI INSIGHTS
+        if (g.next_gen) {
+          safeSetStyle('nextGenSection', 'display', 'block');
+          const n = g.next_gen;
+
+          // Sentiment
+          if (n.sentiment) {
+            const sScore = n.sentiment.sentiment_score || 0;
+            const sLabel = n.sentiment.sentiment_label || '—';
+            const sColor = sScore > 0 ? '#10b981' : sScore < 0 ? '#ef4444' : '#f59e0b';
+            safeSet('sentimentScoreOut', `<span style="color:${sColor}">${sScore > 0 ? '+' : ''}${sScore}</span>`);
+            safeSet('sentimentLabelOut', sLabel);
+          }
+
+          // Shopping
+          if (n.shopping) {
+            const ship = n.shopping;
+            safeSet('shoppingPriceOut', ship.price_detected ? (ship.price_value || ' تم الرصد') : ' لم يرصد');
+            safeSet('shoppingRatingOut', ship.rating_detected ? `التقييم: ${ship.rating_value}/5` : 'لا توجد تقييمات');
+          }
+
+          // Context
+          if (n.context) {
+            const ctx = n.context;
+            safeSet('contextTypeOut', ctx.scenario || 'عام');
+            safeSet('contextTriggerOut', ctx.trigger || 'غير محدد');
+          }
+
+          // AI Tip
+          if (n.sentiment && n.sentiment.recommendations && n.sentiment.recommendations.length > 0) {
+            safeSet('aiTipText', n.sentiment.recommendations[0]);
+          } else {
+            safeSet('aiTipText', 'استمر في تحسين كثافة الكيانات لزيادة الثقة لدى نماذج AI.');
+          }
+        }
+
+      } catch (e) {
+        const errorMsg = e && e.message ? e.message : 'حدث خطأ غير متوقع';
+        s.innerHTML = '<span style="color:#FF0000"> فشل الاتصال: ' + errorMsg + '</span>';
+        console.error('Analysis error:', e);
+      }
     });
 
     document.getElementById('keywordsBtn').addEventListener('click', async () => {
       const out = document.getElementById('keywordsOut');
       const url = document.getElementById('url').value;
-      if (!url) { out.textContent = 'Enter a URL first.'; return; }
-      out.textContent = '⏳ Fetching keywords...';
+      if (!url) {
+        out.innerHTML = '<span style="color:#FF0000"> أدخل رابط الموقع أولاً</span>';
+        return;
+      }
+      out.innerHTML = '<span class="loading-spinner"></span> جاري استخراج الكلمات...';
       try {
-        const r = await fetch('/api/keywords', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ url, max_pages: 1 }) });
+        const r = await fetch('/api/keywords', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url, max_pages: 1 }) });
         const j = await r.json();
-        if (!j.ok) { out.textContent = 'Error: ' + (j.error||JSON.stringify(j)); return; }
-        out.textContent = ' Keywords extracted — check Jobs for full results.';
-      } catch(e) { out.textContent = 'Request failed: ' + e.message; }
+        if (!j.ok) {
+          out.innerHTML = '<span style="color:#FF0000"> خطأ: ' + (j.error || JSON.stringify(j)) + '</span>';
+          return;
+        }
+        out.innerHTML = '<span style="color:var(--accent)"> تم استخراج الكلمات — افتح صفحة المهام للتفاصيل</span>';
+      } catch (e) {
+        const errorMsg = e && e.message ? e.message : 'حدث خطأ غير متوقع';
+        out.innerHTML = '<span style="color:#FF0000"> فشل الاتصال: ' + errorMsg + '</span>';
+      }
     });
 
     // smooth scroll for anchor links
@@ -539,10 +1422,29 @@
       a.addEventListener('click', e => {
         const target = document.querySelector(a.getAttribute('href'));
         if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+        // Close mobile menu after click
+        document.getElementById('navLinks').classList.remove('active');
+        document.getElementById('mobileMenuToggle').classList.remove('active');
       });
     });
 
-    setInterval(loadResults, 10000);
+    // Mobile menu toggle
+    document.getElementById('mobileMenuToggle').addEventListener('click', function () {
+      this.classList.toggle('active');
+      document.getElementById('navLinks').classList.toggle('active');
+    });
+
+    // Only poll results if a job is active
+    _loadResultsInterval = null;
+    function maybeStartResultsPolling() {
+      if (_loadResultsInterval) clearInterval(_loadResultsInterval);
+      if (_lastJobId) {
+        _loadResultsInterval = setInterval(() => {
+          if (_lastJobId) loadResults();
+        }, 10000);
+      }
+    }
   </script>
 </body>
+
 </html>

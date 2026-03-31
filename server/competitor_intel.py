@@ -126,14 +126,21 @@ REGION_MAP = {
     'Global':       {'gl':'us','hl':'en','location':'United States',      'domain':'google.com',   'lang':'English'},
 }
 
-# Domains to always exclude (directories, social, generic)
+# Domains to always exclude (social, major generic hubs)
 EXCLUDE_DOMAINS = {
     'facebook.com','instagram.com','twitter.com','linkedin.com','youtube.com',
     'wikipedia.org','amazon.com','google.com','yelp.com','tripadvisor.com',
-    'yellowpages.com','clutch.co','goodfirms.co','g2.com','capterra.com',
-    'trustpilot.com','glassdoor.com','indeed.com','reddit.com','quora.com',
-    'medium.com','wordpress.com','blogspot.com','wix.com','squarespace.com',
+    'yellowpages.com','pinterest.com','snapchat.com','tiktok.com'
 }
+
+def _is_excluded(domain: str) -> bool:
+    if not domain: return False
+    domain = domain.lower()
+    if domain in EXCLUDE_DOMAINS: return True
+    # Handle subdomains (e.g. sa.linkedin.com)
+    for ext in EXCLUDE_DOMAINS:
+        if domain.endswith('.' + ext): return True
+    return False
 
 
 def _extract_domain(url: str) -> str:
@@ -217,14 +224,14 @@ def detect_niche(domain: str, url: str, industry_hint: str, api_keys: dict) -> D
         # Generate search queries using AI if available
         if api_keys.get('groq') or api_keys.get('openai'):
             text = _llm(
-                f"Generate 6 Google search queries to find DIRECT competitors of a '{industry_hint}' business in Saudi Arabia.\n"
+                f"Generate 7 Google search queries to find HIGH-INTENT commercial competitors of a '{industry_hint}' business in Saudi Arabia.\n"
                 f"Requirements:\n"
-                f"- Focus on businesses offering SAME services (not suppliers, not clients)\n"
+                f"- Focus on keywords that businesses and customers use (e.g. 'company', 'agency', 'services', 'pricing', 'contact')\n"
+                f"- Exclude generic information searches, blogs, or directories\n"
                 f"- Mix Arabic and English\n"
-                f"- Be specific to the industry\n"
                 f"Return ONLY JSON array: [\"query1\", \"query2\", ...]\n\n"
                 f"Example for 'digital marketing agency':\n"
-                f"[\"best digital marketing agencies Saudi Arabia\", \"أفضل وكالات التسويق الرقمي السعودية\", \"ecommerce marketing agencies KSA\", \"performance marketing agencies Riyadh\"]",
+                f"[\"digital marketing services Saudi Arabia\", \"وكالة تسويق رقمي الرياض\", \"best SEO agencies Jeddah\", \"performance marketing company pricing KSA\"]",
                 api_keys, max_tokens=300
             )
             kws = _parse_json(text, [f'{industry_hint} Saudi Arabia', f'best {industry_hint} companies KSA'])
@@ -349,6 +356,24 @@ def discover_competitors(niche_data: Dict, your_domain: str, region: str,
     seen = {your_domain} | EXCLUDE_DOMAINS
     raw = []
 
+    # ALWAYS start with AI-suggested "Hard" competitors to ensure quality
+    ai_key_exists = bool(api_keys.get('groq') or api_keys.get('openai') or os.getenv('GROQ_API_KEY') or os.getenv('OPENAI_API_KEY'))
+    if ai_key_exists:
+        print(f"  [Discovery] Fetching AI-suggested hard competitors...")
+        ai_comps = _ai_suggest_competitors(your_domain, niche_data, region, count, api_keys)
+        for c in ai_comps:
+            if c['domain'] not in seen and not _is_excluded(c['domain']):
+                seen.add(c['domain'])
+                raw.append({
+                    'domain': c['domain'],
+                    'url': f"https://{c['domain']}",
+                    'title': c.get('title', c['domain']),
+                    'snippet': c.get('relevance_reason', c.get('snippet', '')),
+                    'serp_position': 0, # Top priority
+                    'discovery_source': 'ai_knowledge'
+                })
+
+    # Then supplement with SERP results
     queries = niche_data.get('search_queries', [])
     if not queries:
         queries = [f'{niche_data.get("niche","business")} {region}']
@@ -358,7 +383,7 @@ def discover_competitors(niche_data: Dict, your_domain: str, region: str,
         for res in results:
             link = res.get('link') or res.get('url','')
             domain = _extract_domain(link)
-            if domain and domain not in seen and len(raw) < count * 2:
+            if domain and domain != your_domain and not _is_excluded(domain) and len(raw) < count * 3:
                 seen.add(domain)
                 raw.append({
                     'domain': domain,
@@ -366,11 +391,10 @@ def discover_competitors(niche_data: Dict, your_domain: str, region: str,
                     'title': res.get('title', domain),
                     'snippet': res.get('snippet',''),
                     'serp_position': res.get('position', len(raw)+1),
+                    'discovery_source': 'serp'
                 })
 
-    # If no SERP results, use AI to suggest
-    if not raw:
-        raw = _ai_suggest_competitors(your_domain, niche_data, region, count, api_keys)
+    # No need to call AI again here as we already did it at the start
 
     # AI filter: remove irrelevant (agencies when looking for ecommerce, etc.)
     if raw and (api_keys.get('groq') or os.getenv('GROQ_API_KEY','')):
@@ -415,46 +439,43 @@ def _ai_filter_competitors(candidates: List[Dict], niche_data: Dict,
     if not verified_candidates:
         return candidates
     
-    # AI does light filtering - only reject OBVIOUS mismatches
-    items = [{
-        'domain': c['domain'],
-        'title': c.get('actual_title', ''),
-        'description': c.get('actual_desc', ''),
-        'snippet': c.get('snippet', '')[:100]
-    } for c in verified_candidates]
+    # AI filtering:
+    # REJECT AS 'REAL' IF:
+    # 1. Different industry OR different business model (e.g. they are a blog, you are an agency).
+    # 2. Government, University, or non-profit (.gov, .edu, .org hubs).
+    # 3. Global platforms (LinkedIn, TikTok, eBay, Amazon).
+    # 4. Directory/listing pages where NO single business is the focus.
+    #
+    # MARK AS 'REAL' ONLY IF:
+    # - They sell the same core service/product as the target for profit.
+    # - They are a 'hard' competitor (direct rival in the market).
+    #
+    # Return JSON array:
+    # [{
+    #   "domain": "example.com",
+    #   "relevant": true/false,
+    #   "type": "Real|Content|Platform",
+    #   "reason": "brief explanation"
+    # }]
 
     text = _llm(
         f"""Analyze these competitor websites for a '{niche}' business in {region}.
 
-Your job: Remove ONLY obvious mismatches. Be LENIENT - when in doubt, keep it.
+REJECT AS 'REAL' IF:
+1. Different industry OR different business model (e.g. they are a blog, you are an agency).
+2. Government, University, or non-profit (.gov, .edu, .org hubs).
+3. Global platforms (LinkedIn, TikTok, eBay, Amazon).
+4. Directory/listing pages where NO single business is the focus.
 
-TARGET: {niche} ({category})
-
-COMPETITORS:
-{json.dumps(items, ensure_ascii=False, indent=2)}
-
-REJECT ONLY IF:
-1. Completely different industry (e.g., travel site for marketing agency target)
-2. Directory/marketplace (yellowpages, clutch, etc.)
-3. News/blog site
-4. Social media platform
-
-KEEP IF:
-- Same or related industry (even if different focus)
-- Any overlap in services
-- Similar target market
-- When unsure
-
-Classify kept ones:
-- Direct: Very similar services/products
-- Indirect: Related industry or partial overlap
-- Aspirational: Big brand in same space
+MARK AS 'REAL' ONLY IF:
+- They sell the same core service/product as the target for profit.
+- They are a 'hard' competitor (direct rival in the market).
 
 Return JSON array:
 [{{
   "domain": "example.com",
   "relevant": true/false,
-  "type": "Direct|Indirect|Aspirational",
+  "type": "Real|Content|Platform",
   "reason": "brief explanation"
 }}]
 
@@ -470,16 +491,34 @@ Be LENIENT. Default to keeping competitors unless obviously wrong.""",
     filter_map = {f['domain']: f for f in filtered if isinstance(f, dict)}
     result = []
     for c in verified_candidates:
-        info = filter_map.get(c['domain'], {'relevant': True, 'type': 'Direct'})
+        info = filter_map.get(c['domain'], {'relevant': True, 'type': 'Real'})
         is_relevant = info.get('relevant', True)
         
         if is_relevant:
+            # Enhanced classification using domain heuristics if AI unsure
+            c_type = info.get('type', 'Real')
+            snippet_low = (c.get('snippet','') + " " + c.get('domain','')).lower()
+            
+            # Direct filters for non-Real types
+            if any(x in domain.lower() for x in ['.gov', '.edu', 'wikipedia.org', 'arabnews.com', 'similarweb.com']):
+                c_type = 'Platform' if 'gov' in domain.lower() else 'Content'
+            
+            # Marketplace detection (generic giants)
+            if any(x in domain.lower() for x in ['noon.com', 'amazon.', 'ebay.', '6thstreet.com', 'sivvi.com', 'centrepoint']):
+                c_type = 'Platform'
+            
+            if c_type == 'Real' and any(x in snippet_low for x in ['directory', 'list of', 'top 10', 'sortlist', 'clutch', 'guide to', 'coupon', 'deals']):
+                c_type = 'Platform'
+            
+            if c_type == 'Real' and any(x in snippet_low for x in ['blog', 'read more', 'how to', 'what is', 'news', ' Ramadan']):
+                c_type = 'Content'
+
             result.append({
                 **c,
-                'competitor_type': info.get('type', 'Direct'),
+                'competitor_type': c_type,
                 'relevance_reason': info.get('reason', ''),
             })
-            print(f"  [Filter] ✓ {c['domain']} - {info.get('type', 'Direct')}: {info.get('reason', 'Relevant')}")
+            print(f"  [Filter] ✓ {c['domain']} - {c_type}: {info.get('reason', 'Relevant')}")
         else:
             print(f"  [Filter] ✗ {c['domain']} - REJECTED: {info.get('reason', 'Not relevant')}")
     
@@ -561,9 +600,9 @@ Return JSON array (suggest {request_count} competitors):
 [{{
   "domain": "competitor.com",
   "title": "Company Name",
-  "snippet": "Brief description",
-  "competitor_type": "Direct|Indirect|Aspirational",
-  "confidence": "high|medium"
+  "niche": "specific niche description",
+  "competitor_type": "Real|Content|Platform",
+  "relevance_reason": "why they compete with target"
 }}]
 
 Include competitors even if moderately confident.""",
@@ -833,6 +872,14 @@ def calculate_competitor_score(ps: Dict, content: Dict, serp_pos: int, niche: st
     
     if content.get('has_reviews'): market_power += 5
     if ps.get('has_https'):        market_power += 3
+    
+    # Adjust market power based on type
+    c_type = content.get('competitor_type', 'Real')
+    if c_type == 'Platform':
+        market_power = min(100, market_power + 20)  # Platforms usually have higher generic power
+    elif c_type == 'Content':
+        market_power = min(100, market_power + 5)   # Content sites have SEO power, not business power
+    
     market_power = min(100, market_power)
 
     if brand_tier == 'global_giant':
@@ -847,6 +894,15 @@ def calculate_competitor_score(ps: Dict, content: Dict, serp_pos: int, niche: st
     geo_fit = 50
     if content.get('has_arabic'): geo_fit += 30
     if content.get('has_schema'): geo_fit += 20
+    
+    # Content vs Real weighting
+    if c_type == 'Content':
+        # Content sites care more about SEO and Word Count
+        combined = round(website_quality * 0.7 + market_power * 0.3)
+    elif c_type == 'Platform':
+        # Platforms care more about Authority (Market Power)
+        combined = round(website_quality * 0.3 + market_power * 0.7)
+    
     geo_fit = min(100, geo_fit)
 
     return {
@@ -915,15 +971,17 @@ COMPETITOR DATA:
 
 IMPORTANT CONTEXT:
 - Your site brand tier: {your_data.get('brand_tier', 'niche')}
-- Competitors include: {', '.join([c['domain'] + ' (' + c.get('brand_tier', 'unknown') + ')' for c in comp_data[:3]])}
+- Competitor types found: {[c.get('type') for c in comp_data]}
 
-Generate REALISTIC, DATA-DRIVEN insights. DO NOT claim market leadership if competing against established brands.
+Generate REALISTIC, DATA-DRIVEN insights.
+CRITICAL: Acknowledge that you are losing traffic not just to other businesses (Real), but also to educational articles (Content) and directories (Platform) that dominate Google.
 
 RULES:
 1. If competitors include 'global_giant' or 'regional_leader' brands, acknowledge their dominance
 2. Focus on YOUR competitive advantages (website quality, niche focus, local optimization)
 3. NO generic advice - every insight must reference actual data
 4. Be honest about market position
+5. Mention if Content sites or Platforms are currently outperforming you in SEO rankings.
 
 Return ONLY valid JSON:
 {{
@@ -1000,6 +1058,7 @@ def analyze_competitors(your_url: str, region: str = 'Saudi Arabia',
         ps      = get_pagespeed(url)
         content = get_content_signals(url)
         content['domain'] = comp['domain']  # Pass domain for brand detection
+        content['competitor_type'] = comp.get('competitor_type', 'Real')
         score   = calculate_competitor_score(ps, content, comp.get('serp_position', 10), niche, api_keys, is_your_site=False)
         
         enriched.append({
@@ -1023,10 +1082,10 @@ def analyze_competitors(your_url: str, region: str = 'Saudi Arabia',
 
     # Step 5: Segmentation
     print(f"\n[Step 5/6] Segmenting competitors...")
-    direct       = [c for c in enriched if c.get('competitor_type','Direct') == 'Direct']
-    indirect     = [c for c in enriched if c.get('competitor_type') == 'Indirect']
-    aspirational = [c for c in enriched if c.get('competitor_type') == 'Aspirational']
-    print(f"  Direct: {len(direct)} | Indirect: {len(indirect)} | Aspirational: {len(aspirational)}")
+    real_competitors = [c for c in enriched if c.get('competitor_type','Real') == 'Real']
+    content_competitors = [c for c in enriched if c.get('competitor_type') == 'Content']
+    platforms = [c for c in enriched if c.get('competitor_type') == 'Platform']
+    print(f"  Real: {len(real_competitors)} | Content: {len(content_competitors)} | Platforms: {len(platforms)}")
 
     # Step 6: AI Insights (grounded)
     print(f"\n[Step 6/6] Generating AI insights...")
@@ -1077,9 +1136,9 @@ def analyze_competitors(your_url: str, region: str = 'Saudi Arabia',
         'region':        region,
         'competitors':   enriched,
         'segmentation':  {
-            'direct':       direct,
-            'indirect':     indirect,
-            'aspirational': aspirational,
+            'real':         real_competitors,
+            'content':      content_competitors,
+            'platforms':    platforms,
         },
         'competitor_count': len(enriched),
         'insights':      insights,

@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+import re
 from typing import List
 
 try:
@@ -156,7 +157,8 @@ def analyze_with_openai(pages: List[dict], api_key: str = None):
             utils = None
 
         def _call_openai():
-            return openai.ChatCompletion.create(
+            client = openai.OpenAI(api_key=key)
+            return client.chat.completions.create(
                 model=DEFAULT_MODEL,
                 messages=messages,
                 temperature=0.2,
@@ -172,7 +174,7 @@ def analyze_with_openai(pages: List[dict], api_key: str = None):
         # but content_engine is already in same package)
         try:
             from server.content_engine import _parse_json_from_text
-            text = resp['choices'][0]['message']['content']
+            text = resp.choices[0].message.content
             parsed = _parse_json_from_text(text)
             try:
                 from server import cache
@@ -180,7 +182,7 @@ def analyze_with_openai(pages: List[dict], api_key: str = None):
             except Exception: pass
             return { 'enabled': True, 'result': parsed }
         except Exception as e:
-            return { 'enabled': True, 'raw': resp['choices'][0]['message']['content'], 'parse_error': str(e) }
+            return { 'enabled': True, 'raw': resp.choices[0].message.content, 'parse_error': str(e) }
     except Exception as e:
         return { 'enabled': True, 'error': str(e) }
 
@@ -372,6 +374,11 @@ def compute_geo_score(pages: List[dict], audit: dict = None, ai_visibility: dict
             'entities': int(round(entity_score)),
             'faq': int(round(faq_score)),
             'ai_visibility': int(round(ai_score))
+        },
+        'next_gen': {
+            'sentiment': ai_visibility.get('sentiment_analysis', {}) if ai_visibility else {},
+            'shopping': ai_visibility.get('sentiment_analysis', {}).get('shopping_visibility', {}) if ai_visibility and ai_visibility.get('sentiment_analysis') else {},
+            'context': ai_visibility.get('sentiment_analysis', {}).get('context_analysis', {}) if ai_visibility and ai_visibility.get('sentiment_analysis') else {}
         },
         'counts': {
             'critical': critical_issues,
@@ -612,3 +619,150 @@ def generate_recommendations(pages: List[dict], geo_score: dict = None, api_keys
         recs['per_page'].append(page_rec)
 
     return recs
+
+
+def simulate_visibility(content: str, brand: str, api_keys: dict = None) -> dict:
+    """Predicts AI Visibility and Sentiment for a given piece of content."""
+    api_keys = api_keys or {}
+    
+    prompt = f"""ACT AS AN AI SEARCH ENGINE (like Perplexity/GPT Search).
+Analyze this content for the brand "{brand}":
+
+"{content[:2000]}"
+
+PREDICT THE FOLLOWING IN JSON:
+{{
+  "ai_visibility_score": 0-100,
+  "sentiment": "Positive|Neutral|Negative",
+  "entity_clarity": "High|Medium|Low",
+  "detailed_analysis": "HTML formatted explanation of how an AI sees this",
+  "suggested_fixes": ["list of improvements"]
+}}"""
+
+    # Try Groq first
+    key = api_keys.get('groq') or os.getenv('GROQ_API_KEY')
+    raw = ""
+    if key:
+        try:
+            from groq import Groq
+            client = Groq(api_key=key)
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            raw = completion.choices[0].message.content
+        except Exception:
+            pass
+
+    if not raw:
+        # Try OpenAI
+        key = api_keys.get('openai') or os.getenv('OPENAI_API_KEY')
+        if key:
+            try:
+                import openai
+                client = openai.OpenAI(api_key=key)
+                completion = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    response_format={"type": "json_object"}
+                )
+                raw = completion.choices[0].message.content
+            except Exception:
+                pass
+
+    try:
+        return json.loads(raw)
+    except Exception:
+        return {
+            "ai_visibility_score": 0,
+            "sentiment": "Unknown",
+            "entity_clarity": "Low",
+            "detailed_analysis": "Failed to analyze content.",
+            "suggested_fixes": []
+        }
+
+def analyze_ai_visibility_deep(pages: List[dict], brand: str, api_keys: dict = None) -> dict:
+    """Performs deep sentiment and visibility analysis on crawled content."""
+    api_keys = api_keys or {}
+    
+    # Extract substantive text from all pages
+    combined_text = ""
+    for p in pages[:10]:
+        combined_text += f"\nPAGE: {p.get('url')}\nTITLE: {p.get('title')}\nCONTENT: {' '.join(p.get('paragraphs', [])[:5])}\n"
+    
+    prompt = f"""ACT AS A CORE AI SEARCH ENGINE ANALYZER. 
+Analyze the brand "{brand}" based on this crawled data:
+{combined_text[:3000]}
+
+YOU MUST RETURN JSON EXACTLY AS:
+{{
+  "sentiment_analysis": {{
+    "sentiment_score": -10 to +10 (Use 0 only if perfectly neutral, +1 to +10 if positive),
+    "sentiment_label": "High Authority|Trusted|Growing|Stable|Neutral",
+    "recommendations": ["one clear strategic tip for the CEO"]
+  }},
+  "shopping_visibility": {{
+    "price_detected": true|false,
+    "price_value": "Detected Price or 'Market Competitive'",
+    "rating_detected": true|false,
+    "rating_value": 0-5 (Infer from tone if not explicit)
+  }},
+  "context_analysis": {{
+    "scenario": "Commercial|Informational|Local|General",
+    "trigger": "search query types that show this brand"
+  }}
+}}"""
+
+    raw = ""
+    # Use Groq (fastest/cheapest)
+    key = api_keys.get('groq') or os.getenv('GROQ_API_KEY')
+    if key:
+        try:
+            from groq import Groq
+            client = Groq(api_key=key)
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            raw = completion.choices[0].message.content
+        except Exception: pass
+
+    if not raw:
+        key = api_keys.get('openai') or os.getenv('OPENAI_API_KEY')
+        if key:
+            try:
+                import openai
+                client = openai.OpenAI(api_key=key)
+                completion = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    response_format={"type": "json_object"}
+                )
+                raw = completion.choices[0].message.content
+            except Exception: pass
+
+    try:
+        if raw:
+            return json.loads(raw)
+    except Exception: pass
+
+    # Default fallback
+    return {
+        "sentiment_analysis": {
+            "sentiment_score": 0,
+            "sentiment_label": "Unknown",
+            "recommendations": ["Improve content density to increase trust."]
+        },
+        "shopping_visibility": {
+            "price_detected": False,
+            "price_value": None,
+            "rating_detected": False,
+            "rating_value": 0
+        },
+        "context_analysis": {
+            "scenario": "General",
+            "trigger": "Unknown"
+        }
+    }

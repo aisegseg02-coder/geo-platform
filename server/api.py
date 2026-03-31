@@ -8,9 +8,13 @@ from pathlib import Path
 import datetime
 import sqlite3
 from typing import Optional, List
-from dotenv import load_dotenv
 
-load_dotenv()
+from dotenv import load_dotenv
+load_dotenv(override=True)
+
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 print(" GEO Platform API starting...")
 print(f" Working directory: {os.getcwd()}")
@@ -21,18 +25,25 @@ print(f" Python version: {os.sys.version}")
 run_pipeline = None
 
 try:
-    from server import ai_visibility
-    print(" ai_visibility loaded")
-except Exception as e:
-    print(f"  ai_visibility failed: {e}")
-    ai_visibility = None
-
-try:
     from server import ai_analysis
-    print(" ai_analysis loaded")
+    print("  ai_analysis loaded (from server)")
 except Exception as e:
     print(f" ai_analysis failed: {e}")
     ai_analysis = None
+
+try:
+    from server import geo_services
+    print("  geo_services loaded")
+except Exception as e:
+    print(f"  geo_services failed: {e}")
+    geo_services = None
+
+try:
+    from server import ai_visibility
+    print("  ai_visibility loaded")
+except Exception as e:
+    print(f"  ai_visibility failed: {e}")
+    ai_visibility = None
 
 try:
     from server import job_queue
@@ -72,7 +83,12 @@ print(f" Output directory: {OUTPUT_DIR}")
 
 app = FastAPI(title='GEO Platform API')
 
-print(" FastAPI app created")
+# Rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+print(" FastAPI app created with rate limiting")
 
 # Serve frontend static files
 frontend_dir = Path(__file__).resolve().parent.parent / 'frontend'
@@ -98,6 +114,11 @@ class RecommendationRequest(BaseModel):
 class AnalysisRequest(BaseModel):
     api_keys: Optional[dict] = None
     job_id: Optional[int] = None
+
+class SimulationRequest(BaseModel):
+    content: str
+    brand: str
+    api_keys: Optional[dict] = None
 
 @app.post('/api/crawl')
 async def api_crawl(req: CrawlRequest):
@@ -137,7 +158,7 @@ async def api_crawl(req: CrawlRequest):
                     audit_obj['org_name'] = inferred
             
             # run AI visibility (Perplexity) for this run and attach; fallback to OpenAI visibility
-            queries = [f"What is {org_name_for_visibility}?", f"Best services for {org_name_for_visibility}"]
+            queries = [f"What is {org_name_for_visibility}?", f"Best services for {org_name_for_visibility}", f"Why should I buy from {org_name_for_visibility}?"]
             perf = ai_visibility.check_perplexity(org_name_for_visibility, queries)
             if not perf.get('enabled') and perf.get('reason') == 'PERPLEXITY_KEY not set':
                 # try OpenAI fallback
@@ -146,6 +167,14 @@ async def api_crawl(req: CrawlRequest):
                     perf['fallback'] = 'openai'
                 except Exception:
                     pass
+            
+            # 🔷 ADDED: Deep Sentiment & Context Analysis (The "Zaher" Gap)
+            try:
+                sentiment = geo_services.sentiment_analysis(org_name_for_visibility, queries, api_keys=req.api_keys)
+                perf['sentiment_analysis'] = sentiment
+            except Exception:
+                pass
+
             audit_obj['ai_visibility'] = perf
             # overwrite audit with ai visibility included
             with open(audit_path, 'w', encoding='utf-8') as f:
@@ -226,10 +255,12 @@ class JobRequest(BaseModel):
     org_url: str
     max_pages: int = 3
     runs: int = 1
+    industry_override: Optional[str] = None
 
 
 @app.post('/api/jobs')
-async def api_enqueue(job: JobRequest, background_tasks: BackgroundTasks):
+# @limiter.limit("30/minute")  # Rate limiting disabled for testing
+async def api_enqueue(job: JobRequest, background_tasks: BackgroundTasks, request: Request):
     try:
         # attach user if Authorization bearer token present
         user_id = None
@@ -258,7 +289,14 @@ async def api_enqueue(job: JobRequest, background_tasks: BackgroundTasks):
 
         # Simpler approach: if client provided 'Authorization' header, it will be available via Request object.
         # For now, enqueue without user association; clients can call /api/jobs/claim or we can extend later.
-        jid = job_queue.enqueue_job(job.url, job.org_name, job.org_url, job.max_pages, job.runs)
+        jid = job_queue.enqueue_job(
+            job.url, 
+            job.org_name, 
+            job.org_url, 
+            job.max_pages, 
+            job.runs,
+            industry_override=job.industry_override
+        )
         
         # Dispatch background task immediately
         from server.worker import process_job
@@ -425,6 +463,14 @@ async def jobs_page():
     return JSONResponse({'ok': False, 'error': 'jobs page not found'}, status_code=404)
 
 
+@app.get('/simulator.html')
+async def simulator_page():
+    f = frontend_dir / 'simulator.html'
+    if f.exists():
+        return FileResponse(str(f), headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"})
+    return JSONResponse({'ok': False, 'error': 'simulator page not found'}, status_code=404)
+
+
 @app.get('/search.html')
 async def search_page():
     f = frontend_dir / 'search.html'
@@ -446,7 +492,7 @@ async def content_page_v2():
 async def theme_css_file():
     f = frontend_dir / 'theme.css'
     if f.exists():
-        return FileResponse(str(f))
+        return FileResponse(str(f), headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"})
     return JSONResponse({'ok': False, 'error': 'theme.css not found'}, status_code=404)
 
 
@@ -482,7 +528,7 @@ async def api_job_report_pdf(job_id: int):
 
 
 @app.get('/api/jobs/{job_id}/keywords')
-async def api_job_keywords(job_id: int, enrich: bool = True, analytics: bool = False):
+async def api_job_keywords(job_id: int, enrich: bool = False, analytics: bool = False):
     try:
         job = job_queue.get_job(job_id)
         if not job:
@@ -568,10 +614,20 @@ async def api_me(request: Request):
     return {'ok': True, 'user': u}
 
 
+@app.post('/api/simulate')
+async def api_simulate(req: SimulationRequest):
+    try:
+        prediction = ai_analysis.simulate_visibility(req.content, req.brand, api_keys=req.api_keys)
+        return {'ok': True, 'prediction': prediction}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
 @app.post('/api/analyze')
-async def api_analyze(req: AnalysisRequest = None):
+# @limiter.limit("20/minute")  # Rate limiting disabled for testing
+async def api_analyze(req: AnalysisRequest = None, request: Request = None, job_id: int = None):
     api_keys = req.api_keys if req else {}
-    job_id = req.job_id if req else None
+    job_id = job_id or (req.job_id if req else None)
 
     # Resolve audit path: job-specific first, then global fallback
     if job_id:
@@ -580,7 +636,7 @@ async def api_analyze(req: AnalysisRequest = None):
             return JSONResponse({'ok': False, 'error': f'job {job_id} not found'}, status_code=404)
         result_path = job.get('result_path')
         if not result_path:
-            return JSONResponse({'ok': False, 'error': f'job {job_id} not completed yet'}, status_code=400)
+            return JSONResponse({'ok': False, 'error': f'Job {job_id} is still processing (result_path is empty). Please wait for the crawler to finish.'}, status_code=400)
         audit_path = Path(result_path) / 'audit.json'
         analysis_out_path = Path(result_path) / 'analysis.json'
     else:
@@ -597,30 +653,40 @@ async def api_analyze(req: AnalysisRequest = None):
     # Pass user-provided keys to analysis
     analysis = ai_analysis.analyze_pages(pages, api_keys=api_keys)
 
-    # Re-run AI visibility if keys provided to ensure "Visibility Check" works
-    ai_vis = audit.get('ai_visibility')
+    # AI Visibility Check (Optional Per-request override)
+    ai_vis = audit.get('ai_visibility') or {}
+    org_name = audit.get('org_name') or ai_analysis.infer_brand_name(pages)
+    
     if api_keys:
-        org_name = audit.get('org_name', 'Company')
         queries = [f"What is {org_name}?", f"Best services for {org_name}"]
-        # Try Perplexity if key exists, otherwise OpenAI
         if api_keys.get('perplexity'):
             ai_vis = ai_visibility.check_perplexity(org_name, queries, api_key=api_keys.get('perplexity'))
         elif api_keys.get('openai'):
             ai_vis = ai_visibility.check_openai_visibility(org_name, queries, api_key=api_keys.get('openai'))
-        audit['ai_visibility'] = ai_vis
-        # Save updated audit
-        with open(audit_path, 'w', encoding='utf-8') as f:
-            json.dump(audit, f, ensure_ascii=False, indent=2)
+
+    # 🔷 Deep AI Visibility Analysis (Sentiment/Shopping/Context) - Always Run if possible
+    try:
+        deep_ai = ai_analysis.analyze_ai_visibility_deep(pages, org_name, api_keys=api_keys)
+        # Flatten deep_ai into ai_vis so compute_geo_score can find them easily
+        if deep_ai:
+            ai_vis.update(deep_ai)
+    except Exception as e:
+        print(f"Deep AI analysis error: {e}")
+        
+    audit['ai_visibility'] = ai_vis
+    # Save updated audit
+    with open(audit_path, 'w', encoding='utf-8') as f:
+        json.dump(audit, f, ensure_ascii=False, indent=2)
 
     from server import geo_services
     
     # ── Enhanced Visibility Score v2 (API Based) ────────────────────────────────
     org_name = audit.get('org_name') or ai_analysis.infer_brand_name(pages)
     
-    # Fetch real search results
+    # Fetch real search results using provided keys or environment fallbacks
     searches = []
-    serp_key = api_keys.get("SERPAPI_KEY") if api_keys else None
-    zen_key = api_keys.get("ZENSERP_KEY") if api_keys else None
+    serp_key = (api_keys.get("SERPAPI_KEY") if api_keys else None) or os.getenv("SERPAPI_KEY")
+    zen_key = (api_keys.get("ZENSERP_KEY") if api_keys else None) or os.getenv("ZENSERP_KEY")
     
     core_queries = [f"{org_name}", f"تحميل {org_name}", f"{org_name} review"]
     for cq in core_queries[:2]:
@@ -633,8 +699,16 @@ async def api_analyze(req: AnalysisRequest = None):
     # ── Competitor Insight Enrichment ──────────────────────────────────────────
     comp_insight = {}
     try:
-        comp_insight = geo_services.get_competitor_insights(org_name, audit.get('url'), api_keys=api_keys)
-    except Exception:
+        # Pass industry override if available
+        industry_override = audit.get('industry_override')
+        comp_insight = geo_services.get_competitor_insights(
+            org_name, 
+            audit.get('url'), 
+            api_keys=api_keys,
+            industry_override=industry_override
+        )
+    except Exception as e:
+        print(f"Competitor insight error: {e}")
         pass
 
     # Hybrid Score Calculation (v2)
@@ -824,6 +898,14 @@ async def api_recommendations(req: RecommendationRequest = None):
                 analysis_data = ana_obj.get('analysis')
                 geo_score = ana_obj.get('geo_score')
 
+    # Get Search Intelligence for benchmarks
+    search_intel_report = None
+    try:
+        from server import search_intelligence
+        search_intel_report = search_intelligence.run_complete_analysis(pages, source_url=audit.get('url', ''), api_keys=api_keys)
+    except Exception as e:
+        print(f"Search intel error in recommendations: {e}")
+
     recs = ai_analysis.generate_recommendations(pages, geo_score=geo_score, api_keys=api_keys, ai_analysis_results=analysis_data, extra_context=extra_context)
     
     return {
@@ -832,7 +914,8 @@ async def api_recommendations(req: RecommendationRequest = None):
         'audit': audit,
         'ai_visibility': audit.get('ai_visibility'),
         'analysis': analysis_data,
-        'geo_score': geo_score
+        'geo_score': geo_score,
+        'search_intel': search_intel_report
     }
 
 
@@ -843,7 +926,8 @@ class KeywordsRequest(BaseModel):
 
 
 @app.post('/api/keywords')
-async def api_keywords(req: KeywordsRequest, enrich: bool = True, analytics: bool = False):
+# @limiter.limit("15/minute")  # Rate limiting disabled for testing
+async def api_keywords(req: KeywordsRequest, request: Request, enrich: bool = False, analytics: bool = False):
     try:
         # try to fetch pages via crawler (will fallback to requests)
         from src import crawler
@@ -894,7 +978,7 @@ async def api_test_keywords():
 
 
 @app.post('/api/search/intelligence')
-async def api_search_intelligence(req: KeywordsRequest, enrich: bool = True):
+async def api_search_intelligence(req: KeywordsRequest, enrich: bool = False):
     """Complete search intelligence analysis with keywords, competitors, and recommendations."""
     try:
         from src import crawler
@@ -918,7 +1002,7 @@ async def api_search_intelligence(req: KeywordsRequest, enrich: bool = True):
 
 
 @app.post('/api/export/keywords/csv')
-async def api_export_keywords_csv(req: KeywordsRequest, enrich: bool = True):
+async def api_export_keywords_csv(req: KeywordsRequest, enrich: bool = False):
     """Export keywords to CSV format."""
     try:
         from src import crawler
@@ -1063,6 +1147,13 @@ class SemanticRequest(BaseModel):
     api_keys: dict = {}
 
 
+class IdentityRequest(BaseModel):
+    crawl_data: dict = {}
+    lang: str = 'en'
+    prefer_backend: str = 'groq'
+    api_keys: dict = {}
+
+
 @app.post('/api/content/generate')
 async def api_content_generate(req: ArticleRequest):
     try:
@@ -1122,6 +1213,21 @@ async def api_content_semantic(req: SemanticRequest):
         from server import content_engine
         result = content_engine.semantic_optimize(
             req.content, lang=req.lang,
+            prefer_backend=req.prefer_backend,
+            api_keys=req.api_keys
+        )
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.post('/api/content/identity')
+async def api_content_identity(req: IdentityRequest):
+    try:
+        from server import content_engine
+        result = content_engine.generate_identity(
+            crawl_data=req.crawl_data,
+            lang=req.lang,
             prefer_backend=req.prefer_backend,
             api_keys=req.api_keys
         )

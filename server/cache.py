@@ -1,39 +1,62 @@
+import os
 import json
-from pathlib import Path
-import threading
+import redis
+from datetime import timedelta
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / 'output'
-OUTPUT_DIR.mkdir(exist_ok=True)
-CACHE_PATH = OUTPUT_DIR / 'cache.json'
-_lock = threading.Lock()
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 
-
-def _load():
-    if not CACHE_PATH.exists():
-        return {}
-    try:
-        with CACHE_PATH.open('r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-
-def _save(d):
-    try:
-        with _lock:
-            with CACHE_PATH.open('w', encoding='utf-8') as f:
-                json.dump(d, f, ensure_ascii=False, indent=2)
-    except Exception:
-        pass
-
+# Initialize Production Redis Pool
+_redis_pool = redis.ConnectionPool.from_url(REDIS_URL, max_connections=50, decode_responses=True)
+redis_client = redis.Redis(connection_pool=_redis_pool)
 
 def get(key, default=None):
-    d = _load()
-    return d.get(key, default)
+    """Retrieve JSON-deserialized object from Redis"""
+    try:
+        val = redis_client.get(key)
+        return json.loads(val) if val else default
+    except Exception as e:
+        print(f"⚠️ Redis Get Error: {e}")
+        return default
 
+def set(key, value, ttl_seconds=3600):
+    """Store JSON object in Redis with expiration"""
+    try:
+        val = json.dumps(value, ensure_ascii=False)
+        redis_client.setex(key, timedelta(seconds=ttl_seconds), val)
+        return True
+    except Exception as e:
+        print(f"⚠️ Redis Set Error: {e}")
+        return False
 
-def set(key, value):
-    d = _load()
-    d[key] = value
-    _save(d)
+def check_rate_limit(user_id: int, plan: str, resource: str) -> bool:
+    """Enterprise Rate Limiting Strategy (Token Bucket/Counter per User Plan)"""
+    limits = {
+        'free': 10,
+        'pro': 100,
+        'enterprise': 1000
+    }
+    limit = limits.get(plan.lower(), 10)
+    
+    # Key strategy: rate_limit:crawls:user_123:minute
+    import time
+    current_minute = int(time.time() / 60)
+    key = f"rate_limit:{resource}:user_{user_id}:{current_minute}"
+    
+    try:
+        pipe = redis_client.pipeline()
+        pipe.incr(key, 1)
+        pipe.expire(key, 60) # reset window next minute
+        results = pipe.execute()
+        
+        current_usage = results[0]
+        return current_usage <= limit
+    except Exception:
+        return True # Fail open to avoid blocking users if Redis drops
+
+def acquire_lock(lock_key: str, timeout: int = 10) -> bool:
+    """Implement Idempotency and Job Deduplication using Redis Locks"""
+    try:
+        # returns True if set was successful (lock acquired), False if existing
+        return bool(redis_client.set(lock_key, "locked", nx=True, ex=timeout))
+    except Exception as e:
+        return False

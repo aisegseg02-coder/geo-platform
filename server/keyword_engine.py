@@ -42,7 +42,7 @@ def _clean_html(text):
     text = unescape(text)
     return text
 
-def extract_keywords_from_audit(audit_obj, top_n=20, enrich=True, analytics=False, expected_keywords=None):
+def extract_keywords_from_audit(audit_obj, top_n=20, enrich=False, analytics=False, expected_keywords=None):
     """Extract candidate keywords from an audit object.
 
     Tries to use spaCy noun-chunk extraction when available, otherwise
@@ -52,7 +52,7 @@ def extract_keywords_from_audit(audit_obj, top_n=20, enrich=True, analytics=Fals
     Args:
         audit_obj: Audit dictionary with pages
         top_n: Number of keywords to return
-        enrich: Whether to enrich with DataForSEO volume/CPC data
+        enrich: Whether to enrich with DataForSEO volume/CPC data (DISABLED - use SerpAPI instead)
         analytics: Whether to return full analytics report
         expected_keywords: List of expected keywords for coverage analysis
     """

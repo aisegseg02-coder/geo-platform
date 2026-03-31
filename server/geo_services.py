@@ -56,10 +56,25 @@ def _openrouter_chat(prompt: str, model: str = "openai/gpt-4o-mini", api_key: st
             json={"model": model, "messages": [{"role": "user", "content": prompt}]},
             timeout=30,
         )
+        
+        if r.status_code == 429:
+            return "ERROR: OpenRouter rate limit exceeded (429)"
+        
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"]
-    except Exception:
-        return ""
+        response_data = r.json()
+        
+        if "error" in response_data:
+            error_msg = response_data["error"].get("message", "")
+            if "credit" in error_msg.lower() or "rate" in error_msg.lower():
+                return f"ERROR: OpenRouter quota - {error_msg}"
+        
+        return response_data["choices"][0]["message"]["content"]
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 429:
+            return "ERROR: OpenRouter rate limit (429)"
+        return f"ERROR: OpenRouter HTTP {e.response.status_code}"
+    except Exception as e:
+        return f"ERROR: OpenRouter - {str(e)[:100]}"
 
 
 def _openai_chat(prompt: str, model: str = "gpt-4o-mini", api_key: str = None) -> str:
@@ -81,10 +96,27 @@ def _openai_chat(prompt: str, model: str = "gpt-4o-mini", api_key: str = None) -
             },
             timeout=30
         )
+        
+        # Check for rate limit errors
+        if r.status_code == 429:
+            return "ERROR: OpenAI rate limit exceeded (429)"
+        
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"]
-    except Exception:
-        return ""
+        response_data = r.json()
+        
+        # Check for quota errors in response
+        if "error" in response_data:
+            error_msg = response_data["error"].get("message", "")
+            if "quota" in error_msg.lower() or "insufficient" in error_msg.lower():
+                return f"ERROR: OpenAI quota exceeded - {error_msg}"
+        
+        return response_data["choices"][0]["message"]["content"]
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 429:
+            return "ERROR: OpenAI rate limit exceeded (429)"
+        return f"ERROR: OpenAI HTTP {e.response.status_code}"
+    except Exception as e:
+        return f"ERROR: OpenAI - {str(e)[:100]}"
 
 
 def _groq_chat(prompt: str, api_key: str = None) -> str:
@@ -100,86 +132,148 @@ def _groq_chat(prompt: str, api_key: str = None) -> str:
             temperature=0.2, max_tokens=1024
         )
         return resp.choices[0].message.content
-    except Exception:
-        return ""
+    except Exception as e:
+        error_msg = str(e).lower()
+        if "429" in error_msg or "rate" in error_msg or "quota" in error_msg:
+            return f"ERROR: Groq rate limit - {str(e)[:100]}"
+        return f"ERROR: Groq - {str(e)[:100]}"
 
 
-# ── LLM Chain (Ollama -> OpenAI -> Groq -> OpenRouter) ──────────────────────────
+# ── Smart LLM Router with Quota Detection ────────────────────────────────────
 def _llm(prompt: str, api_keys: dict = None, json_mode: bool = False) -> str:
+    """
+    Intelligent LLM router with automatic failover on rate limits.
+    Priority: Ollama (free) → OpenAI → Groq → OpenRouter
+    Detects 429 errors and quota exhaustion, switches providers automatically.
+    """
     api_keys = api_keys or {}
     errors = []
-
-    # 1. Local Ollama (Fastest, Free)
-    try:
-        res = _ollama_chat(prompt, model="qwen2", json_mode=json_mode)
-        if res: return res
-    except Exception as e:
-        errors.append(f"Ollama Error: {e}")
-
-    # 2. OpenAI Cloud Fallback
-    openai_key = api_keys.get("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
-    if openai_key:
+    
+    # Provider configurations with quota detection
+    providers = [
+        {
+            "name": "Ollama",
+            "func": lambda: _ollama_chat(prompt, model="qwen2", json_mode=json_mode),
+            "enabled": True,  # Always try local first
+            "quota_errors": ["connection refused", "timeout", "not found"]
+        },
+        {
+            "name": "OpenAI",
+            "func": lambda: _openai_chat(prompt, api_key=api_keys.get("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")),
+            "enabled": bool(api_keys.get("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")),
+            "quota_errors": ["429", "rate_limit_exceeded", "insufficient_quota", "quota exceeded"]
+        },
+        {
+            "name": "Groq",
+            "func": lambda: _groq_chat(prompt, api_key=api_keys.get("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")),
+            "enabled": bool(api_keys.get("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")),
+            "quota_errors": ["429", "rate_limit", "quota", "too many requests"]
+        },
+        {
+            "name": "OpenRouter",
+            "func": lambda: _openrouter_chat(prompt, api_key=api_keys.get("OPENROUTER_API_KEY") or os.environ.get("OPENROUTER_API_KEY")),
+            "enabled": bool(api_keys.get("OPENROUTER_API_KEY") or os.environ.get("OPENROUTER_API_KEY")),
+            "quota_errors": ["429", "rate limit", "credits"]
+        }
+    ]
+    
+    for provider in providers:
+        if not provider["enabled"]:
+            errors.append(f"{provider['name']}: Key missing")
+            continue
+            
         try:
-            res = _openai_chat(prompt, api_key=openai_key)
-            if res: return res
-            else: errors.append("OpenAI: Returned empty (Check Quota/429)")
+            res = provider["func"]()
+            if res and not res.startswith("ERROR:"):
+                print(f"✓ {provider['name']} succeeded")
+                return res
+            elif res:
+                # Check if it's a quota error
+                is_quota_error = any(err_keyword in res.lower() for err_keyword in provider["quota_errors"])
+                if is_quota_error:
+                    errors.append(f"{provider['name']}: Quota exceeded, switching provider...")
+                    print(f"⚠ {provider['name']} quota exceeded, trying next provider")
+                else:
+                    errors.append(f"{provider['name']}: {res[:100]}")
+            else:
+                errors.append(f"{provider['name']}: Empty response")
         except Exception as e:
-            errors.append(f"OpenAI Exception: {e}")
-    else:
-        errors.append("OpenAI: Key missing in .env")
-
-    # 3. Groq Fallback
-    groq_key = api_keys.get("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")
-    if groq_key:
-        try:
-            res = _groq_chat(prompt, api_key=groq_key)
-            if res: return res
-        except Exception as e:
-            errors.append(f"Groq Error: {e}")
-    else:
-        errors.append("Groq: Key missing in .env")
-
-    # 4. OpenRouter Fallback
-    router_key = api_keys.get("OPENROUTER_API_KEY") or os.environ.get("OPENROUTER_API_KEY")
-    if router_key:
-        try:
-            res = _openrouter_chat(prompt, api_key=router_key)
-            if res: return res
-        except Exception as e:
-            errors.append(f"OpenRouter Error: {e}")
-    else:
-        errors.append("OpenRouter: Key missing in .env")
-
-    # If all failed, return special error signal
+            error_msg = str(e).lower()
+            is_quota_error = any(err_keyword in error_msg for err_keyword in provider["quota_errors"])
+            
+            if is_quota_error:
+                errors.append(f"{provider['name']}: Rate limit hit - {str(e)[:80]}")
+                print(f"⚠ {provider['name']} rate limited: {str(e)[:80]}")
+            else:
+                errors.append(f"{provider['name']}: {str(e)[:80]}")
+    
+    # All providers failed
     log_msg = " | ".join(errors)
-    print(f"LLM FAILURE: {log_msg}") # Server-side visibility
-    return f"ERROR: No LLM available. Details: {log_msg}"
+    print(f"❌ LLM FAILURE: {log_msg}")
+    return f"ERROR: All LLM providers exhausted. {log_msg}"
 
 
 def _serp_api_search(query: str, location: str = "Saudi Arabia", api_key: str = None) -> dict:
-    """Fetches real search results via SerpApi."""
-    key = api_key or os.environ.get("SERPAPI_KEY", "b31a84f7e45cc6c60f6de3627bf6650a81e0263fe67d939420308c4815b66cb7")
-    if not key:
+    """Fetches real search results via SerpApi with quota detection."""
+    keys = [api_key] if api_key else []
+    for suffix in ['', '_2', '_3', '_4', '_5']:
+        k = os.environ.get(f'SERPAPI_KEY{suffix}')
+        if k and k not in keys:
+            keys.append(k)
+            
+    if not keys:
         return {}
-    try:
-        r = requests.get("https://serpapi.com/search", params={
-            "q": query,
-            "location": location,
-            "hl": "ar",
-            "gl": "sa",
-            "google_domain": "google.com.sa",
-            "api_key": key
-        }, timeout=15)
-        r.raise_for_status()
-        return r.json()
-    except Exception as e:
-        print(f"SerpApi Error: {e}")
-        return {}
+        
+    for i, key in enumerate(keys):
+        try:
+            r = requests.get("https://serpapi.com/search", params={
+                "q": query,
+                "location": location,
+                "hl": "ar",
+                "gl": "sa",
+                "google_domain": "google.com.sa",
+                "api_key": key
+            }, timeout=15)
+            
+            if r.status_code == 429:
+                print(f"⚠ SerpApi rate limit exceeded (429) for key ending in ...{key[-4:]}")
+                if i < len(keys) - 1:
+                    continue
+                return {"error": "rate_limit"}
+                
+            r.raise_for_status()
+            data = r.json()
+            
+            # Check for quota errors in response
+            if "error" in data:
+                print(f"⚠ SerpApi error: {data['error']}")
+                # If error is quota or credentials, try next key
+                if "quota" in data["error"].lower() or "unauthorized" in data["error"].lower():
+                    if i < len(keys) - 1:
+                        continue
+                return {"error": "api_error", "message": data["error"]}
+            
+            return data
+        except requests.exceptions.HTTPError as e:
+            if i < len(keys) - 1: # If not last key, try next
+                print(f"⚠ SerpApi HTTP Error {e.response.status_code} - trying next key")
+                continue
+            if e.response.status_code == 429:
+                print("⚠ SerpApi rate limit (429)")
+                return {"error": "rate_limit"}
+            print(f"❌ SerpApi HTTP Error: {e}")
+            return {}
+        except Exception as e:
+            print(f"❌ SerpApi Error: {e}")
+            if i < len(keys) - 1:
+                continue
+            return {}
+    return {}
 
 
 def _zenserp_search(query: str, location: str = "Saudi Arabia", api_key: str = None) -> dict:
-    """Fetches real search results via ZenSerp."""
-    key = api_key or os.environ.get("ZENSERP_KEY", "a50d7a20-2698-11f1-a47e-edf101aaf1cf")
+    """Fetches real search results via ZenSerp with quota detection."""
+    key = api_key or os.environ.get("ZENSERP_KEY")
     if not key:
         return {}
     try:
@@ -190,10 +284,27 @@ def _zenserp_search(query: str, location: str = "Saudi Arabia", api_key: str = N
             "gl": "sa",
             "apikey": key
         }, timeout=15)
+        
+        if r.status_code == 429:
+            print("⚠ ZenSerp rate limit exceeded (429)")
+            return {"error": "rate_limit", "message": "ZenSerp quota exceeded"}
+        
         r.raise_for_status()
-        return r.json()
+        data = r.json()
+        
+        if "error" in data:
+            print(f"⚠ ZenSerp error: {data['error']}")
+            return {"error": "api_error", "message": data["error"]}
+        
+        return data
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 429:
+            print("⚠ ZenSerp rate limit (429)")
+            return {"error": "rate_limit"}
+        print(f"❌ ZenSerp HTTP Error: {e}")
+        return {}
     except Exception as e:
-        print(f"ZenSerp Error: {e}")
+        print(f"❌ ZenSerp Error: {e}")
         return {}
 
 
@@ -373,11 +484,30 @@ Return JSON only:
   "score": 0.0,
   "trust_level": "high|medium|low",
   "tone": "authoritative|casual|skeptical|promotional",
+  "shopping_visibility": {{
+    "price_mentioned": true/false,
+    "review_count_mentioned": true/false,
+    "rating_score_mentioned": true/false,
+    "buying_advice": "brief string"
+  }},
+  "context": {{
+    "scenario": "storyline (e.g. buying advice, complaint, comparison)",
+    "trigger": "what led to the brand mention",
+    "is_solo_mention": true/false (true if {brand} is the only brand mentioned in snippet)
+  }},
   "key_phrases": [],
   "summary": "one sentence summary"
 }}"""
         raw = _llm(prompt, api_keys, json_mode=True)
-        analysis = _parse_json(raw) if raw else {"polarity": "neutral", "score": 0.5, "trust_level": "medium", "tone": "casual", "key_phrases": [], "summary": ""}
+        analysis = _parse_json(raw) if raw else {}
+        
+        # Merge defaults if AI fails
+        if not analysis or not isinstance(analysis, dict):
+            analysis = {
+                "polarity": "neutral", "score": 0.5, "trust_level": "medium", 
+                "tone": "casual", "shopping_visibility": {}, "context": {}, 
+                "key_phrases": [], "summary": ""
+            }
 
         sentiment_results.append({
             "query": q,
@@ -396,10 +526,24 @@ Return JSON only:
     scores = [_get_score(r) for r in sentiment_results]
     avg = sum(scores) / len(scores) if scores else 0.5
 
+    # Aggregates for report
+    shopping_stats = {
+        "price_mentions": sum(1 for r in sentiment_results if r.get("analysis", {}).get("shopping_visibility", {}).get("price_mentioned")),
+        "review_mentions": sum(1 for r in sentiment_results if r.get("analysis", {}).get("shopping_visibility", {}).get("review_count_mentioned")),
+        "avg_rating_mentions": sum(1 for r in sentiment_results if r.get("analysis", {}).get("shopping_visibility", {}).get("rating_score_mentioned"))
+    }
+    
+    context_stats = {
+        "solo_mentions": sum(1 for r in sentiment_results if r.get("analysis", {}).get("context", {}).get("is_solo_mention")),
+        "common_scenarios": list(set([r.get("analysis", {}).get("context", {}).get("scenario") for r in sentiment_results if r.get("analysis", {}).get("context", {}).get("scenario")]))
+    }
+
     return {
         "brand": brand,
         "avg_sentiment_score": round(avg * 100, 1),
         "overall_tone": "إيجابي" if avg > 0.6 else "محايد" if avg > 0.4 else "سلبي",
+        "shopping_visibility": shopping_stats,
+        "context_analysis": context_stats,
         "details": sentiment_results
     }
 
@@ -564,7 +708,14 @@ def _quick_crawl(url: str) -> dict:
             desc_match = re.search(r'<meta[^>]*name=["\']description["\'][^>]*content=["\'](.*?)["\']', html, re.IGNORECASE)
             title = title_match.group(1).strip() if title_match else ""
             desc = desc_match.group(1).strip() if desc_match else ""
-            return {"title": title, "desc": desc[:200]}
+            
+            # Extract first 3 paragraphs for content count
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(html, 'html.parser')
+            for script in soup(["script", "style"]):
+                script.decompose()
+            paras = [p.get_text().strip() for p in soup.find_all('p') if p.get_text().strip()]
+            return {"title": title, "desc": desc[:200], "paragraphs": paras[:5], "content": ' '.join(paras[:3])[:500]}
     except Exception:
         return {"title": "", "desc": ""}
 
@@ -576,18 +727,58 @@ def _extract_brand_from_url(text: str) -> str:
         return text.split('.')[0]
     return text
 
-def _get_heuristic_fallback(title: str, desc: str) -> dict:
-    ctx = (title + " " + desc).lower()
+def _get_heuristic_fallback(title: str, desc: str, url: str = "") -> dict:
+    """Enhanced heuristic with URL analysis and better keyword matching."""
+    ctx = (title + " " + desc + " " + url).lower()
+    
+    # Marketing & Advertising (PRIORITY - most common misclassification)
+    marketing_keywords = ["تسويق", "وكالة", "marketing", "agency", "إعلان", "ads", "دعاية", 
+                          "برومو", "حملات", "سوشيال", "social", "digital", "رقمي", "ربحان", 
+                          "أرباح", "profit", "campaign", "brand", "علامة تجارية"]
+    if any(k in ctx for k in marketing_keywords):
+        return {
+            "industry": "التسويق الرقمي والإعلانات",
+            "competitors": ["2P (توبي)", "Perfect Presentation", "Socialize Agency", "Thameen"],
+            "estimated_rank": "غير محدد"
+        }
+    
     # E-commerce
-    if any(k in ctx for k in ["متجر", "تجارة", "سلة", "زد", "shop", "ecommerce", "store"]):
-        return {"industry": "التجارة الإلكترونية", "competitors": ["Salla (سلة)", "Zid (زد)", "Shopify"], "estimated_rank": 3}
-    # Marketing
-    if any(k in ctx for k in ["تسويق", "وكالة", "marketing", "agency", "ads", "إعلانات"]):
-        return {"industry": "التسويق الرقمي", "competitors": ["2P (توبي)", "Perfect Presentation", "Socialize"], "estimated_rank": 2}
-    # Tech/SaaS
-    if any(k in ctx for k in ["تقنية", "برمجيات", "software", "saas", "tech", "كود"]):
-        return {"industry": "التقنية والبرمجيات", "competitors": ["Microsoft", "Google Arab", "Oracle"], "estimated_rank": 4}
-    return {"industry": "خدمات عامة", "competitors": ["منافس محلي 1", "منافس محلي 2"], "estimated_rank": "غير متوفر"}
+    ecommerce_keywords = ["متجر", "تجارة", "سلة", "زد", "shop", "ecommerce", "store", "بيع", "شراء", "منتج"]
+    if any(k in ctx for k in ecommerce_keywords):
+        return {
+            "industry": "التجارة الإلكترونية",
+            "competitors": ["Salla (سلة)", "Zid (زد)", "Shopify", "Noon"],
+            "estimated_rank": "غير محدد"
+        }
+    
+    # Tech/SaaS (EXCLUDE testing keywords to avoid confusion)
+    tech_keywords = ["تطبيق", "برمجة", "software", "saas", "tech", "كود", "app", "platform", "منصة"]
+    testing_keywords = ["test", "testing", "qa", "quality assurance", "اختبار"]
+    has_tech = any(k in ctx for k in tech_keywords)
+    has_testing = any(k in ctx for k in testing_keywords)
+    
+    if has_tech and not has_testing:
+        return {
+            "industry": "التقنية والبرمجيات",
+            "competitors": ["Microsoft", "Google", "Oracle", "SAP"],
+            "estimated_rank": "غير محدد"
+        }
+    
+    # Consulting & Services
+    consulting_keywords = ["استشارات", "خدمات", "consulting", "services", "حلول", "solutions"]
+    if any(k in ctx for k in consulting_keywords):
+        return {
+            "industry": "الاستشارات والخدمات المهنية",
+            "competitors": ["Deloitte", "PwC", "McKinsey", "EY"],
+            "estimated_rank": "غير محدد"
+        }
+    
+    # Default fallback
+    return {
+        "industry": "خدمات عامة (يُنصح بتحديد الصناعة يدوياً)",
+        "competitors": ["منافس محلي 1", "منافس محلي 2", "منافس محلي 3"],
+        "estimated_rank": "غير متوفر"
+    }
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SERVICE 5 — Geo-Regional Analysis (Next-Gen Overhaul)
@@ -669,22 +860,46 @@ def geo_regional_analysis(brand: str, api_keys: dict = None) -> dict:
         if site_data.get("title") or site_data.get("desc"):
             crawl_context = f"\nWebsite Context (For your reference to identify the industry): Title: {site_data['title']} | Description: {site_data['desc']}"
     
-    # 2. Competitor Check
+    # 2. Enhanced Competitor Check with Validation
     comp_prompt = f"""Analyze the company/brand '{clean_brand}'.{crawl_context}
-Identify its primary industry. 
-List 3 top active competitors for it in the Middle East or Global market.
-Estimate where '{clean_brand}' ranks among these 3 competitors based on AI visibility (1 being the highest visibility).
+
+IMPORTANT RULES:
+1. If the website title contains generic words like 'test', 'demo', 'example' - IGNORE them and focus on the description and site name
+2. Look for Arabic keywords in the description to identify the industry
+3. If you see words like 'ربحان', 'أرباح', 'تسويق', 'إعلانات' - this is likely a MARKETING/ADVERTISING agency
+4. DO NOT classify as 'software testing' unless explicitly stated
+5. List REAL competitors that operate in the same industry in the Middle East
+
+Identify its primary industry and list 3-4 real competitors.
 Return JSON ONLY:
-{{"industry": "technology|finance|etc", "competitors": ["comp1", "comp2", "comp3"], "estimated_rank": 2}}"""
+{{"industry": "التسويق الرقمي|التجارة الإلكترونية|etc", "competitors": ["comp1", "comp2", "comp3"], "estimated_rank": "غير محدد", "confidence": "high|medium|low"}}"""
+    
     comp_raw = _llm(comp_prompt, api_keys, json_mode=True)
     comp_data = _parse_json(comp_raw) if comp_raw else {}
     
-    # 3. Fallback Heuristics if LLM is down/empty
-    if not comp_data or not comp_data.get("competitors"):
+    # 3. Validation Layer - Check if LLM output makes sense
+    if comp_data and comp_data.get("competitors"):
+        # Validate: If classified as 'testing' but no testing keywords in content, reject it
+        industry_lower = comp_data.get("industry", "").lower()
+        testing_indicators = ["test", "qa", "quality", "اختبار", "جودة"]
+        content_lower = (site_data.get("title", "") + " " + site_data.get("desc", "")).lower()
+        
+        has_testing_industry = any(t in industry_lower for t in testing_indicators)
+        has_testing_content = any(t in content_lower for t in testing_indicators if t != "test")  # Exclude generic 'test'
+        
+        # If LLM says testing but content doesn't support it, use heuristic fallback
+        if has_testing_industry and not has_testing_content:
+            print(f" LLM misclassified as testing - using heuristic fallback")
+            comp_data = _get_heuristic_fallback(site_data.get("title", ""), site_data.get("desc", ""), brand)
+            comp_data["validation_note"] = "تم تصحيح التصنيف تلقائياً (LLM output rejected)"
+    
+    # 4. Fallback Heuristics if LLM is down/empty or low confidence
+    if not comp_data or not comp_data.get("competitors") or comp_data.get("confidence") == "low":
         if is_url:
-            comp_data = _get_heuristic_fallback(site_data.get("title", ""), site_data.get("desc", ""))
+            comp_data = _get_heuristic_fallback(site_data.get("title", ""), site_data.get("desc", ""), brand)
         else:
-            comp_data = {"industry": "غير محدد", "competitors": ["Salla", "Zid", "Shopify"], "estimated_rank": "غير متوفر"}
+            comp_data = {"industry": "غير محدد", "competitors": ["منافس 1", "منافس 2", "منافس 3"], "estimated_rank": "غير متوفر"}
+        comp_data["fallback_used"] = True
 
     brand_aliases = [clean_brand.lower(), _normalize_arabic(clean_brand)]
     if is_url:
@@ -950,8 +1165,11 @@ def calculate_visibility_score_v2(brand: str, searches: List[dict], ai_mentions:
         ranks.append(found_at)
     
     avg_rank = sum(ranks) / len(ranks) if ranks else 101
-    # 1st = 100pts, 10th = 50pts, 20th = 0pts
-    rank_score = max(0, 100 - (avg_rank - 1) * 5.2) if avg_rank <= 20 else 0
+    # Lenient Scoring: 1st = 100pts, 30th = 50pts, 60th = 0pts
+    if avg_rank <= 60:
+        rank_score = max(0, 100 - (avg_rank - 1) * (100 / 59))
+    else:
+        rank_score = 0
     
     # 2. AI Mentions (40%)
     ai_score = (ai_mentions / total_queries * 100) if total_queries > 0 else 0
@@ -971,7 +1189,8 @@ def calculate_visibility_score_v2(brand: str, searches: List[dict], ai_mentions:
         # Benchmark: 100K+ is 100%, 10K is 50%
         traffic_score = min(100, (num / 100000 * 100)) if num > 0 else 10
     except:
-        traffic_score = 50 # Neutral average
+        # If no numeric estimation, use Rank as a proxy (Better rank = slightly better presumed traffic)
+        traffic_score = max(5, int(rank_score * 0.4))
         
     final_score = (rank_score * 0.4) + (ai_score * 0.4) + (traffic_score * 0.2)
     
@@ -986,86 +1205,145 @@ def calculate_visibility_score_v2(brand: str, searches: List[dict], ai_mentions:
     }
 
 
-def get_competitor_insights(brand: str, url: str = None, api_keys: dict = None) -> dict:
+def get_competitor_insights(brand: str, url: str = None, api_keys: dict = None, industry_override: str = None) -> dict:
     """
-    Enhanced Competitor Insights using Search APIs (SerpApi/ZenSerp).
+    Enhanced Competitor Insights with better industry detection and real search data.
     """
     api_keys = api_keys or {}
     clean_brand = brand
     if brand.startswith('http') or '.com' in brand:
         clean_brand = _extract_brand_from_url(brand)
     
-    # 1. Fetch real rankings for core queries
-    test_queries = [f"أفضل منافسين {clean_brand}", f"best {clean_brand} competitors in Egypt Saudi Arabia"]
-    search_data = []
+    # 1. Crawl the website for better context
+    site_context = {"title": "", "desc": "", "content": ""}
+    if url or brand.startswith('http'):
+        target_url = url or brand
+        site_context = _quick_crawl(target_url)
+        # Extract more content for better classification
+        try:
+            import urllib.request
+            req = urllib.request.Request(target_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                html = resp.read().decode('utf-8', errors='ignore')
+                # Extract first 500 chars of visible text
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(html, 'html.parser')
+                for script in soup(["script", "style"]):
+                    script.decompose()
+                text = soup.get_text()
+                lines = (line.strip() for line in text.splitlines())
+                chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+                site_context["content"] = ' '.join(chunk for chunk in chunks if chunk)[:500]
+        except Exception:
+            pass
     
-    serp_key = api_keys.get("SERPAPI_KEY")
-    zen_key = api_keys.get("ZENSERP_KEY")
+    # 2. Determine industry - prioritize user override
+    if industry_override:
+        detected_industry = industry_override
+        # Get matching competitors for the override industry
+        industry_map = {
+            "التسويق الرقمي والإعلانات": ["2P (توبي)", "Perfect Presentation", "Socialize Agency", "Thameen"],
+            "التجارة الإلكترونية": ["Salla (سلة)", "Zid (زد)", "Shopify", "Noon"],
+            "التقنية والبرمجيات": ["Microsoft", "Google", "Oracle", "SAP"],
+            "الاستشارات والخدمات المهنية": ["Deloitte", "PwC", "McKinsey", "EY"],
+            "التعليم والتدريب": ["Coursera", "Udemy", "LinkedIn Learning", "Edraak"],
+            "الصحة والطب": ["Vezeeta", "Altibbi", "Shezlong", "Sehhaty"],
+            "العقارات": ["Bayut", "Property Finder", "Aqar", "Dubizzle"],
+            "المطاعم والضيافة": ["Talabat", "Jahez", "HungerStation", "Careem Food"]
+        }
+        suggested_competitors = industry_map.get(detected_industry, ["منافس 1", "منافس 2", "منافس 3"])
+    else:
+        # Use enhanced heuristics
+        full_context = f"{site_context.get('title', '')} {site_context.get('desc', '')} {site_context.get('content', '')}"
+        heuristic_result = _get_heuristic_fallback(site_context.get('title', ''), site_context.get('desc', ''), brand)
+        detected_industry = heuristic_result["industry"]
+        suggested_competitors = heuristic_result["competitors"]
+    
+    # 3. Fetch real rankings with smart API switching
+    test_queries = [
+        f"{clean_brand} شركة",
+        f"{clean_brand} خدمات",
+        f"{detected_industry} السعودية"
+    ]
+    search_data = []
+    seo_rankings = []
+    
+    serp_key = api_keys.get("SERPAPI_KEY") or os.environ.get("SERPAPI_KEY")
+    zen_key = api_keys.get("ZENSERP_KEY") or os.environ.get("ZENSERP_KEY")
+    
+    # Track which API is working
+    serp_exhausted = False
+    zen_exhausted = False
     
     for q in test_queries:
-        res = _serp_api_search(q, api_key=serp_key)
-        if not res:
+        res = None
+        
+        # Try SerpAPI first (if not exhausted)
+        if not serp_exhausted and serp_key:
+            res = _serp_api_search(q, api_key=serp_key)
+            if res.get("error") == "rate_limit":
+                print(f"⚠ SerpAPI quota exhausted, switching to ZenSerp")
+                serp_exhausted = True
+                res = None
+        
+        # Fallback to ZenSerp (if SerpAPI failed or exhausted)
+        if not res and not zen_exhausted and zen_key:
             res = _zenserp_search(q, api_key=zen_key)
-        if res:
+            if res.get("error") == "rate_limit":
+                print(f"⚠ ZenSerp quota exhausted")
+                zen_exhausted = True
+                res = None
+        
+        if res and "error" not in res:
             search_data.append(res)
+            # Extract rankings where brand appears
+            items = res.get("organic_results", res.get("organic", []))
+            for idx, it in enumerate(items[:10]):
+                link = it.get("link", "").lower()
+                title = it.get("title", "").lower()
+                if clean_brand.lower() in link or clean_brand.lower() in title:
+                    seo_rankings.append({
+                        "query": q,
+                        "rank": idx + 1,
+                        "link": it.get("link", "")
+                    })
+                    break
 
-    # 2. Extract competitor names from search results
-    found_comps = []
+    # 4. Extract real competitor domains from search results
+    found_domains = []
     for s in search_data:
         items = s.get("organic_results", s.get("organic", []))
         for it in items[:5]:
-            found_comps.append(it.get("title", ""))
+            domain = it.get("link", "")
+            if domain and clean_brand.lower() not in domain.lower():
+                # Extract clean domain
+                domain = re.sub(r'^https?://', '', domain)
+                domain = re.sub(r'^www\.', '', domain)
+                domain = domain.split('/')[0]
+                if domain and domain not in found_domains:
+                    found_domains.append(domain)
 
-    # 3. LLM Refinement & Similarweb-style metrics
-    prompt = f"""Analyze the brand '{clean_brand}'.
-    We found these potential competitors via search: {", ".join(found_comps[:8])}
+    # 5. Build competitor list - ONLY from real search results
+    top_competitors = []
+    for idx, domain in enumerate(found_domains[:4]):
+        top_competitors.append({
+            "name": domain.split('.')[0].title(),
+            "domain": domain,
+            "overlap_score": 0,  # Real calculation needed
+            "region": "MENA",
+            "similarity": 0  # Real calculation needed
+        })
     
-    Provide a realistic market analysis for the MENA region.
-    Return JSON only:
-    {{
-      "monthly_visits": "75K",
-      "traffic_sources": {{"search": 45, "direct": 25, "social": 20, "referral": 10}},
-      "top_competitors": [
-        {{"name": "Comp Name", "domain": "comp.com", "overlap_score": 95, "region": "SA"}},
-        {{"name": "Comp 2", "domain": "comp2.com", "overlap_score": 88, "region": "Global"}}
-      ],
-      "regional_split": [
-        {{"country": "Saudi Arabia", "share": 60}},
-        {{"country": "UAE", "share": 20}}
-      ],
-      "industry": "...",
-      "seo_rankings": [
-        {{"query": "...", "rank": 1, "link": "..."}}
-      ]
-    }}
-    """
+    # 6. Traffic - NO ESTIMATES, only real data or "unknown"
+    traffic_estimate = "غير متوفر"
     
-    try:
-        raw = _llm(prompt, api_keys, json_mode=True)
-        data = _parse_json(raw)
-        if data:
-            # If search data is rich, use it to populate seo_rankings if LLM didn't
-            if (not data.get("seo_rankings") or len(data.get("seo_rankings")) == 0) and search_data:
-                data["seo_rankings"] = []
-                for s in search_data[:1]:
-                    for it in s.get("organic_results", s.get("organic", []))[:3]:
-                        data["seo_rankings"].append({
-                            "query": s.get("search_parameters", {}).get("q", ""), 
-                            "rank": it.get("position"), 
-                            "link": it.get("link")
-                        })
-            return data
-    except Exception:
-        pass
-
-    # Fallback
     return {
-        "monthly_visits": "10K - 50K",
-        "traffic_sources": { "search": 40, "direct": 30, "social": 20, "referral": 10 },
-        "top_competitors": [
-            { "name": "منافس 1", "domain": "comp1.com", "overlap_score": 90, "region": "SA" },
-            { "name": "منافس 2", "domain": "comp2.com", "overlap_score": 85, "region": "UAE" }
-        ],
-        "industry": "خدمات رقمية",
-        "seo_rankings": []
+        "monthly_visits": traffic_estimate,
+        "traffic_sources": {} if not seo_rankings else {"search": 100},  # Only show if we have real data
+        "top_competitors": top_competitors if top_competitors else [],
+        "regional_split": [],  # Remove mock regional data
+        "industry": detected_industry,
+        "seo_rankings": seo_rankings[:5],
+        "data_quality": "real" if len(seo_rankings) > 0 else "no_data",
+        "note": "بيانات حقيقية من محركات البحث" if len(seo_rankings) > 0 else "لا توجد بيانات كافية - يرجى التحقق من مفاتيح API"
     }

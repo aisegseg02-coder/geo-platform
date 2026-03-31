@@ -4,6 +4,7 @@ Run: `python -m server.worker` from project root.
 """
 import time
 import os
+import concurrent.futures
 from server import job_queue
 from src.main import run_pipeline
 from server import ai_visibility, ai_analysis
@@ -12,6 +13,17 @@ from pathlib import Path
 
 OUTPUT_DIR = Path(os.environ.get('OUTPUT_DIR', str(Path(__file__).resolve().parent.parent / 'output')))
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _run_visibility(org_name, queries, perplexity_key, openai_key):
+    """Run AI visibility check. Called in a thread with hard timeout."""
+    if perplexity_key:
+        result = ai_visibility.check_perplexity(org_name, queries)
+        if result.get('enabled'):
+            return result
+    if openai_key:
+        return ai_visibility.check_openai_visibility(org_name, queries)
+    return {'enabled': False, 'reason': 'no AI keys configured', 'results': []}
 
 
 def process_job(job):
@@ -31,16 +43,38 @@ def process_job(job):
 
         # attach AI visibility
         job_queue.update_job(jid, progress={'stage':'ai_visibility', 'percent':50})
-        queries = [f"What is {job['org_name']}?", f"Best services for {job['org_name']}"]
-        perf = ai_visibility.check_perplexity(job['org_name'], queries)
-        if not perf.get('enabled') and perf.get('reason') == 'PERPLEXITY_KEY not set':
-            perf = ai_visibility.check_openai_visibility(job['org_name'], queries)
+        queries = [f"What is {job['org_name']}?"]
+
+        # ── AI visibility with hard 30-second timeout ───────────────────
+        perf = {'enabled': False, 'reason': 'timeout or no key', 'results': []}
+        perplexity_key = os.getenv('PERPLEXITY_KEY')
+        openai_key = os.getenv('OPENAI_API_KEY')
+
+        if perplexity_key or openai_key:
+            try:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as _ex:
+                    future = _ex.submit(
+                        _run_visibility,
+                        job['org_name'], queries, perplexity_key, openai_key
+                    )
+                    perf = future.result(timeout=30)
+            except concurrent.futures.TimeoutError:
+                print(f'[worker] ai_visibility timed out for job {jid}, continuing')
+                perf = {'enabled': False, 'reason': 'timed out after 30s', 'results': []}
+            except Exception as _vis_err:
+                print(f'[worker] ai_visibility error for job {jid}: {_vis_err}')
+                perf = {'enabled': False, 'reason': str(_vis_err), 'results': []}
 
         # write combined audit file
         audit_path = out_dir / 'audit.json'
         with open(audit_path, 'r', encoding='utf-8') as f:
             audit = json.load(f)
         audit['ai_visibility'] = perf
+        
+        # Store industry override if provided
+        if job.get('industry_override'):
+            audit['industry_override'] = job['industry_override']
+        
         with open(audit_path, 'w', encoding='utf-8') as f:
             json.dump(audit, f, ensure_ascii=False, indent=2)
 

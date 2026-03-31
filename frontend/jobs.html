@@ -4,11 +4,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>المهام — منصة GEO</title>
+  <title>المهام — منصة محرك</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css?v=moharek2025" />
   <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Manrope', 'Cairo', sans-serif; }
+    nav { background: var(--ultra-accent); border-bottom: 1px solid var(--accent); padding: 0 60px; height: 70px; display: flex; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; width: 100%; box-sizing: border-box; justify-content: space-between; }
+    .nav-logo { font-family: 'Teko', sans-serif; font-size: 24px; font-weight: 600; color: var(--text); text-decoration: none; letter-spacing: 1px; }
+    .nav-logo span { color: var(--accent-secondary); }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links a { color: #f5f5f5; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.3s; text-transform: uppercase; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent-secondary); }
+    .wrap { max-width: 1400px; margin: 0 auto; padding: 120px 40px 60px; }
+    .panel, .card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 0; box-shadow: var(--card-shadow); color: var(--text); }
+
     body {
       font-family: 'Cairo', sans-serif;
     }
@@ -16,7 +26,21 @@
 </head>
 
 <body>
-  <div class="wrap">
+
+  <nav>
+    <a href="/" class="nav-logo">MOHAREK<span>.</span>GEO</a>
+    <div class="nav-links">
+      <a href="/jobs.html">المهام</a>
+      <a href="/recommendations.html">التوصيات</a>
+      <a href="/search.html">الذكاء</a>
+      <a href="/content_v2.html">المحتوى</a>
+      <a href="/ads.html">الإعلانات</a>
+      <a href="/geo-toolkit.html">الخدمات</a>
+    </div>
+    <a href="/" class="nav-cta">الرئيسية</a>
+  </nav>
+
+  <div class="wrap" style="padding-top:120px;">
     <a href="/">→ العودة للرئيسية</a>
     <h2> المهام</h2>
     <div style="display:flex;gap:8px;margin-bottom:24px">

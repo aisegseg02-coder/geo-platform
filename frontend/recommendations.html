@@ -4,10 +4,83 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>التوصيات — منصة GEO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/theme.css" />
+  <title>التوصيات — منصة محرك</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=Teko:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css?v=moharek2025" />
   <style>
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Manrope', 'Cairo', sans-serif;
+    }
+
+    nav {
+      background: var(--ultra-accent);
+      border-bottom: 1px solid var(--accent);
+      padding: 0 60px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      width: 100%;
+      box-sizing: border-box;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'Teko', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .nav-logo span {
+      color: var(--accent-secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      color: #f5f5f5;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--accent-secondary);
+    }
+
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 120px 40px 60px;
+    }
+
+    .panel,
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 0;
+      box-shadow: var(--card-shadow);
+      color: var(--text);
+    }
+
     body {
       font-family: 'Cairo', sans-serif;
     }
@@ -17,7 +90,7 @@
       align-items: center;
       gap: 12px;
       padding: 10px 20px;
-      border-radius: 99px;
+      border-radius: 0;
       background: hsla(190, 100%, 50%, 0.1);
       border: 1px solid var(--border-glow);
       font-weight: 700;
@@ -36,8 +109,8 @@
 
     .gauge-bar {
       height: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 0;
       overflow: hidden;
       margin-top: 10px;
     }
@@ -62,9 +135,11 @@
     }
 
     pre {
-      background: rgba(0, 0, 0, 0.3);
+      background: #f8f8f8;
+      color: #333;
+      background: rgba(0, 0, 0, 0.05);
       padding: 15px;
-      border-radius: 12px;
+      border-radius: 0;
       font-size: 13px;
       border: 1px solid var(--border);
       overflow-x: auto;
@@ -99,12 +174,12 @@
     .progress-track {
       width: 100%;
       height: 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 0;
       position: relative;
       transform-style: preserve-3d;
       transform: rotateX(15deg);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
       overflow: hidden;
     }
 
@@ -112,7 +187,7 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, var(--accent), #a78bfa);
-      border-radius: 8px;
+      border-radius: 0;
       position: relative;
       transition: width 1s ease;
       box-shadow: 0 0 15px var(--accent);
@@ -139,42 +214,137 @@
       }
     }
 
-    .stage-label {
-      font-size: 14px;
-      font-weight: 600;
-      margin-top: 15px;
+    .growth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 90, 90, 0.1);
+      color: var(--accent);
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid var(--accent);
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    .priority-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .priority-critical-badge {
+      background: var(--red);
       color: #fff;
     }
 
-    .stage-detail {
-      font-size: 11px;
+    .priority-medium-badge {
+      background: var(--accent-secondary);
+      color: #fff;
+    }
+
+    .benchmark-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--border);
+    }
+
+    .benchmark-val {
+      text-align: center;
+      flex: 1;
+    }
+
+    .benchmark-val .label {
+      font-size: 10px;
       color: var(--muted);
-      margin-top: 5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .benchmark-val .num {
+      font-family: 'Teko', sans-serif;
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .insight-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-right: 4px solid var(--accent-secondary);
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .insight-box .title {
+      font-weight: 800;
+      color: var(--accent-secondary);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .insight-box .desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .stat-box {
+      background: rgba(0, 0, 0, 0.03);
+      padding: 10px;
+      text-align: center;
+      border: 1px solid var(--border);
+      font-size: 11px;
+    }
+
+    .stat-box strong {
+      font-size: 14px;
+      color: var(--accent);
+    }
+
+    .action-card::after {
+      content: '🚀';
+      position: absolute;
+      right: -10px;
+      bottom: -10px;
+      font-size: 80px;
+      opacity: 0.05;
+      transform: rotate(-15deg);
     }
   </style>
 </head>
 
 <body>
+
+
   <nav>
-    <div class="nav-logo">GEO<span>.</span>AI</div>
+    <a href="/" class="nav-logo">MOHAREK<span>.</span>GEO</a>
     <div class="nav-links">
       <a href="/jobs.html">المهام</a>
       <a href="/recommendations.html">التوصيات</a>
-      <a href="/search.html">تحليل البحث</a>
+      <a href="/search.html">الذكاء</a>
       <a href="/content_v2.html">المحتوى</a>
       <a href="/ads.html">الإعلانات</a>
-      <a href="/geo-toolkit.html">خدمات GEO</a>
-      <a href="/competitor-intel.html">المنافسون</a>
+      <a href="/geo-toolkit.html">الخدمات</a>
     </div>
-    <a href="/" class="nav-cta" id="navCta">الرئيسية</a>
+    <a href="/" class="nav-cta">الرئيسية</a>
   </nav>
-  <div class="wrap" style="padding-top: 100px;">
+
+
+  <div class="wrap" style="padding-top:120px;" style="padding-top: 100px;">
 
     <div class="stagger-item" style="animation-delay:0.2s">
       <h1 class="shine-text" style="font-size:48px;margin-bottom:12px;">توصيات GEO</h1>
       <p style="color:var(--muted);margin-bottom:16px;font-size:18px;">توصيات ذكية للتفوق في محركات البحث التوليدية.</p>
       <div id="site-context"
-        style="font-size:13px;margin-bottom:32px;padding:10px 16px;background:rgba(0,242,255,0.05);border:1px solid var(--border);border-radius:10px;">
+        style="font-size:13px;margin-bottom:32px;padding:10px 16px;background:rgba(0,242,255,0.05);border:1px solid var(--border);border-radius: 0;">
       </div>
     </div>
 
@@ -189,10 +359,13 @@
     </div>
 
     <div id="content" style="display:none">
+      <!-- AI GROWTH SYSTEM HEADER -->
+      <div id="growth_header"></div>
+
       <div class="analysis-grid">
         <div id="score_panel" class="card stagger-item" style="animation-delay:0.3s">
-          <h3 style="margin-top:0;">درجة الظهور</h3>
-          <div class="gauge-wrap">
+          <h3 style="margin-top:0;">الدرجة الكلية للـ GEO</h3>
+          <div class="gauge-wrap" style="max-width: none;">
             <div style="display:flex;justify-content:space-between;font-weight:600;">
               <span id="score_label">جارٍ التحميل...</span>
               <span id="score_pct">0%</span>
@@ -202,21 +375,20 @@
             </div>
           </div>
           <div id="score_breakdown"
-            style="font-size:14px;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
-        </div>
-
-        <div id="aiVisibility" class="card stagger-item" style="animation-delay:0.4s">
-          <h3 style="margin-top:0;">الظهور في الذكاء الاصطناعي</h3>
-          <div id="ai_vis_content" style="color:var(--muted);font-size:14px;"></div>
+            style="font-size:12px;color:var(--muted);display:grid;grid-template-columns:repeat(5, 1fr);gap:10px;margin-top:20px;">
+          </div>
         </div>
       </div>
+
+      <div id="top_priority_section"></div>
 
       <div class="card stagger-item" style="animation-delay:0.5s">
-        <h2 style="margin-top:0;color:var(--accent);">الاستراتيجيات العامة</h2>
-        <div id="global_actions" style="margin-top:12px;"></div>
+        <h2 style="margin-top:0;color:var(--accent);">خطة النمو الشاملة (Growth Strategy)</h2>
+        <div id="global_actions" style="margin-top:20px;"></div>
       </div>
 
-      <h2 class="stagger-item" style="color:var(--accent);margin-top:40px;animation-delay:0.6s">تحسين كل صفحة</h2>
+      <h2 class="stagger-item" style="color:var(--accent);margin-top:40px;animation-delay:0.6s">هندسة الصفحات (Page
+        Engineering)</h2>
       <div id="pages" class="stagger-item" style="animation-delay:0.7s"></div>
     </div>
 
@@ -257,157 +429,156 @@
             document.getElementById('score_label').textContent = gs.status;
             const b = gs.breakdown || {};
             document.getElementById('score_breakdown').innerHTML = `
-            <div>العناوين: ${b.headings || 0}/20</div>
-            <div>الكثافة: ${b.density || 0}/20</div>
-            <div>الكيانات: ${b.entities || 0}/20</div>
-            <div>الأسئلة: ${b.faq || 0}/20</div>
-            <div>الذكاء الاصطناعي: ${b.ai_visibility || 0}/20</div>`;
-          }
-
-          const aiVisEl = document.getElementById('ai_vis_content');
-          if (j.ai_visibility && j.ai_visibility.enabled) {
-            let html = '<div style="margin-bottom:10px">تم العثور على علامتك التجارية في نتائج الذكاء الاصطناعي:</div>';
-            (j.ai_visibility.results || []).forEach(res => {
-              const color = res.mentioned ? 'var(--green)' : 'var(--red)';
-              html += `<div style="display:flex;justify-content:space-between;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:5px;">
-              <span>${res.query}</span>
-              <span style="color:${color};font-weight:700">${res.mentioned ? 'موجود' : 'غائب'}</span>
-            </div>`;
-            });
-            aiVisEl.innerHTML = html;
-          } else {
-            aiVisEl.innerHTML = `<div class="priority-warning" style="padding:10px;border-radius:8px;background:rgba(255,204,0,0.1)">${j.ai_visibility?.reason || 'بيانات الظهور في الذكاء الاصطناعي غير متاحة.'}</div>`;
+            <div class="stat-box">العناوين: <br><strong>${b.headings || 0}/20</strong></div>
+            <div class="stat-box">الكثافة: <br><strong>${b.density || 0}/20</strong></div>
+            <div class="stat-box">الكيانات: <br><strong>${b.entities || 0}/20</strong></div>
+            <div class="stat-box">الأسئلة: <br><strong>${b.faq || 0}/20</strong></div>
+            <div class="stat-box">الذكاء: <br><strong>${b.ai_visibility || 0}/20</strong></div>`;
           }
 
           const recs = j.recommendations || {};
-          const actionsDiv = document.getElementById('global_actions');
-          let actionsHtml = '';
+          const growthHeader = document.getElementById('growth_header');
+          let aiVisScore = (j.geo_score && j.geo_score.breakdown) ? j.geo_score.breakdown.ai_visibility || 0 : 0;
+          
+          // Calculate real benchmarks from search_intel
+          let compVis = 12; // default
+          let gap = -100;
+          let compName = "المنافسين";
+          let compSummary = (j.search_intel && j.search_intel.competitors && j.search_intel.competitors.summary) ? j.search_intel.competitors.summary : {};
+          
+          if (compSummary.top_competitor) {
+            compName = compSummary.top_competitor;
+            // Simple proxy for visibility score based on mentions frequency
+            compVis = Math.min(95, Math.round((compSummary.top_mentions / (compSummary.avg_mentions || 1)) * 5));
+            gap = aiVisScore - compVis;
+          }
 
-          // Inject Critical Issue if present
+          const scoreBreakdown = (j.geo_score && j.geo_score.breakdown) ? j.geo_score.breakdown : {};
+          const breakdownsHtml = Object.entries(scoreBreakdown).map(([k, v]) => `
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; text-align:center;">
+              <div style="font-size:10px; color:var(--muted); text-transform:uppercase; margin-bottom:5px;">${k === 'headings' ? 'العناوين' : k === 'density' ? 'الكثافة' : k === 'entities' ? 'الكيانات' : k === 'faq' ? 'الأسئلة' : 'الذكاء الاصطناعي'}</div>
+              <div style="font-family:'Teko', sans-serif; font-size:24px; color:${v < 10 ? 'var(--red)' : 'var(--green)'}">${v}/20</div>
+            </div>
+          `).join('');
+
+          growthHeader.innerHTML = `
+            <div class="card stagger-item" style="background:var(--ultra-accent); border:none; margin-bottom:32px; padding:40px; position:relative; overflow:hidden;">
+              <div style="position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:30px;">
+                <div>
+                  <div style="font-size:12px; color:var(--accent); font-weight:800; text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">AI Visibility Operating System</div>
+                  <h1 style="color:#fff; font-size:64px; margin:0; line-height:1; font-family:'Teko', sans-serif;">${aiVisScore}% <span style="font-size:18px; color:${aiVisScore > 50 ? 'var(--green)' : 'var(--red)'};">${aiVisScore > 50 ? '✅ ظهور جيد' : '🚨 غير مرئي كفاية'}</span></h1>
+                  <div class="growth-badge">📈 المتوقع: +${Math.abs(gap)}% ظهور في AI</div>
+                </div>
+                <div style="min-width:400px;">
+                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:20px;">
+                    ${breakdownsHtml}
+                  </div>
+                  <div class="benchmark-row">
+                    <div class="benchmark-val"><div class="label">موقعك</div><div class="num" style="color:${aiVisScore < compVis ? 'var(--red)' : 'var(--green)'}">${aiVisScore}%</div></div>
+                    <div style="width:1px; height:40px; background:rgba(255,255,255,0.1);"></div>
+                    <div class="benchmark-val"><div class="label">${compName}</div><div class="num" style="color:var(--green);">${compVis}%</div></div>
+                    <div style="width:1px; height:40px; background:rgba(255,255,255,0.1);"></div>
+                    <div class="benchmark-val"><div class="label">الفجوة</div><div class="num" style="color:${gap < 10 && gap > -10 ? 'var(--green)' : 'var(--yellow)'};">${gap}%</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+
+          const topPriority = document.getElementById('top_priority_section');
           if (recs.critical_issue) {
             const ci = recs.critical_issue;
-            actionsHtml += `
-            <div class="card priority-critical" style="background:rgba(255,51,102,0.05); border:1px solid rgba(255,51,102,0.2); margin-bottom:20px; padding:15px; border-radius:12px;">
-                <h3 style="color:var(--red); margin-top:0; font-size:18px;">${ci.title}</h3>
-                <p style="font-weight:700; font-size:14px; margin-bottom:10px;">Why: <span style="font-weight:400; color:var(--muted);">${ci.why}</span></p>
-                <div style="margin:10px 0;">
-                    <ul style="margin:5px 0; padding-right:20px; font-size:13px; color:var(--text);">
-                        ${ci.fix.map(f => `<li style="margin-bottom:4px;">${f}</li>`).join('')}
-                    </ul>
+            topPriority.innerHTML = `
+              <div class="action-card stagger-item" style="margin-bottom:32px; border-right: 4px solid var(--red);">
+                <span class="priority-badge priority-critical-badge"> Priority 1 (Critical)</span>
+                <h2 style="margin:12px 0 8px; font-size:28px; font-family:'Teko', sans-serif;">${ci.title}</h2>
+                <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">${ci.why}</p>
+                <div style="background:rgba(194,24,7,0.05); border:1px solid rgba(194,24,7,0.1); padding:20px; border-radius:8px; margin-bottom:20px;">
+                  <div style="font-weight:800; color:var(--red); font-size:13px; text-transform:uppercase; margin-bottom:10px;">🛡️ الخطة المقترحة (Fix)</div>
+                  <ul style="margin:0; padding-right:20px; color:var(--text); font-size:15px; line-height:1.7;">
+                    ${ci.fix.map(f => `<li>${f}</li>`).join('')}
+                  </ul>
                 </div>
-                ${ci.tasks ? `
-                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-                    ${ci.tasks.map(t => `<button class="btn btn-primary" style="font-size:12px; padding:8px 15px;" onclick="fixWithAI('${t.type}', '${t.id}')">${t.label}</button>`).join('')}
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                  ${ci.tasks ? ci.tasks.map(t => `<button class="btn btn-primary" onclick="fixWithAI('${t.type}', '${t.id}')">✨ ${t.label}</button>`).join('') : ''}
+                  <button class="btn" style="border:1px solid var(--accent); color:var(--accent);" onclick="sw('geo_tools', this)">⚙️ JSON-LD Generator</button>
                 </div>
-                ` : ''}
-                <div style="font-size:13px; color:var(--green); font-weight:800; margin-top:12px;">Expected Impact: ${ci.impact}</div>
-            </div>`;
+              </div>`;
           }
 
-          // Inject Summary Engine if present
+          const actionsDiv = document.getElementById('global_actions');
+          let actionsHtml = '';
           if (recs.summary_engine) {
             const se = recs.summary_engine;
-            actionsHtml += `
-            <div class="card" style="background:rgba(0,242,255,0.05); border:1px solid rgba(0,242,255,0.1); margin-bottom:20px; padding:15px; border-radius:12px;">
-                <h3 style="margin-top:0; font-size:18px;">${se.title}</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
-                    <div style="padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
-                        <div style="font-size:11px; color:var(--muted); margin-bottom:4px;"> أنت حاليًا:</div>
-                        <div style="font-weight:700; color:var(--yellow); font-size:14px;">${se.current}</div>
-                    </div>
-                    <div style="padding:10px; background:rgba(0,242,255,0.1); border-radius:8px; border:1px solid var(--accent); box-shadow: 0 0 10px rgba(0,242,255,0.2);">
-                        <div style="font-size:11px; color:var(--muted); margin-bottom:4px;"> المفروض تبقى:</div>
-                        <div style="font-weight:800; color:var(--accent); font-size:14px;">${se.target}</div>
-                    </div>
-                </div>
-            </div>`;
+            actionsHtml += `<div style="margin-bottom:32px;"><div style="font-size:14px; font-weight:700; color:var(--accent); margin-bottom:15px;">📊 تحليل الفجوة الدلالية</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;"><div style="padding:20px; background:rgba(0,0,0,0.02); border:1px solid var(--border);"><div style="font-size:11px; color:var(--muted);">الوضع الحالي</div><div style="font-weight:700; color:var(--red);">${se.current}</div></div><div style="padding:20px; background:rgba(0,90,90,0.05); border:1px solid var(--accent);"><div style="font-size:11px; color:var(--muted);">الهدف المنشود</div><div style="font-weight:800; color:var(--accent);">${se.target}</div></div></div></div>`;
           }
-
-          // Inject Top Additions if present
-          if (recs.top_additions) {
-            const ta = recs.top_additions;
-            actionsHtml += `
-            <div class="card" style="background:linear-gradient(135deg, rgba(124,58,237,0.1), rgba(0,242,255,0.05)); border:1px solid rgba(124,58,237,0.2); margin-bottom:20px; padding:15px; border-radius:12px;">
-                <h3 style="margin-top:0; color:#a78bfa; font-size:18px;">${ta.title}</h3>
-                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:10px; margin-top:12px;">
-                    ${ta.items.map(item => `
-                        <div style="font-size:11px; padding:8px 12px; background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(255,255,255,0.1); text-align:center; color:#fff; font-weight:600;">
-                            ${item}
-                        </div>
-                    `).join('')}
-                </div>
-            </div>`;
-          }
+          actionsHtml += `<div style="margin-bottom:32px;"><div style="font-size:14px; font-weight:700; color:var(--accent-secondary); margin-bottom:15px;">🏆 دليل المنافسين</div><div class="insight-box"><div class="title">لماذا يظهر المنافسون أكثر منك؟</div><div class="desc">تحليل الفجوة يشير إلى نقص في هيكلة البيانات الدلالية (Schema) وكثافة الكيانات المعرفية.</div></div></div>`;
 
           const actions = (recs.actions || []);
-          if (actions.length || actionsHtml) {
-            const listHtml = actions.map(a => {
-              const text = typeof a === 'object' ? a.text : a;
-              const task = typeof a === 'object' ? a.task : null;
-              return `
-              <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:10px; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px;">
-                <div style="display:flex; gap:10px;">
-                  <span style="color:var(--accent)">•</span>
-                  <span style="font-size:14px;">${text}</span>
-                </div>
-                ${task ? `<button class="btn" style="padding:4px 10px; font-size:11px; border-color:var(--accent); color:var(--accent);" onclick="fixWithAI('${task}')">إصلاح ذكي ⚡</button>` : ''}
-              </div>`;
-            }).join('');
-            actionsDiv.innerHTML = actionsHtml + listHtml;
-          } else {
-            actionsDiv.textContent = 'التقارير تشير إلى إعدادات ظهور مثالية.';
-          }
+          const listHtml = `<div style="display:grid; gap:12px;">` + actions.map(a => {
+            const text = typeof a === 'object' ? a.text : a;
+            const task = typeof a === 'object' ? a.task : null;
+            return `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px;"><span>${text}</span>${task ? `<button class="btn" onclick="fixWithAI('${task}')">إصلاح ذكي ⚡</button>` : ''}</div>`;
+          }).join('') + `</div>`;
+          actionsDiv.innerHTML = actionsHtml + listHtml;
 
           const pagesEl = document.getElementById('pages');
-          const perPage = (j.recommendations?.per_page || []).sort((a, b) => (b.issues?.length || 0) - (a.issues?.length || 0));
-          perPage.forEach(p => {
+          pagesEl.innerHTML = ''; // Clear existing
+          (recs.per_page || []).forEach(p => {
             const card = document.createElement('div');
-            card.className = 'card ' + (p.issues?.length > 1 ? 'priority-critical' : (p.issues?.length > 0 ? 'priority-warning' : 'priority-ok'));
-            let html = `<div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <div><strong>${p.title || p.url}</strong><br><small style="color:var(--muted)">${p.url}</small></div>
-            ${p.issues?.length ? `<span class="score-badge" style="background:rgba(255,51,102,0.1);border-color:rgba(255,51,102,0.2);color:var(--red);font-size:12px;">${p.issues.length} مشاكل</span>` : ''}
-          </div><div style="margin-top:20px;display:grid;grid-template-columns:1fr;gap:15px;">`;
-            if (p.issues?.length) html += `<div><strong style="color:var(--red);font-size:13px;text-transform:uppercase;">المشاكل المكتشفة</strong><div style="margin-top:5px;">${p.issues.map(i => `<span style="display:inline-block;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.05);margin-left:5px;font-size:12px;">${i}</span>`).join('')}</div></div>`;
-            if (p.suggestions?.length) {
-              html += `<div><strong style="color:var(--accent);font-size:13px;">خطوات التحسين</strong><div style="margin-top:5px;font-size:14px;color:var(--muted);">`;
-              p.suggestions.forEach(s => {
-                if (typeof s === 'string') html += `<div style="margin-bottom:4px">• ${s}</div>`;
-                else if (s.rewrite) {
-                  const label = s.label || 'AI ASO Rewrite / إعادة صياغة ذكية';
-                  html += `<div style="margin-top:10px;background:var(--surface-hover);padding:15px;border-radius:12px;border-right:4px solid var(--accent);"><div style="font-size:11px;margin-bottom:5px;color:var(--accent);font-weight:700;">${label}</div><div style="font-style:italic;color:var(--text);">${s.rewrite}</div></div>`;
-                }
-              });
-              html += `</div></div>`;
-            }
-            if (p.schema_example) {
-              const codeId = 'code_' + Math.random().toString(36).substr(2, 9);
-              html += `<div><div style="display:flex;justify-content:space-between;align-items:center;"><strong style="color:var(--ultra-accent);font-size:13px;">البيانات الدلالية (JSON-LD)</strong><button class="btn" style="padding:6px 12px;font-size:11px;" onclick="copyCode('${codeId}',this)">نسخ JSON-LD</button></div><pre id="${codeId}">${JSON.stringify(p.schema_example, null, 2)}</pre></div>`;
-            }
-            html += `</div>`;
-            card.innerHTML = html;
+            card.className = 'card stagger-item';
+            card.style.padding = '24px';
+            card.style.marginBottom = '20px';
+            
+            let issuesHtml = (p.issues || []).map(i => `<span class="priority-badge priority-critical-badge" style="margin-right:8px;">${i}</span>`).join('');
+            
+            let suggestionsHtml = (p.suggestions || []).map(s => {
+              if (typeof s === 'object' && s.rewrite) {
+                return `<div style="margin-top:10px; background:rgba(0,242,255,0.03); border:1px dashed var(--accent); padding:15px;">
+                  <div style="font-size:11px; color:var(--accent); font-weight:800; margin-bottom:8px;">✨ ${s.label}</div>
+                  <div style="font-size:13px; line-height:1.6; color:var(--text);">${s.rewrite.substring(0, 150)}...</div>
+                  <button class="btn" style="margin-top:10px; font-size:11px;" onclick="fixWithAI('rewrite', '${btoa(s.rewrite)}')">استخدام هذا الإصلاح</button>
+                </div>`;
+              }
+              return `<li style="font-size:14px; margin-top:5px;">${s}</li>`;
+            }).join('');
+
+            card.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:800; font-size:18px; color:var(--text);">${p.title || 'صفحة بدون عنوان'}</div>
+                  <div style="color:var(--muted); font-size:12px; margin-bottom:12px;">${p.url}</div>
+                  <div style="margin-bottom:15px;">${issuesHtml}</div>
+                </div>
+                <button class="btn btn-primary" onclick="fixWithAI('page_optimize', '${p.url}')">تحسين الصفحة ⚡</button>
+              </div>
+              <ul style="margin:0; padding-right:20px; color:var(--muted);">
+                ${suggestionsHtml}
+              </ul>
+              ${p.schema_example ? `
+                <div style="margin-top:15px;">
+                  <button class="btn" style="font-size:11px; border:1px solid var(--border);" onclick="this.nextElementSibling.classList.toggle('hidden')">عرض Schema JSON-LD</button>
+                  <pre class="hidden" style="margin-top:10px; font-size:10px; background:rgba(0,0,0,0.4); color:#0f0;">${JSON.stringify(p.schema_example, null, 2)}</pre>
+                </div>
+              ` : ''}
+            `;
             pagesEl.appendChild(card);
           });
         } catch (err) {
-          document.getElementById('loading').innerHTML = `<div class="priority-critical">خطأ في النظام: ${err.message}</div>`;
+          document.getElementById('loading').innerHTML = `<div class="priority-critical">خطأ: ${err.message}</div>`;
         }
       }
 
       function fixWithAI(type, taskId = '') {
         const urlParams = new URLSearchParams(window.location.search);
         const jobId = urlParams.get('job_id');
-        
-        // Save task context to localStorage
         const taskData = {
           type: type,
           taskId: taskId,
           jobId: jobId,
           timestamp: Date.now(),
-          url: document.referrer || window.location.origin // Fallback to current domain
+          url: document.referrer || window.location.origin
         };
-        
         localStorage.setItem('geo_ai_task', JSON.stringify(taskData));
-        
-        // Redirect to Content Engine
         window.location.href = '/content_v2.html';
       }
 

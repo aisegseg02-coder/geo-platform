@@ -39,9 +39,9 @@ def check_perplexity(brand: str, queries: List[str], api_key: str = None):
             'messages': [{'role':'user','content': q}]
         }
         try:
-            @utils.retry(attempts=3, backoff_base=1.0, exceptions=(Exception,))
+            @utils.retry(attempts=1, backoff_base=0.5, exceptions=(Exception,))
             def call_perplexity():
-                r = requests.post(PERPLEXITY_URL, headers=headers, json=payload, timeout=20)
+                r = requests.post(PERPLEXITY_URL, headers=headers, json=payload, timeout=8)
                 r.raise_for_status()
                 return r.json()
 
@@ -75,7 +75,9 @@ def check_openai_visibility(brand: str, queries: List[str], api_key: str = None)
     key = api_key or os.getenv('OPENAI_API_KEY')
     if not key:
         return { 'enabled': False, 'reason': 'OPENAI_API_KEY not set', 'results': [] }
-    openai.api_key = key
+    
+    from openai import OpenAI
+    client = OpenAI(api_key=key)
     results = []
     for q in queries:
         cache_key = _key_for(q, 'openai_vis')
@@ -84,12 +86,12 @@ def check_openai_visibility(brand: str, queries: List[str], api_key: str = None)
             results.append(cached)
             continue
         try:
-            @utils.retry(attempts=3, backoff_base=1.0, exceptions=(Exception,))
+            @utils.retry(attempts=1, backoff_base=0.5, exceptions=(Exception,))
             def call_openai():
-                return openai.ChatCompletion.create(model=os.getenv('OPENAI_MODEL','gpt-3.5-turbo'), messages=[{'role':'user','content':q}], temperature=0.0)
+                return client.chat.completions.create(model=os.getenv('OPENAI_MODEL','gpt-4o-mini'), messages=[{'role':'user','content':q}], temperature=0.0, timeout=8)
 
             resp = call_openai()
-            text = resp['choices'][0]['message']['content']
+            text = resp.choices[0].message.content
             mentioned = brand.lower() in (text or '').lower()
             out = { 'query': q, 'mentioned': mentioned, 'answer': text }
             results.append(out)
